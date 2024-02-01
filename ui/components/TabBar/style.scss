@@ -1,0 +1,45 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 2px 8px;
+	max-width: 100%;
+	gap: 16px;
+}
+
+.tab {
+	color: var(--figma-color-bg-inverse);
+	font-size: 12px;
+	padding: 4px 6px;
+	font-weight: 400;
+	color: #aaabc5;
+	opacity: 0.8;
+}
+
+.link-icon {
+	stroke: var(--figma-color-bg-brand);
+	width: 32px;
+	height: 32px;
+}
+
+.tab-container {
+	display: flex;
+	/* background: rgb(50,54,72); */
+	border-radius: 5px;
+	color: #aaabc5;
+	padding: 2px;
+	/* border: 1px solid  #E5EAF2; */
+	cursor: pointer;
+}
+.active-tab {
+	border-bottom: 2px solid var(--figma-color-bg-brand);
+	color: var(--figma-color-bg-brand);
+	opacity: 1;
+}
