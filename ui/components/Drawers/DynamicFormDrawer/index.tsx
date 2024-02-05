@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "../../styles/style.scss";
-import { PIXELBIN_CONSOLE_SETTINGS } from "../../../config";
-import { EVENTS, eraseBgOptions } from "../../../constants";
-import { Util } from "../../../util";
+import { EVENTS, eraseBgOptions } from "../../../../constants";
+import { Util } from "../../../../util";
+import "./style.scss";
 
 interface formProps {
 	setFormValues: any;

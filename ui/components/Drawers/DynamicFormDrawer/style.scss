@@ -1,0 +1,51 @@
+.generic-text {
+	color: var(--figma-color-bg-inverse);
+	font-size: 12px;
+	padding-left: 6px;
+	font-size: 12px;
+	padding-left: 6px;
+}
+
+select {
+	border-radius: 8px;
+	border: 1px solid var(--figma-color-bg-inverse);
+	background: transparent;
+	box-shadow: none;
+	cursor: pointer;
+	min-height: 32px;
+	color: white;
+	width: 100%;
+	margin-bottom: 12px;
+	padding-left: 8px;
+	-webkit-appearance: none;
+	appearance: none;
+	color: var(--figma-color-bg-inverse);
+}
+
+.dropdown-label {
+	margin-bottom: 4px;
+	font-size: 10px;
+}
+.checkbox__label::before {
+	border: 1px solid white !important;
+}
+
+.select-wrapper {
+	position: relative;
+}
+
+.select-wrapper::after {
+	content: "▼";
+	font-size: 0.6rem;
+	top: 10px;
+	right: 10px;
+	position: absolute;
+}
+
+.checkbox__box {
+	position: absolute;
+}
+
+.checkbox__label {
+	margin-left: 10px;
+}

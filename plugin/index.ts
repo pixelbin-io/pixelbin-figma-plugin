@@ -12,8 +12,8 @@ import { HOW_IT_WORKS_URL } from "../config";
 
 //Append the UI
 figma.showUI(__html__, {
-	title: "Pixelbin studio",
-	height: 420,
+	title: "PixelBin.io",
+	height: 460,
 	width: 280,
 	themeColors: true,
 });
@@ -31,6 +31,8 @@ const {
 	REPLACE_IMAGE,
 	DELETE_TOKEN,
 	CLOSE_PLUGIN,
+	CURRENT_IMAGE_SELECTION,
+	ON_SELECTION_CHANGE,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
@@ -43,6 +45,22 @@ function toggleLoader(value: boolean) {
 		value,
 	});
 }
+
+figma.on(ON_SELECTION_CHANGE, async () => {
+	const body = {
+		type: ON_SELECTION_CHANGE,
+		imageBytes: null,
+	};
+	if (figma.currentPage.selection.length > 0) {
+		var node: any = figma?.currentPage?.selection[0];
+		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
+			const image = figma.getImageByHash(node.fills[0].imageHash);
+			let bytes = await image.getBytesAsync();
+			body.imageBytes = bytes;
+		} else body.imageBytes = null;
+	} else body.imageBytes = null;
+	figma.ui.postMessage(body);
+});
 
 /* Handle the message from the UI */
 figma.ui.onmessage = async (msg) => {
@@ -110,12 +128,10 @@ figma.ui.onmessage = async (msg) => {
 				figma.clientStorage
 					.getAsync(SAVED_FORM_VALUE)
 					.then((value) => {
-						console.log("LAtestForm", value);
 						body.savedFormValue = value || eraseBgOptions;
 						figma.ui.postMessage(body);
 					})
 					.catch((err) => {
-						console.log("LAtestFormErr");
 						figma.ui.postMessage(body);
 					});
 			})

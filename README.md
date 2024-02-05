@@ -39,4 +39,4 @@ Figma Plugin for [PixelBin.io](PixelBin.io), it helps users remove watermark fro
 
 1. [Figma's introduction to plugin development](https://www.figma.com/plugin-docs/intro/)
 2. [Figma Plugin's with UI guide](https://github.com/thomas-lowry/figma-plugin-ds?tab=readme-ov-file#checkbox)
-3. [Figma's default color pallete] https://www.figma.com/plugin-docs/css-variables
+3. [Figma's default color pallete](https://www.figma.com/plugin-docs/css-variables)

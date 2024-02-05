@@ -9,18 +9,17 @@ import {
 	uploadOptions,
 } from "./../constants";
 import { Util } from "./../util.ts";
-import "./style.global.scss";
+import "./styles/style.app.scss";
+// import "./styles/style.global.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
 import { PIXELBIN_IO } from "../config";
 import CreditsUI from "./components/CreditsUI/index.tsx";
 import TokenUI from "./components/TokenUI";
-import DynamicForm from "./components/DynamicForm/index.tsx";
 import Loader from "./components/Loader/index.tsx";
-import Footer from "./components/Footer/index.tsx";
 import TabBar from "./components/TabBar/index.tsx";
 import ImageCanvas from "./components/ImageCanvas/index.tsx";
 import Divider from "./components/Divider/index.tsx";
-import OptionModal from "./components/OptionModal/index.tsx";
+import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -34,7 +33,9 @@ function App() {
 	const [creditsUsed, setCreditUSed] = useState(0);
 	const [totalCredit, setTotalCredit] = useState(0);
 	const [orgId, setOrgId] = useState("");
-	const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
+	const [imgUrl, setImgUrl] = useState("");
+	const [isTransformationsDrawerOpen, setIsTransformationsDrawerOpen] =
+		useState(false);
 
 	const {
 		INITIAL_CALL,
@@ -46,6 +47,7 @@ function App() {
 		SELCTED_IMAGE,
 		REPLACE_IMAGE,
 		DELETE_TOKEN,
+		ON_SELECTION_CHANGE,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -75,6 +77,23 @@ function App() {
 
 	window.onmessage = async (event) => {
 		const { data } = event;
+
+		if (data.pluginMessage.type === ON_SELECTION_CHANGE) {
+			if (data.pluginMessage.imageBytes === null) {
+				setImgUrl("");
+			} else {
+				function bytesToDataURL(bytes, contentType) {
+					const blob = new Blob([new Uint8Array(bytes)], { type: contentType });
+					return URL.createObjectURL(blob);
+				}
+				const imageBytes = data.pluginMessage.imageBytes;
+				const contentType = "image/png";
+
+				const imageUrl = bytesToDataURL(imageBytes, contentType);
+
+				setImgUrl(imageUrl);
+			}
+		}
 		if (data.pluginMessage.type === IS_TOKEN_SAVED) {
 			setIsTokenSaved(data.pluginMessage.value);
 			setIsTokenEditOn(data.pluginMessage.isTokenEditing);
@@ -172,7 +191,6 @@ function App() {
 		try {
 			const orgDetails =
 				await defaultPixelBinClient.organization.getAppOrgDetails();
-			console.log("orgDetails", orgDetails);
 			parent.postMessage(
 				{
 					pluginMessage: {
@@ -216,6 +234,10 @@ function App() {
 		);
 	}
 
+	function transformationsDrawerToggle() {
+		setIsTransformationsDrawerOpen(!isTransformationsDrawerOpen);
+	}
+
 	async function setCreditsDetails() {
 		if (tokenValue && tokenValue !== null) {
 			const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
@@ -245,27 +267,24 @@ function App() {
 		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
 			{isTokenSaved && !isTokenEditOn ? (
 				<div className="main-ui-container">
-					<TabBar />
-					<Divider />
 					<CreditsUI
 						creditUSed={creditsUsed}
 						totalCredit={totalCredit}
 						orgId={orgId}
 					/>
 					<Divider />
-					<ImageCanvas />
-					{isOptionModalOpen && (
-						<OptionModal
-							onOptionCLick={(id) => {
-								setIsOptionModalOpen(!isOptionModalOpen);
-								console.log(id);
-							}}
+					<TabBar />
+					<Divider />
+					<ImageCanvas url={imgUrl} />
+					{isTransformationsDrawerOpen && (
+						<TransformationsDrawer toggler={transformationsDrawerToggle} />
+					)}
+					{imgUrl && (
+						<div
+							onClick={transformationsDrawerToggle}
+							className="icon--plus icon--white plus-button"
 						/>
 					)}
-					<div
-						onClick={() => setIsOptionModalOpen(true)}
-						className="icon--plus icon--white plus-button"
-					/>
 				</div>
 			) : (
 				<TokenUI

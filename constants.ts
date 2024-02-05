@@ -37,6 +37,8 @@ export enum EVENTS {
 	OPEN_EXTERNAL_URL = "open-external-url",
 	DELETE_TOKEN = "delete-token",
 	CLOSE_PLUGIN = "close-plugin",
+	CURRENT_IMAGE_SELECTION = "currentImageSelection",
+	ON_SELECTION_CHANGE = "selectionchange",
 }
 
 export enum COMMANDS {
