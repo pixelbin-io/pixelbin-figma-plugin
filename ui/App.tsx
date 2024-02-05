@@ -20,6 +20,7 @@ import TabBar from "./components/TabBar/index.tsx";
 import ImageCanvas from "./components/ImageCanvas/index.tsx";
 import Divider from "./components/Divider/index.tsx";
 import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/index.tsx";
+import { getOperationsService } from "./services/index.ts";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -50,6 +51,11 @@ function App() {
 		ON_SELECTION_CHANGE,
 	} = EVENTS;
 
+	async function getOperations() {
+		let data = await getOperationsService();
+		console.log("fetched Operations", data);
+	}
+
 	useEffect(() => {
 		parent.postMessage(
 			{
@@ -59,6 +65,7 @@ function App() {
 			},
 			"*"
 		);
+		getOperations();
 	}, []);
 
 	function formSetter(data) {
