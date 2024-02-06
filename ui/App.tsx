@@ -10,9 +10,8 @@ import {
 } from "./../constants";
 import { Util } from "./../util.ts";
 import "./styles/style.app.scss";
-// import "./styles/style.global.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
-import { PIXELBIN_IO } from "../config";
+import { API_PIXELBIN_IO } from "../config";
 import CreditsUI from "./components/CreditsUI/index.tsx";
 import TokenUI from "./components/TokenUI";
 import Loader from "./components/Loader/index.tsx";
@@ -20,7 +19,7 @@ import TabBar from "./components/TabBar/index.tsx";
 import ImageCanvas from "./components/ImageCanvas/index.tsx";
 import Divider from "./components/Divider/index.tsx";
 import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/index.tsx";
-import { getOperationsService } from "./services/index.ts";
+import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -37,6 +36,8 @@ function App() {
 	const [imgUrl, setImgUrl] = useState("");
 	const [isTransformationsDrawerOpen, setIsTransformationsDrawerOpen] =
 		useState(false);
+	const [plugins, setPlugins] = useState({});
+	const [isDynamicFormOpen, setIsDynamicFormOpen] = useState(false);
 
 	const {
 		INITIAL_CALL,
@@ -51,11 +52,6 @@ function App() {
 		ON_SELECTION_CHANGE,
 	} = EVENTS;
 
-	async function getOperations() {
-		let data = await getOperationsService();
-		console.log("fetched Operations", data);
-	}
-
 	useEffect(() => {
 		parent.postMessage(
 			{
@@ -65,8 +61,29 @@ function App() {
 			},
 			"*"
 		);
-		getOperations();
 	}, []);
+
+	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
+		new PixelbinConfig({
+			domain: `${API_PIXELBIN_IO}`,
+			apiSecret: tokenValue,
+		})
+	);
+
+	useEffect(() => {
+		getOperations();
+	}, [tokenValue]);
+
+	async function getOperations() {
+		try {
+			if (tokenValue) {
+				let data = await defaultPixelBinClient.assets.getModules();
+				setPlugins(data?.plugins);
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	}
 
 	function formSetter(data) {
 		let temp = { ...formValues };
@@ -117,13 +134,6 @@ function App() {
 		}
 
 		if (data.pluginMessage.type === SELCTED_IMAGE) {
-			const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
-				new PixelbinConfig({
-					domain: `${PIXELBIN_IO}`,
-					apiSecret: `${data.pluginMessage.token}`,
-				})
-			);
-
 			let res = null;
 			let blob = new Blob([data.pluginMessage.imageBytes], {
 				type: "image/jpeg",
@@ -188,13 +198,6 @@ function App() {
 		setTokenErr(false);
 		setIsLoading(true);
 
-		const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
-			new PixelbinConfig({
-				domain: `${PIXELBIN_IO}`,
-				apiSecret: tokenValue,
-			})
-		);
-
 		try {
 			const orgDetails =
 				await defaultPixelBinClient.organization.getAppOrgDetails();
@@ -241,19 +244,18 @@ function App() {
 		);
 	}
 
-	function transformationsDrawerToggle() {
+	const transformationsDrawerToggle = () =>
 		setIsTransformationsDrawerOpen(!isTransformationsDrawerOpen);
+	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
+
+	function handleTransformationClick(op: any) {
+		console.log("REcEIVED OP", op);
+		transformationsDrawerToggle();
+		dynamicFormToggler();
 	}
 
 	async function setCreditsDetails() {
 		if (tokenValue && tokenValue !== null) {
-			const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
-				new PixelbinConfig({
-					domain: `${PIXELBIN_IO}`,
-					apiSecret: `${tokenValue}`,
-				})
-			);
-
 			try {
 				const newData = await defaultPixelBinClient.billing.getUsage();
 				const cu = newData.credits.used;
@@ -284,7 +286,14 @@ function App() {
 					<Divider />
 					<ImageCanvas url={imgUrl} />
 					{isTransformationsDrawerOpen && (
-						<TransformationsDrawer toggler={transformationsDrawerToggle} />
+						<TransformationsDrawer
+							toggler={transformationsDrawerToggle}
+							plugins={plugins}
+							handleTransformationClick={handleTransformationClick}
+						/>
+					)}
+					{isDynamicFormOpen && (
+						<DynamicFormDrawer setFormValues={() => {}} formValues={[]} />
 					)}
 					{imgUrl && (
 						<div

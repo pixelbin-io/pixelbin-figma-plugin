@@ -33,9 +33,6 @@ function TokenUI({
 	setTokenValue,
 }: props) {
 	const [isTokenTypePass, setIsTokenTypePass] = useState(true);
-	useEffect(() => {
-		console.log("Data", tokenValue);
-	}, [tokenValue]);
 
 	return (
 		<div className="api-key-ui">

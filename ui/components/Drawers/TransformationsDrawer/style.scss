@@ -31,4 +31,34 @@
 			background-color: rgba(170, 171, 196, 0.2);
 		}
 	}
+
+	.tab {
+		color: var(--figma-color-bg-inverse);
+		font-size: 10px;
+		padding: 4px 6px;
+		font-weight: 400;
+		color: #aaabc5;
+		opacity: 0.8;
+	}
+
+	.link-icon {
+		stroke: var(--figma-color-bg-brand);
+		width: 32px;
+		height: 32px;
+	}
+
+	.tab-container {
+		display: flex;
+		/* background: rgb(50,54,72); */
+		border-radius: 5px;
+		color: #aaabc5;
+		padding: 2px;
+		/* border: 1px solid  #E5EAF2; */
+		cursor: pointer;
+	}
+	.active-tab {
+		border-bottom: 1px solid var(--figma-color-bg-brand);
+		color: var(--figma-color-bg-brand);
+		opacity: 1;
+	}
 }

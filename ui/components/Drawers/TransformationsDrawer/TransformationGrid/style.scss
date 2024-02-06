@@ -1,0 +1,9 @@
+.transformation-grid {
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	padding: 0 6px;
+	gap: 4px;
+	max-height: 256px;
+	overflow-y: auto;
+}

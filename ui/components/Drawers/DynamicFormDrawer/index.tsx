@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../../styles/style.scss";
 import { EVENTS, eraseBgOptions } from "../../../../constants";
 import { Util } from "../../../../util";
 import "./style.scss";
@@ -9,9 +8,10 @@ interface formProps {
 	formValues: any;
 }
 
-function DynamicForm({ setFormValues, formValues }: formProps) {
+function DynamicFormDrawer({ setFormValues, formValues }: formProps) {
 	return (
-		<div>
+		<div className="dfd-container">
+			Dynamic Drawer
 			{eraseBgOptions.map((obj, index) => {
 				switch (obj.type) {
 					case "enum":
@@ -64,4 +64,4 @@ function DynamicForm({ setFormValues, formValues }: formProps) {
 	);
 }
 
-export default DynamicForm;
+export default DynamicFormDrawer;

@@ -180,4 +180,15 @@ button {
 	z-index: 1;
 }
 
+::-webkit-scrollbar {
+	width: 4px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: var(--figma-color-border);
+	border-radius: 6px;
+	width: 4px !important;
+}
+
 // *********************************** ------ ************************************** //
