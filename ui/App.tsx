@@ -38,6 +38,7 @@ function App() {
 		useState(false);
 	const [plugins, setPlugins] = useState({});
 	const [isDynamicFormOpen, setIsDynamicFormOpen] = useState(false);
+	const [currentOp, setCurrentOP] = useState({});
 
 	const {
 		INITIAL_CALL,
@@ -249,7 +250,8 @@ function App() {
 	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
 
 	function handleTransformationClick(op: any) {
-		console.log("REcEIVED OP", op);
+		console.log("OP", op);
+		setCurrentOP(op);
 		transformationsDrawerToggle();
 		dynamicFormToggler();
 	}
@@ -293,7 +295,11 @@ function App() {
 						/>
 					)}
 					{isDynamicFormOpen && (
-						<DynamicFormDrawer setFormValues={() => {}} formValues={[]} />
+						<DynamicFormDrawer
+							toggler={dynamicFormToggler}
+							operation={currentOp}
+							url={imgUrl}
+						/>
 					)}
 					{imgUrl && (
 						<div

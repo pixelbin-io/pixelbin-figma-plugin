@@ -22,6 +22,7 @@
 		"querystring": "^0.2.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-image-crop": "^11.0.5",
 		"url": "^0.11.3",
 		"uuid": "^9.0.1"
 	},

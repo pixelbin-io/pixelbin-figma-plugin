@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import "../../styles/style.scss";
+import "./style.scss";
 
 interface footerProps {
 	handleReset: any;
 	handleSubmit: any;
-	isBtnDisabled: boolean;
 }
 
-function Footer({ handleReset, handleSubmit, isBtnDisabled }: footerProps) {
+function Footer({ handleReset, handleSubmit }: footerProps) {
 	return (
 		<div className="bottom-btn-container">
 			<div className="reset-container" id="reset" onClick={handleReset}>
@@ -18,7 +17,6 @@ function Footer({ handleReset, handleSubmit, isBtnDisabled }: footerProps) {
 				id="submit-btn"
 				onClick={handleSubmit}
 				className="button button--primary"
-				disabled={isBtnDisabled}
 			>
 				Apply
 			</button>

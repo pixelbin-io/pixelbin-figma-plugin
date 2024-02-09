@@ -103,7 +103,7 @@ function TransformationsDrawer({
 						}}
 						className={`tab ${tabID === "basic" ? "active-tab" : ""}`}
 					>
-						Baisc Transformations
+						Basic Transformations
 					</div>
 				</div>
 				<CloseIcon className="close-icon" onClick={toggler} />

@@ -23,6 +23,15 @@ export const eraseBgOptions = [
 		default: true,
 		identifier: "r",
 	},
+	{
+		name: "seed",
+		type: "integer",
+		default: 123,
+		min: 1,
+		max: 1000,
+		identifier: "s",
+		title: "Seed",
+	},
 ];
 
 export enum EVENTS {
