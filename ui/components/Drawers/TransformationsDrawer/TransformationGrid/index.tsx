@@ -37,7 +37,7 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 					onChange={(e) => {
 						setSearchedValue(e.target.value);
 					}}
-					placeholder="Transformation name"
+					placeholder="Search transformations"
 				/>
 				<Magnifier className="magnifier" />
 			</div>
