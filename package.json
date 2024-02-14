@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+		"@fortawesome/fontawesome-svg-core": "^6.5.1",
 		"@pixelbin/admin": "^3.8.0",
 		"@pixelbin/core": "^5.4.0",
 		"axios": "^1.6.7",

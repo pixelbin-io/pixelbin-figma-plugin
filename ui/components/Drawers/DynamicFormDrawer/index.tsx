@@ -7,16 +7,25 @@ import { eraseBgOptions } from "../../../../constants";
 import { ReactComponent as WaterdropSLash } from "../../../../assets/Water-drop-slash.svg";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "./style.scss";
-import ImageCropper from "./ImageCropper";
-import MultiImageCropper from "./MultiBoxCropper";
+import SingleBoxCropper from "./SingleBoxCropper";
+import MultiBoxCropper from "./MultiBoxCropper";
 
 interface formProps {
 	toggler: () => void;
 	operation: any;
 	url: any;
+	onTransformationApply: (data: any) => void;
+	selectedValues: any | null;
+	index: number | null;
 }
 
-function DynamicFormDrawer({ toggler, operation, url }: formProps) {
+function DynamicFormDrawer({
+	toggler,
+	operation,
+	url,
+	onTransformationApply,
+	selectedValues = null,
+}: formProps) {
 	const inputRef = useRef(null);
 	const colorRef = useRef(null);
 	const [formValues, setFormValues] = useState([]);
@@ -43,6 +52,10 @@ function DynamicFormDrawer({ toggler, operation, url }: formProps) {
 	}, [operation]);
 
 	useEffect(() => {
+		console.log("DTADTA", selectedValues);
+	}, [selectedValues]);
+
+	useEffect(() => {
 		console.log("FORMVALUES", formValues);
 		console.log("OP2345", operation);
 	}, [formValues]);
@@ -56,6 +69,11 @@ function DynamicFormDrawer({ toggler, operation, url }: formProps) {
 
 	function setBboxValues(obj: any) {
 		setBboxCoordinates({ ...obj });
+	}
+
+	function submitForm() {
+		let data = { selectedFormValues: formValues, op: operation };
+		onTransformationApply(data);
 	}
 
 	return (
@@ -273,16 +291,16 @@ function DynamicFormDrawer({ toggler, operation, url }: formProps) {
 				})}
 			</div>
 			<Divider />
-			<Footer handleReset={() => {}} handleSubmit={() => {}} />
+			<Footer handleReset={() => {}} handleSubmit={submitForm} />
 			{isCropperOpen && (
-				<ImageCropper
+				<SingleBoxCropper
 					setCordinates={setBboxValues}
 					toggler={cropToggler}
 					url={url}
 				/>
 			)}
 			{isMultiboxCropperOpen && (
-				<MultiImageCropper url={url} toggler={multiBoxCropperToggler} />
+				<MultiBoxCropper url={url} toggler={multiBoxCropperToggler} />
 			)}
 		</div>
 	);

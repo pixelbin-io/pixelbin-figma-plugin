@@ -20,6 +20,9 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 		setIsAddButtonDisabled(boxes.length === 0);
 	}, [boxes]);
 
+	const image = new Image();
+	image.src = url;
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
 
@@ -27,9 +30,6 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 			const ctx = canvas.getContext("2d");
 
 			if (ctx) {
-				const image = new Image();
-				image.src = url;
-
 				image.onload = () => {
 					const aspectRatio = image.width / image.height;
 
@@ -82,10 +82,10 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 		ctx.lineWidth = 1;
 		ctx.setLineDash([5, 5]); // Set line dash pattern
 		ctx.strokeRect(
-			currentBox.left,
-			currentBox.top,
-			currentBox.width,
-			currentBox.height
+			(currentBox.left / image.width) * ctx.canvas.width,
+			(currentBox.top / image.height) * ctx.canvas.height,
+			(currentBox.width / image.width) * ctx.canvas.width,
+			(currentBox.height / image.height) * ctx.canvas.height
 		);
 
 		// Add x icon at the top right of each box
@@ -109,11 +109,12 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 			const rect = canvas.getBoundingClientRect();
 			const mouseX = e.clientX - rect.left;
 			const mouseY = e.clientY - rect.top;
-
+			const originalLeft = (mouseX / canvas.width) * image.width;
+			const originalTop = (mouseY / canvas.height) * image.height;
 			if (boxes.length < 4) {
 				setBoxes((prevBoxes) => [
 					...prevBoxes,
-					{ top: mouseY, left: mouseX, width: 0, height: 0 },
+					{ top: originalTop, left: originalLeft, width: 0, height: 0 },
 				]);
 				setIsDrawing(true);
 			}
@@ -136,12 +137,19 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 
 			setBoxes((prevBoxes) => {
 				const lastBox = prevBoxes[prevBoxes.length - 1];
+				prevBoxes[prevBoxes.length - 1];
+				const originalWidth =
+					(mouseX / canvas.width) * image.width -
+					prevBoxes[prevBoxes.length - 1].left;
+				const originalHeight =
+					(mouseY / canvas.height) * image.height -
+					prevBoxes[prevBoxes.length - 1].top;
 				return [
 					...prevBoxes.slice(0, -1),
 					{
 						...lastBox,
-						width: mouseX - lastBox.left,
-						height: mouseY - lastBox.top,
+						width: originalWidth,
+						height: originalHeight,
 					},
 				];
 			});

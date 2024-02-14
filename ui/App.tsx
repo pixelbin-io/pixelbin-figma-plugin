@@ -20,6 +20,7 @@ import ImageCanvas from "./components/ImageCanvas/index.tsx";
 import Divider from "./components/Divider/index.tsx";
 import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/index.tsx";
 import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx";
+import QueuedTransformationsDrawer from "./components/Drawers/QueuedTransformationsDrawer/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -39,6 +40,9 @@ function App() {
 	const [plugins, setPlugins] = useState({});
 	const [isDynamicFormOpen, setIsDynamicFormOpen] = useState(false);
 	const [currentOp, setCurrentOP] = useState({});
+	const [transformationQueue, setTransformationQueue] = useState([]);
+	const [isFormReEditing, setIsFormReEditing] = useState(false);
+	const [index, setIndex] = useState(-1);
 
 	const {
 		INITIAL_CALL,
@@ -247,14 +251,32 @@ function App() {
 
 	const transformationsDrawerToggle = () =>
 		setIsTransformationsDrawerOpen(!isTransformationsDrawerOpen);
+
 	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
 
 	function handleTransformationClick(op: any) {
-		console.log("OP", op);
 		setCurrentOP(op);
 		transformationsDrawerToggle();
-		dynamicFormToggler();
+		setIsFormReEditing(false);
+		if (op.params.length) {
+			dynamicFormToggler();
+		} else setTransformationQueue([...transformationQueue, { op: op }]);
 	}
+
+	function onTransformationApply(data) {
+		dynamicFormToggler();
+		setIsFormReEditing(false);
+		if (isFormReEditing) {
+			let temp = transformationQueue;
+			temp[index] = data;
+			setTransformationQueue([...temp]);
+			setIndex(-1);
+		} else {
+			setTransformationQueue([...transformationQueue, data]);
+		}
+	}
+
+	const QueDrawerClose = () => setTransformationQueue([]);
 
 	async function setCreditsDetails() {
 		if (tokenValue && tokenValue !== null) {
@@ -268,6 +290,18 @@ function App() {
 				console.log("error", err);
 			}
 		}
+	}
+	function onDeleteClick(index: number) {
+		const updatedQueue = transformationQueue.filter((_, i) => i !== index);
+		setTransformationQueue([...updatedQueue]);
+	}
+
+	function onArrowClick(index: number, data: any) {
+		console.log("INDEX AND DATA", index, data);
+		setIndex(index);
+		dynamicFormToggler();
+		setCurrentOP(data.op);
+		setIsFormReEditing(true);
 	}
 
 	useEffect(() => {
@@ -299,6 +333,9 @@ function App() {
 							toggler={dynamicFormToggler}
 							operation={currentOp}
 							url={imgUrl}
+							onTransformationApply={onTransformationApply}
+							selectedValues={isFormReEditing ? {} : null}
+							index={isFormReEditing ? index : null}
 						/>
 					)}
 					{imgUrl && (
@@ -307,6 +344,14 @@ function App() {
 							className="icon--plus icon--white plus-button"
 						/>
 					)}
+					{transformationQueue.length ? (
+						<QueuedTransformationsDrawer
+							closeFunc={QueDrawerClose}
+							queue={transformationQueue}
+							onDeleteClick={onDeleteClick}
+							onArrowClick={onArrowClick}
+						/>
+					) : null}
 				</div>
 			) : (
 				<TokenUI

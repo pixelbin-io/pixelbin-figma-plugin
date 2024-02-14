@@ -9,7 +9,7 @@ interface BoxProps {
 	setCordinates: (obj: any) => void;
 }
 
-function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
+function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [box, setBox] = useState<{
 		top: number;
@@ -19,6 +19,9 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 	} | null>(null);
 	const [isDrawing, setIsDrawing] = useState(false);
 
+	let image = new Image();
+	image.src = url;
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
 
@@ -26,9 +29,6 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 			const ctx = canvas.getContext("2d");
 
 			if (ctx) {
-				const image = new Image();
-				image.src = url;
-
 				image.onload = () => {
 					const aspectRatio = image.width / image.height;
 
@@ -67,19 +67,18 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 		currentBox: { top: number; left: number; width: number; height: number }
 	) => {
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		const image = new Image();
-		image.src = url;
 		ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+		const reducedLeft = (currentBox.left / image.width) * ctx.canvas.width;
+		const reducedTop = (currentBox.top / image.height) * ctx.canvas.height;
+		const reducedWidth = (currentBox.width / image.width) * ctx.canvas.width;
+		const reducedHeight =
+			(currentBox.height / image.height) * ctx.canvas.height;
 
 		ctx.strokeStyle = "black";
 		ctx.lineWidth = 2;
 		ctx.setLineDash([5, 5]); // Set line dash pattern
-		ctx.strokeRect(
-			currentBox.left,
-			currentBox.top,
-			currentBox.width,
-			currentBox.height
-		);
+		ctx.strokeRect(reducedLeft, reducedTop, reducedWidth, reducedHeight);
 	};
 
 	const handleMouseDown = (e: MouseEvent) => {
@@ -89,7 +88,11 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 			const mouseX = e.clientX - rect.left;
 			const mouseY = e.clientY - rect.top;
 
-			setBox({ top: mouseY, left: mouseX, width: 0, height: 0 });
+			// Calculate original coordinates based on the aspect ratio adjustment
+			const originalLeft = (mouseX / canvas.width) * image.width;
+			const originalTop = (mouseY / canvas.height) * image.height;
+
+			setBox({ top: originalTop, left: originalLeft, width: 0, height: 0 });
 			setIsDrawing(true);
 		}
 	};
@@ -108,10 +111,14 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 			const mouseX = e.clientX - rect.left;
 			const mouseY = e.clientY - rect.top;
 
+			// Calculate original coordinates based on the aspect ratio adjustment
+			const originalWidth = (mouseX / canvas.width) * image.width - box.left;
+			const originalHeight = (mouseY / canvas.height) * image.height - box.top;
+
 			setBox((prevBox) => ({
 				...prevBox,
-				width: mouseX - prevBox.left,
-				height: mouseY - prevBox.top,
+				width: originalWidth,
+				height: originalHeight,
 			}));
 		}
 	};
@@ -158,4 +165,4 @@ function ImageCropper({ url, toggler, setCordinates }: BoxProps) {
 	);
 }
 
-export default ImageCropper;
+export default SingleCropper;
