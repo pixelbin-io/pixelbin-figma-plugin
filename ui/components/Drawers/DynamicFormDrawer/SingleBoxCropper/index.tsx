@@ -69,11 +69,18 @@ function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
 
-		const reducedLeft = (currentBox.left / image.width) * ctx.canvas.width;
-		const reducedTop = (currentBox.top / image.height) * ctx.canvas.height;
-		const reducedWidth = (currentBox.width / image.width) * ctx.canvas.width;
-		const reducedHeight =
-			(currentBox.height / image.height) * ctx.canvas.height;
+		const reducedLeft = Math.round(
+			(currentBox.left / image.width) * ctx.canvas.width
+		);
+		const reducedTop = Math.round(
+			(currentBox.top / image.height) * ctx.canvas.height
+		);
+		const reducedWidth = Math.round(
+			(currentBox.width / image.width) * ctx.canvas.width
+		);
+		const reducedHeight = Math.round(
+			(currentBox.height / image.height) * ctx.canvas.height
+		);
 
 		ctx.strokeStyle = "black";
 		ctx.lineWidth = 2;
@@ -89,8 +96,8 @@ function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 			const mouseY = e.clientY - rect.top;
 
 			// Calculate original coordinates based on the aspect ratio adjustment
-			const originalLeft = (mouseX / canvas.width) * image.width;
-			const originalTop = (mouseY / canvas.height) * image.height;
+			const originalLeft = Math.round((mouseX / canvas.width) * image.width);
+			const originalTop = Math.round((mouseY / canvas.height) * image.height);
 
 			setBox({ top: originalTop, left: originalLeft, width: 0, height: 0 });
 			setIsDrawing(true);
@@ -112,8 +119,12 @@ function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 			const mouseY = e.clientY - rect.top;
 
 			// Calculate original coordinates based on the aspect ratio adjustment
-			const originalWidth = (mouseX / canvas.width) * image.width - box.left;
-			const originalHeight = (mouseY / canvas.height) * image.height - box.top;
+			const originalWidth = Math.round(
+				(mouseX / canvas.width) * image.width - box.left
+			);
+			const originalHeight = Math.round(
+				(mouseY / canvas.height) * image.height - box.top
+			);
 
 			setBox((prevBox) => ({
 				...prevBox,
@@ -153,7 +164,12 @@ function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 				<button
 					id="submit-btn"
 					onClick={() => {
-						setCordinates({ ...box });
+						setCordinates({
+							top: Math.round(box?.top || 0),
+							left: Math.round(box?.left || 0),
+							width: Math.round(box?.width || 0),
+							height: Math.round(box?.height || 0),
+						});
 						toggler();
 					}}
 					className="button button--primary"

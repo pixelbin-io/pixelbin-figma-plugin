@@ -63,11 +63,6 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 		}
 	}, [url, boxes]);
 
-	// const removeBox = (indexToRemove: number) => {
-	// 	let temp = boxes.filter((item, index) => index !== indexToRemove);
-	// 	setBoxes([...temp]);
-	// };
-
 	const drawBox = (
 		ctx: CanvasRenderingContext2D,
 		currentBox: {
@@ -82,10 +77,10 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 		ctx.lineWidth = 1;
 		ctx.setLineDash([5, 5]); // Set line dash pattern
 		ctx.strokeRect(
-			(currentBox.left / image.width) * ctx.canvas.width,
-			(currentBox.top / image.height) * ctx.canvas.height,
-			(currentBox.width / image.width) * ctx.canvas.width,
-			(currentBox.height / image.height) * ctx.canvas.height
+			Math.round((currentBox.left / image.width) * ctx.canvas.width),
+			Math.round((currentBox.top / image.height) * ctx.canvas.height),
+			Math.round((currentBox.width / image.width) * ctx.canvas.width),
+			Math.round((currentBox.height / image.height) * ctx.canvas.height)
 		);
 
 		// Add x icon at the top right of each box
@@ -109,8 +104,8 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 			const rect = canvas.getBoundingClientRect();
 			const mouseX = e.clientX - rect.left;
 			const mouseY = e.clientY - rect.top;
-			const originalLeft = (mouseX / canvas.width) * image.width;
-			const originalTop = (mouseY / canvas.height) * image.height;
+			const originalLeft = Math.round((mouseX / canvas.width) * image.width);
+			const originalTop = Math.round((mouseY / canvas.height) * image.height);
 			if (boxes.length < 4) {
 				setBoxes((prevBoxes) => [
 					...prevBoxes,
@@ -138,12 +133,14 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 			setBoxes((prevBoxes) => {
 				const lastBox = prevBoxes[prevBoxes.length - 1];
 				prevBoxes[prevBoxes.length - 1];
-				const originalWidth =
+				const originalWidth = Math.round(
 					(mouseX / canvas.width) * image.width -
-					prevBoxes[prevBoxes.length - 1].left;
-				const originalHeight =
+						prevBoxes[prevBoxes.length - 1].left
+				);
+				const originalHeight = Math.round(
 					(mouseY / canvas.height) * image.height -
-					prevBoxes[prevBoxes.length - 1].top;
+						prevBoxes[prevBoxes.length - 1].top
+				);
 				return [
 					...prevBoxes.slice(0, -1),
 					{
