@@ -30,13 +30,14 @@ function DynamicFormDrawer({
 	const colorRef = useRef(null);
 	const [formValues, setFormValues] = useState([]);
 	const [isCropperOpen, setIsCropperOpen] = useState(false);
-	const [isMultiboxCropperOpen, setIsMultiboxCropperOpen] = useState(false);
 	const [bboxCoordinates, setBboxCoordinates] = useState({
 		top: 10,
 		left: 10,
 		height: 0,
 		width: 0,
 	});
+	const [isMultiboxCropperOpen, setIsMultiboxCropperOpen] = useState(false);
+	const [bBoxList, setbBoxList] = useState([]);
 
 	function formSetter() {
 		let temp = { ...formValues };
@@ -69,6 +70,21 @@ function DynamicFormDrawer({
 
 	function setBboxValues(obj: any) {
 		setBboxCoordinates({ ...obj });
+		console.log("BOx drawn", obj);
+		let temp = {
+			top: obj.top,
+			left: obj.left,
+			height: obj.height,
+			width: obj.width,
+		};
+		setFormValues({ ...formValues, ...temp });
+	}
+
+	function setbBoxListVaLues(arr: any) {
+		console.log("box added to array", arr);
+		let temp = { ...formValues, listOfBboxes: arr };
+		setbBoxList([...arr]);
+		setFormValues({ ...temp });
 	}
 
 	function submitForm() {
@@ -217,11 +233,13 @@ function DynamicFormDrawer({
 						case "bboxList":
 							return (
 								<div className="bbox">
-									{/* <div className="values">
-										{bboxCoordinates.height === 0
-											? null
-											: `${bboxCoordinates.top}_${bboxCoordinates.left}_${bboxCoordinates.height}_${bboxCoordinates.width}`}
-									</div> */}
+									<div className="values">
+										{bBoxList.length
+											? `[${bBoxList.map((item) => {
+													return `[${item.top}_${item.left}_${item.height}_${item.width}]`;
+											  })}]`
+											: null}
+									</div>
 									<div onClick={multiBoxCropperToggler} className="draw-btn">
 										Draw
 									</div>
@@ -300,7 +318,11 @@ function DynamicFormDrawer({
 				/>
 			)}
 			{isMultiboxCropperOpen && (
-				<MultiBoxCropper url={url} toggler={multiBoxCropperToggler} />
+				<MultiBoxCropper
+					url={url}
+					toggler={multiBoxCropperToggler}
+					setBoxList={setbBoxListVaLues}
+				/>
 			)}
 		</div>
 	);

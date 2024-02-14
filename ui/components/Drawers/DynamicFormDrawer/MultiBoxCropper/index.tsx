@@ -6,9 +6,10 @@ import "./style.scss";
 interface BoxProps {
 	url: string;
 	toggler: () => void;
+	setBoxList: (arr: any) => void;
 }
 
-function MultiBoxCropper({ url, toggler }: BoxProps) {
+function MultiBoxCropper({ url, toggler, setBoxList }: BoxProps) {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [boxes, setBoxes] = useState<
 		{ top: number; left: number; width: number; height: number }[]
@@ -195,6 +196,7 @@ function MultiBoxCropper({ url, toggler }: BoxProps) {
 				<button
 					id="submit-btn"
 					onClick={() => {
+						setBoxList([...boxes]);
 						toggler();
 					}}
 					className="button button--primary"
