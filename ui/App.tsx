@@ -237,6 +237,8 @@ function App() {
 		);
 	}
 
+	function onRefreshClick() {}
+
 	function handleSubmit() {
 		parent.postMessage(
 			{
@@ -320,7 +322,11 @@ function App() {
 					<Divider />
 					<TabBar />
 					<Divider />
-					<ImageCanvas url={imgUrl} />
+					<ImageCanvas
+						url={imgUrl}
+						isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
+						onRefreshClick={onRefreshClick}
+					/>
 					{isTransformationsDrawerOpen && (
 						<TransformationsDrawer
 							toggler={transformationsDrawerToggle}
