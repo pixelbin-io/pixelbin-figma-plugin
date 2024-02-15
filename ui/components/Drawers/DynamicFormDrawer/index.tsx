@@ -266,6 +266,7 @@ function DynamicFormDrawer({
 								</div>
 							);
 						case "integer":
+						case "float":
 							return operation.displayName.toLowerCase() !== "extract" ? (
 								<div className="slider-container">
 									<div className="generic-text dropdown-label">{obj.title}</div>
@@ -279,7 +280,7 @@ function DynamicFormDrawer({
 												type="range"
 												min={obj.min}
 												max={obj.max}
-												step={1}
+												step={obj.type === "integer" ? 1 : 0.1}
 												onChange={(e) => {
 													setFormValues({
 														...formValues,
