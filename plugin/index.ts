@@ -51,6 +51,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 		type: ON_SELECTION_CHANGE,
 		imageBytes: null,
 	};
+
 	if (figma.currentPage.selection.length > 0) {
 		var node: any = figma?.currentPage?.selection[0];
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {

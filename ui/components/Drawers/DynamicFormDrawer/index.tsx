@@ -52,15 +52,6 @@ function DynamicFormDrawer({
 		formSetter();
 	}, [operation]);
 
-	useEffect(() => {
-		console.log("DTADTA", selectedValues);
-	}, [selectedValues]);
-
-	useEffect(() => {
-		console.log("FORMVALUES", formValues);
-		console.log("OP2345", operation);
-	}, [formValues]);
-
 	function cropToggler() {
 		setIsCropperOpen(!isCropperOpen);
 	}
@@ -70,7 +61,6 @@ function DynamicFormDrawer({
 
 	function setBboxValues(obj: any) {
 		setBboxCoordinates({ ...obj });
-		console.log("BOx drawn", obj);
 		let temp = {
 			top: obj.top,
 			left: obj.left,

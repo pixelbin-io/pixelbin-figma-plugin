@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { PdkAxios } from "@pixelbin/admin/common.js";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import {
-	eraseBgOptions,
-	EVENTS,
-	createSignedURlDetails,
-	uploadOptions,
-} from "./../constants";
-import { Util } from "./../util.ts";
+import { EVENTS, createSignedURlDetails, uploadOptions } from "./../constants";
 import "./styles/style.app.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../config";
@@ -43,6 +37,8 @@ function App() {
 	const [transformationQueue, setTransformationQueue] = useState([]);
 	const [isFormReEditing, setIsFormReEditing] = useState(false);
 	const [index, setIndex] = useState(-1);
+	const [cloudName, setCloudName] = useState("");
+	const [imageBytes, setImageBytes] = useState([]);
 
 	const {
 		INITIAL_CALL,
@@ -66,6 +62,7 @@ function App() {
 			},
 			"*"
 		);
+		getOerationMethods();
 	}, []);
 
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
@@ -77,12 +74,14 @@ function App() {
 
 	useEffect(() => {
 		getOperations();
+		getOerationMethods();
 	}, [tokenValue]);
 
 	async function getOperations() {
 		try {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
+				console.log("data.plugins", data.plugins);
 				setPlugins(data?.plugins);
 			}
 		} catch (err) {
@@ -90,18 +89,9 @@ function App() {
 		}
 	}
 
-	function formSetter(data) {
-		let temp = { ...formValues };
-		eraseBgOptions.forEach((option, index) => {
-			const camelCaseName = Util.camelCase(option.name);
-			const savedValue = data[camelCaseName];
-
-			temp[camelCaseName] =
-				savedValue !== undefined && savedValue !== null
-					? savedValue
-					: option.default;
-		});
-		setFormValues({ ...temp });
+	async function getOerationMethods() {
+		let methods = await defaultPixelBinClient.assets.getModules();
+		console.log("MEthods", methods);
 	}
 
 	window.onmessage = async (event) => {
@@ -111,6 +101,7 @@ function App() {
 			if (data.pluginMessage.imageBytes === null) {
 				setImgUrl("");
 			} else {
+				setImageBytes([data.pluginMessage.imageBytes]);
 				function bytesToDataURL(bytes, contentType) {
 					const blob = new Blob([new Uint8Array(bytes)], { type: contentType });
 					return URL.createObjectURL(blob);
@@ -128,76 +119,85 @@ function App() {
 			setIsTokenEditOn(data.pluginMessage.isTokenEditing);
 			if (data.pluginMessage.value) {
 				setTokenValue(data.pluginMessage.savedToken);
-				formSetter(data.pluginMessage.savedFormValue);
 				setOrgId(data.pluginMessage.orgId);
+				setCloudName(data.pluginMessage.savedCloudName);
 			}
 		}
 		if (data.pluginMessage.type === CREATE_FORM) {
-			formSetter(data.pluginMessage.savedFormValue);
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
 		}
 
-		if (data.pluginMessage.type === SELCTED_IMAGE) {
-			let res = null;
-			let blob = new Blob([data.pluginMessage.imageBytes], {
-				type: "image/jpeg",
-			});
+		// if (data.pluginMessage.type === SELCTED_IMAGE) {
+		// 	let res = null;
 
-			var pixelbin = new Pixelbin({
-				cloudName: `${data.pluginMessage.savedCloudName}`,
-				zone: "default", // optional
-			});
+		// 	var pixelbin = new Pixelbin({
+		// 		cloudName: `${data.pluginMessage.savedCloudName}`,
+		// 		zone: "default", // optional
+		// 	});
 
-			const EraseBg = transformations.EraseBG;
-			let name = `${data?.pluginMessage?.imageName}${uuidv4()}`;
+		// 	const EraseBg = transformations.EraseBG;
+		// 	let name = `${data?.pluginMessage?.imageName}${uuidv4()}`;
 
-			res = await defaultPixelBinClient.assets.createSignedUrlV2({
-				...createSignedURlDetails,
-				name: name,
-			});
-
-			function uploadWithRetry(blob, presignedUrl, options) {
-				return Pixelbin.upload(blob, presignedUrl, options)
-					.then(() => {
-						const url = JSON.parse(
-							presignedUrl.fields["x-pixb-meta-assetdata"]
-						);
-
-						const demoImage = pixelbin.image(url?.fileId);
-						demoImage.setTransformation(EraseBg.bg(formValues));
-						parent.postMessage(
-							{
-								pluginMessage: {
-									type: REPLACE_IMAGE,
-									bgRemovedUrl: demoImage.getUrl(),
-								},
-							},
-							"*"
-						);
-						setCreditsDetails();
-					})
-					.catch((err) => {
-						return uploadWithRetry(blob, presignedUrl, options);
-					});
-			}
-
-			uploadWithRetry(blob, res?.presignedUrl, uploadOptions).catch((err) =>
-				console.log("Final error:", err)
-			);
-		}
+		// 	res = await defaultPixelBinClient.assets.createSignedUrlV2({
+		// 		...createSignedURlDetails,
+		// 		name: name,
+		// 	});
+		// }
 		if (data.pluginMessage.type === TOGGLE_LOADER)
 			setIsLoading(data.pluginMessage.value);
 	};
 
-	function handleReset() {
-		let temp = { ...formValues };
-		eraseBgOptions.forEach((option, index) => {
-			const camelCaseName = Util.camelCase(option.name);
-			temp[camelCaseName] = option.default;
+	async function onRefreshClick() {
+		console.log("INSIDEREFRESH", transformationQueue);
+		let name = `${uuidv4()}`;
+
+		var pixelbin = new Pixelbin({
+			cloudName: cloudName,
+			zone: "default", // optional
 		});
-		setFormValues({ ...temp });
+
+		let res = await defaultPixelBinClient.assets.createSignedUrlV2({
+			...createSignedURlDetails,
+			name: name,
+		});
+
+		let blob = new Blob(imageBytes, { type: "image/jpeg" });
+
+		const EraseBg = transformations.EraseBG;
+
+		return Pixelbin.upload(blob as any, res.presignedUrl, uploadOptions)
+			.then(() => {
+				const url = JSON.parse(
+					res.presignedUrl.fields["x-pixb-meta-assetdata"]
+				);
+				const demoImage = pixelbin.image(url?.fileId);
+				demoImage.setTransformation(
+					EraseBg.bg({
+						industryType: "general",
+						addShadow: false,
+						refine: true,
+					})
+				);
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: REPLACE_IMAGE,
+							bgRemovedUrl: demoImage.getUrl(),
+						},
+					},
+					"*"
+				);
+				setCreditsDetails();
+			})
+			.catch((err) => {
+				return onRefreshClick();
+			});
 	}
+
+	// uploadWithRetry().catch((err) =>
+	// 	console.log("Final error:", err)
+	// );
 
 	async function handleTokenSave() {
 		setTokenErr(false);
@@ -237,8 +237,6 @@ function App() {
 		);
 	}
 
-	function onRefreshClick() {}
-
 	function handleSubmit() {
 		parent.postMessage(
 			{
@@ -256,13 +254,17 @@ function App() {
 
 	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
 
-	function handleTransformationClick(op: any) {
-		setCurrentOP(op);
+	function handleTransformationClick(data: any) {
+		setCurrentOP({ ...data.op, pluginName: data.pluginName });
 		transformationsDrawerToggle();
 		setIsFormReEditing(false);
-		if (op.params.length) {
+		if (data.op.params.length) {
 			dynamicFormToggler();
-		} else setTransformationQueue([...transformationQueue, { op: op }]);
+		} else
+			setTransformationQueue([
+				...transformationQueue,
+				{ op: { ...data.op, pluginName: data.pluginName } },
+			]);
 	}
 
 	function onTransformationApply(data) {
@@ -277,6 +279,10 @@ function App() {
 			setTransformationQueue([...transformationQueue, data]);
 		}
 	}
+
+	useEffect(() => {
+		console.log("transformationQueue", transformationQueue);
+	}, [transformationQueue]);
 
 	const QueDrawerClose = () => setTransformationQueue([]);
 
@@ -299,7 +305,6 @@ function App() {
 	}
 
 	function onArrowClick(index: number, data: any) {
-		console.log("INDEX AND DATA", index, data);
 		setIndex(index);
 		dynamicFormToggler();
 		setCurrentOP(data.op);

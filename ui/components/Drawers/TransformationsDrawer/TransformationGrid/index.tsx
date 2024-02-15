@@ -13,6 +13,7 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 
 	useEffect(() => {
 		setFilteredList([...list]);
+		console.log("LISTING", list);
 	}, [list]);
 
 	useEffect(() => {
@@ -37,7 +38,7 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 					onChange={(e) => {
 						setSearchedValue(e.target.value);
 					}}
-					placeholder="Search transformations"
+					placeholder="Search"
 				/>
 				<Magnifier className="magnifier" />
 			</div>
@@ -48,7 +49,10 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 							<>
 								<div
 									onClick={() => {
-										handleTransformationClick(item.op);
+										handleTransformationClick({
+											op: item.op,
+											pluginName: item.plugin.name,
+										});
 									}}
 								>
 									<TansformationIcon
