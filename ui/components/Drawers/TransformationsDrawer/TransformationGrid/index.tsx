@@ -12,11 +12,6 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 	const [filteredList, setFilteredList] = useState([]);
 
 	useEffect(() => {
-		setFilteredList([...list]);
-		console.log("LISTING", list);
-	}, [list]);
-
-	useEffect(() => {
 		if (searchedValue.length) {
 			let temp = list.filter((item) => {
 				return item.op.displayName

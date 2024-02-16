@@ -214,6 +214,7 @@ figma.ui.onmessage = async (msg) => {
 			})
 			.catch((err) => {
 				figma.notify("Something went wrong");
+				console.log("HEY GET YOUR AWAITED ERROR HERE", err);
 			});
 	} else if (msg.type === CLOSE_PLUGIN) figma.closePlugin();
 };

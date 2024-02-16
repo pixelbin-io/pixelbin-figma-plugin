@@ -81,7 +81,7 @@ function App() {
 		try {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
-				console.log("data.plugins", data.plugins);
+
 				setPlugins(data?.plugins);
 			}
 		} catch (err) {
@@ -91,7 +91,6 @@ function App() {
 
 	async function getOerationMethods() {
 		let methods = await defaultPixelBinClient.assets.getModules();
-		console.log("MEthods", methods);
 	}
 
 	window.onmessage = async (event) => {
@@ -128,28 +127,37 @@ function App() {
 			setIsTokenSaved(true);
 		}
 
-		// if (data.pluginMessage.type === SELCTED_IMAGE) {
-		// 	let res = null;
-
-		// 	var pixelbin = new Pixelbin({
-		// 		cloudName: `${data.pluginMessage.savedCloudName}`,
-		// 		zone: "default", // optional
-		// 	});
-
-		// 	const EraseBg = transformations.EraseBG;
-		// 	let name = `${data?.pluginMessage?.imageName}${uuidv4()}`;
-
-		// 	res = await defaultPixelBinClient.assets.createSignedUrlV2({
-		// 		...createSignedURlDetails,
-		// 		name: name,
-		// 	});
-		// }
 		if (data.pluginMessage.type === TOGGLE_LOADER)
 			setIsLoading(data.pluginMessage.value);
 	};
 
 	async function onRefreshClick() {
-		console.log("INSIDEREFRESH", transformationQueue);
+		setIsLoading(true);
+		let t = null;
+
+		transformationQueue.forEach((item, index) => {
+			const { pluginName, method } = item.op;
+			if (index !== 0) {
+				//If its a not a first operation queue we have to pipe it
+				if (!item.op.params.length) {
+					t = t.pipe(eval(`${pluginName}.${method}`)());
+				} else {
+					t = t.pipe(
+						eval(`${pluginName}.${method}`)({
+							...item.selectedFormValues,
+						})
+					);
+				}
+			} else {
+				//If its a first operation queue
+				if (!item.op.params.length) {
+					t = eval(`${pluginName}.${method}`)();
+				} else {
+					const { pluginName, method } = item.op;
+					t = eval(`${pluginName}.${method}`)({ ...item.selectedFormValues });
+				}
+			}
+		});
 		let name = `${uuidv4()}`;
 
 		var pixelbin = new Pixelbin({
@@ -172,13 +180,7 @@ function App() {
 					res.presignedUrl.fields["x-pixb-meta-assetdata"]
 				);
 				const demoImage = pixelbin.image(url?.fileId);
-				demoImage.setTransformation(
-					EraseBg.bg({
-						industryType: "general",
-						addShadow: false,
-						refine: true,
-					})
-				);
+				demoImage.setTransformation(t);
 				parent.postMessage(
 					{
 						pluginMessage: {
@@ -194,10 +196,6 @@ function App() {
 				return onRefreshClick();
 			});
 	}
-
-	// uploadWithRetry().catch((err) =>
-	// 	console.log("Final error:", err)
-	// );
 
 	async function handleTokenSave() {
 		setTokenErr(false);
@@ -279,10 +277,6 @@ function App() {
 			setTransformationQueue([...transformationQueue, data]);
 		}
 	}
-
-	useEffect(() => {
-		console.log("transformationQueue", transformationQueue);
-	}, [transformationQueue]);
 
 	const QueDrawerClose = () => setTransformationQueue([]);
 

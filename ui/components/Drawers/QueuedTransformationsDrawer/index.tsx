@@ -17,10 +17,6 @@ function QueuedTransformationsDrawer({
 	onDeleteClick,
 	onArrowClick,
 }: qtdProps) {
-	useEffect(() => {
-		console.log("QUEUE", queue);
-	}, [queue]);
-
 	return (
 		<div className="qtd-container">
 			<Divider />
