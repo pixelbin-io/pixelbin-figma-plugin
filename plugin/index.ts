@@ -58,8 +58,14 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
-		} else body.imageBytes = null;
-	} else body.imageBytes = null;
+		} else {
+			body.imageBytes = null;
+			figma.ui.postMessage({ type: "isTransformationApplied", value: false });
+		}
+	} else {
+		body.imageBytes = null;
+		figma.ui.postMessage({ type: "isTransformationApplied", value: false });
+	}
 	figma.ui.postMessage(body);
 });
 
@@ -198,6 +204,9 @@ figma.ui.onmessage = async (msg) => {
 	if (msg.type === OPEN_EXTERNAL_URL) {
 		figma.openExternal(msg.url);
 	}
+	if (msg.type === "notify-user") {
+		figma.notify(msg.value);
+	}
 	if (msg.type === REPLACE_IMAGE) {
 		figma
 			.createImageAsync(msg?.bgRemovedUrl)
@@ -210,11 +219,20 @@ figma.ui.onmessage = async (msg) => {
 					},
 				];
 				toggleLoader(false);
-				figma.notify("Transformation Applied ", { timeout: 5000 });
+				figma.notify("Transformation Applied ", { timeout: 2000 });
+				figma.ui.postMessage({
+					type: "isTransformationApplied",
+					value: true,
+					url: msg?.bgRemovedUrl,
+				});
 			})
 			.catch((err) => {
 				figma.notify("Something went wrong");
-				console.log("HEY GET YOUR AWAITED ERROR HERE", err);
+				figma.ui.postMessage({
+					type: "isTransformationApplied",
+					value: false,
+				});
+				console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
 			});
 	} else if (msg.type === CLOSE_PLUGIN) figma.closePlugin();
 };

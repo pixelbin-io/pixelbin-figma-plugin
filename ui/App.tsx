@@ -14,12 +14,12 @@ import ImageCanvas from "./components/ImageCanvas/index.tsx";
 import Divider from "./components/Divider/index.tsx";
 import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/index.tsx";
 import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx";
+import copy from "copy-to-clipboard";
 import QueuedTransformationsDrawer from "./components/Drawers/QueuedTransformationsDrawer/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
 function App() {
-	const [formValues, setFormValues] = useState<any>({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isTokenSaved, setIsTokenSaved] = useState(false);
 	const [tokenValue, setTokenValue] = useState(null);
@@ -39,6 +39,8 @@ function App() {
 	const [index, setIndex] = useState(-1);
 	const [cloudName, setCloudName] = useState("");
 	const [imageBytes, setImageBytes] = useState([]);
+	const [isTransformationApplied, setIsTransformationApplied] = useState(false);
+	const [transFormedUrl, setTransformedUrl] = useState("");
 
 	const {
 		INITIAL_CALL,
@@ -46,8 +48,6 @@ function App() {
 		TOGGLE_LOADER,
 		IS_TOKEN_SAVED,
 		SAVE_TOKEN,
-		TRANSFORM,
-		SELCTED_IMAGE,
 		REPLACE_IMAGE,
 		DELETE_TOKEN,
 		ON_SELECTION_CHANGE,
@@ -62,7 +62,6 @@ function App() {
 			},
 			"*"
 		);
-		getOerationMethods();
 	}, []);
 
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
@@ -74,7 +73,6 @@ function App() {
 
 	useEffect(() => {
 		getOperations();
-		getOerationMethods();
 	}, [tokenValue]);
 
 	async function getOperations() {
@@ -87,10 +85,6 @@ function App() {
 		} catch (err) {
 			console.log(err);
 		}
-	}
-
-	async function getOerationMethods() {
-		let methods = await defaultPixelBinClient.assets.getModules();
 	}
 
 	window.onmessage = async (event) => {
@@ -129,6 +123,11 @@ function App() {
 
 		if (data.pluginMessage.type === TOGGLE_LOADER)
 			setIsLoading(data.pluginMessage.value);
+		if (data.pluginMessage.type === "isTransformationApplied") {
+			setIsTransformationApplied(data.pluginMessage.value);
+			if (data.pluginMessage.value) setTransformedUrl(data.pluginMessage.url);
+			else setTransformedUrl("");
+		}
 	};
 
 	async function onRefreshClick() {
@@ -197,6 +196,19 @@ function App() {
 			});
 	}
 
+	function copyLink() {
+		copy(transFormedUrl);
+		parent.postMessage(
+			{
+				pluginMessage: {
+					type: "notify-user",
+					value: "Url copied to clipboard",
+				},
+			},
+			"*"
+		);
+	}
+
 	async function handleTokenSave() {
 		setTokenErr(false);
 		setIsLoading(true);
@@ -229,18 +241,6 @@ function App() {
 			{
 				pluginMessage: {
 					type: DELETE_TOKEN,
-				},
-			},
-			"*"
-		);
-	}
-
-	function handleSubmit() {
-		parent.postMessage(
-			{
-				pluginMessage: {
-					type: TRANSFORM,
-					params: formValues,
 				},
 			},
 			"*"
@@ -319,8 +319,12 @@ function App() {
 						orgId={orgId}
 					/>
 					<Divider />
-					<TabBar />
-					<Divider />
+					<TabBar
+						isImageSelected={!!imgUrl.length}
+						isTranFormed={isTransformationApplied}
+						url={transFormedUrl}
+						onLinkCopy={copyLink}
+					/>
 					<ImageCanvas
 						url={imgUrl}
 						isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
