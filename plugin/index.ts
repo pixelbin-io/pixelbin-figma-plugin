@@ -209,8 +209,10 @@ figma.ui.onmessage = async (msg) => {
 	}
 	if (msg.type === REPLACE_IMAGE) {
 		figma
-			.createImageAsync(msg?.bgRemovedUrl)
+			.createImageAsync(msg?.transformedUrl)
 			.then(async (image: Image) => {
+				const { width, height } = await image.getSizeAsync();
+				node.resize(width, height);
 				node.fills = [
 					{
 						type: IMAGE,
@@ -223,7 +225,7 @@ figma.ui.onmessage = async (msg) => {
 				figma.ui.postMessage({
 					type: "isTransformationApplied",
 					value: true,
-					url: msg?.bgRemovedUrl,
+					url: msg?.transformedUrl,
 				});
 			})
 			.catch((err) => {

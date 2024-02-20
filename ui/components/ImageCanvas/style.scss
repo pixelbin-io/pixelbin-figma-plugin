@@ -35,3 +35,14 @@
 .refresh-btn {
 	margin-bottom: 25px;
 }
+
+.context-box {
+	height: 100%;
+	max-width: 100%;
+	min-height: 260px;
+	overflow-x: auto;
+	margin: 95px 12px 0 12px;
+	position: relative;
+	font-size: 12px;
+	word-wrap: break-word;
+}

@@ -37,7 +37,7 @@ function DynamicFormDrawer({
 		width: 0,
 	});
 	const [isMultiboxCropperOpen, setIsMultiboxCropperOpen] = useState(false);
-	const [bBoxList, setbBoxList] = useState([]);
+	const [bBoxList, setbBoxList] = useState("");
 
 	function formSetter() {
 		let temp = { ...formValues };
@@ -71,9 +71,11 @@ function DynamicFormDrawer({
 	}
 
 	function setbBoxListVaLues(arr: any) {
-		console.log("box added to array", arr);
-		let temp = { ...formValues, listOfBboxes: arr };
-		setbBoxList([...arr]);
+		let temp = {
+			...formValues,
+			listOfBboxes: Util.stringifyBBoxList(arr),
+		};
+		console.log("tempw", temp);
 		setFormValues({ ...temp });
 	}
 
@@ -136,7 +138,7 @@ function DynamicFormDrawer({
 												<div
 													className="color-box"
 													style={{
-														background: `${
+														background: `#${
 															formValues[Util.camelCase(obj.name)]
 														}`,
 													}}
@@ -152,7 +154,10 @@ function DynamicFormDrawer({
 											onChange={(e) => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: e.target.value,
+													[Util.camelCase(obj.name)]: e.target.value.replace(
+														"#",
+														""
+													),
 												});
 											}}
 											style={{ display: "none" }}
@@ -225,9 +230,10 @@ function DynamicFormDrawer({
 								<div className="bbox">
 									<div className="values">
 										{bBoxList.length
-											? `[${bBoxList.map((item) => {
-													return `[${item.top}_${item.left}_${item.height}_${item.width}]`;
-											  })}]`
+											? // ? `[${bBoxList.map((item) => {
+											  // 		return `[${item.top}_${item.left}_${item.height}_${item.width}]`;
+											  //   })}]`
+											  ""
 											: null}
 									</div>
 									<div onClick={multiBoxCropperToggler} className="draw-btn">

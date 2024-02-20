@@ -8,9 +8,15 @@ interface tabBarProps {
 	isTranFormed: boolean;
 	url: string;
 	onLinkCopy: () => void;
+	setSelectedTabId: (id: number) => void;
 }
 
-function TabBar({ isImageSelected, isTranFormed, onLinkCopy }: tabBarProps) {
+function TabBar({
+	isImageSelected,
+	isTranFormed,
+	onLinkCopy,
+	setSelectedTabId,
+}: tabBarProps) {
 	const [tabID, setTabId] = useState(1);
 
 	return (
@@ -25,6 +31,7 @@ function TabBar({ isImageSelected, isTranFormed, onLinkCopy }: tabBarProps) {
 						<div
 							onClick={() => {
 								setTabId(1);
+								setSelectedTabId(1);
 							}}
 							className={`tab ${tabID === 1 ? "active-tab" : ""}`}
 						>
@@ -34,10 +41,22 @@ function TabBar({ isImageSelected, isTranFormed, onLinkCopy }: tabBarProps) {
 							<div
 								onClick={() => {
 									setTabId(2);
+									setSelectedTabId(2);
 								}}
 								className={`tab ${tabID === 2 ? "active-tab" : ""}`}
 							>
 								Transformed
+							</div>
+						)}
+						{isTranFormed && (
+							<div
+								onClick={() => {
+									setTabId(3);
+									setSelectedTabId(3);
+								}}
+								className={`tab ${tabID === 3 ? "active-tab" : ""}`}
+							>
+								Context
 							</div>
 						)}
 					</div>

@@ -7,4 +7,16 @@ export class Util {
 			})
 			.replace(/\s+/g, "");
 	}
+
+	static stringifyBBox = (bbox) => {
+		// top_left_height_width
+		return `${bbox.top}_${bbox.left}_${bbox.height}_${bbox.width}`;
+	};
+
+	static stringifyBBoxList = (bboxList) => {
+		// [[0_0_10_10]_[100_100_1000_1000]_...]
+		return `[${bboxList
+			.map((bbox) => `[${this.stringifyBBox(bbox)}]`)
+			.join("_")}]`;
+	};
 }

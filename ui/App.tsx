@@ -29,6 +29,7 @@ function App() {
 	const [totalCredit, setTotalCredit] = useState(0);
 	const [orgId, setOrgId] = useState("");
 	const [imgUrl, setImgUrl] = useState("");
+	const [transFormedUrl, setTransformedUrl] = useState("");
 	const [isTransformationsDrawerOpen, setIsTransformationsDrawerOpen] =
 		useState(false);
 	const [plugins, setPlugins] = useState({});
@@ -40,7 +41,7 @@ function App() {
 	const [cloudName, setCloudName] = useState("");
 	const [imageBytes, setImageBytes] = useState([]);
 	const [isTransformationApplied, setIsTransformationApplied] = useState(false);
-	const [transFormedUrl, setTransformedUrl] = useState("");
+	const [seletedTabId, setSelectedTabId] = useState(1);
 
 	const {
 		INITIAL_CALL,
@@ -133,8 +134,9 @@ function App() {
 	async function onRefreshClick() {
 		setIsLoading(true);
 		let t = null;
-
+		console.log("transformationQueue", transformationQueue);
 		transformationQueue.forEach((item, index) => {
+			console.log(">><<", transformations);
 			const { pluginName, method } = item.op;
 			if (index !== 0) {
 				//If its a not a first operation queue we have to pipe it
@@ -184,12 +186,13 @@ function App() {
 					{
 						pluginMessage: {
 							type: REPLACE_IMAGE,
-							bgRemovedUrl: demoImage.getUrl(),
+							transformedUrl: demoImage.getUrl(),
 						},
 					},
 					"*"
 				);
 				setCreditsDetails();
+				QueDrawerClose();
 			})
 			.catch((err) => {
 				return onRefreshClick();
@@ -324,11 +327,14 @@ function App() {
 						isTranFormed={isTransformationApplied}
 						url={transFormedUrl}
 						onLinkCopy={copyLink}
+						setSelectedTabId={setSelectedTabId}
 					/>
 					<ImageCanvas
 						url={imgUrl}
+						transFormedUrl={transFormedUrl}
 						isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
 						onRefreshClick={onRefreshClick}
+						selectedTabId={seletedTabId}
 					/>
 					{isTransformationsDrawerOpen && (
 						<TransformationsDrawer
