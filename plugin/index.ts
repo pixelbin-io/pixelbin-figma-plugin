@@ -33,6 +33,7 @@ const {
 	CLOSE_PLUGIN,
 	CURRENT_IMAGE_SELECTION,
 	ON_SELECTION_CHANGE,
+	NOTIFY_USER,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
@@ -97,6 +98,7 @@ figma.ui.onmessage = async (msg) => {
 					savedCloudName,
 					savedFormValue,
 					orgId,
+					command: figma.command,
 				});
 			} else {
 				figma.ui.postMessage({
@@ -104,6 +106,7 @@ figma.ui.onmessage = async (msg) => {
 					value: false,
 					savedFormValue: "",
 					isTokenEditing: figma.command === TOKEN_RESET_CMD,
+					command: figma.command,
 				});
 			}
 		} catch (err) {
@@ -204,7 +207,7 @@ figma.ui.onmessage = async (msg) => {
 	if (msg.type === OPEN_EXTERNAL_URL) {
 		figma.openExternal(msg.url);
 	}
-	if (msg.type === "notify-user") {
+	if (msg.type === NOTIFY_USER) {
 		figma.notify(msg.value);
 	}
 	if (msg.type === REPLACE_IMAGE) {
@@ -234,6 +237,7 @@ figma.ui.onmessage = async (msg) => {
 					type: "isTransformationApplied",
 					value: false,
 				});
+				toggleLoader(false);
 				console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
 			});
 	} else if (msg.type === CLOSE_PLUGIN) figma.closePlugin();

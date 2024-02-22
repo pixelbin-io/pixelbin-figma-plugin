@@ -17,7 +17,7 @@
 		"@esbuild-plugins/node-globals-polyfill": "^0.2.3",
 		"@fortawesome/fontawesome-svg-core": "^6.5.1",
 		"@pixelbin/admin": "^3.8.0",
-		"@pixelbin/core": "^5.4.0",
+		"@pixelbin/core": "^6.0.0",
 		"axios": "^1.6.7",
 		"buffer": "^6.0.3",
 		"copy-to-clipboard": "^3.3.3",

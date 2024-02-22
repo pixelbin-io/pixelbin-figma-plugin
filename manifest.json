@@ -7,8 +7,16 @@
 	"ui": "dist/ui/index.html",
 	"menu": [
 		{
-			"name": "Run",
-			"command": "erase-bg-ui-command"
+			"name": "Transform",
+			"command": "open-pixelbin-command"
+		},
+		{
+			"name": "Upload",
+			"command": "upload-command"
+		},
+		{
+			"name": "Download",
+			"command": "download-command"
 		},
 		{
 			"name": "Set/Reset Token",

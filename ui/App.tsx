@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { PdkAxios } from "@pixelbin/admin/common.js";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { EVENTS, createSignedURlDetails, uploadOptions } from "./../constants";
+import {
+	EVENTS,
+	createSignedURlDetails,
+	uploadOptions,
+	COMMANDS,
+} from "./../constants";
 import "./styles/style.app.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../config";
@@ -16,6 +21,7 @@ import TransformationsDrawer from "./components/Drawers/TransformationsDrawer/in
 import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx";
 import copy from "copy-to-clipboard";
 import QueuedTransformationsDrawer from "./components/Drawers/QueuedTransformationsDrawer/index.tsx";
+import ImageUploader from "./components/ImageUploader/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -42,6 +48,7 @@ function App() {
 	const [imageBytes, setImageBytes] = useState([]);
 	const [isTransformationApplied, setIsTransformationApplied] = useState(false);
 	const [seletedTabId, setSelectedTabId] = useState(1);
+	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
 
 	const {
 		INITIAL_CALL,
@@ -52,6 +59,7 @@ function App() {
 		REPLACE_IMAGE,
 		DELETE_TOKEN,
 		ON_SELECTION_CHANGE,
+		NOTIFY_USER,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -71,10 +79,6 @@ function App() {
 			apiSecret: tokenValue,
 		})
 	);
-
-	useEffect(() => {
-		getOperations();
-	}, [tokenValue]);
 
 	async function getOperations() {
 		try {
@@ -116,7 +120,9 @@ function App() {
 				setOrgId(data.pluginMessage.orgId);
 				setCloudName(data.pluginMessage.savedCloudName);
 			}
+			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
+
 		if (data.pluginMessage.type === CREATE_FORM) {
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
@@ -131,6 +137,18 @@ function App() {
 		}
 	};
 
+	function isUploadSuccess(msg: string) {
+		parent.postMessage(
+			{
+				pluginMessage: {
+					type: NOTIFY_USER,
+					value: msg,
+				},
+			},
+			"*"
+		);
+	}
+
 	async function onRefreshClick() {
 		setIsLoading(true);
 		let t = null;
@@ -141,10 +159,10 @@ function App() {
 			if (index !== 0) {
 				//If its a not a first operation queue we have to pipe it
 				if (!item.op.params.length) {
-					t = t.pipe(eval(`${pluginName}.${method}`)());
+					t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
 				} else {
 					t = t.pipe(
-						eval(`${pluginName}.${method}`)({
+						eval(`${pluginName.split(" ").join("")}.${method}`)({
 							...item.selectedFormValues,
 						})
 					);
@@ -152,10 +170,12 @@ function App() {
 			} else {
 				//If its a first operation queue
 				if (!item.op.params.length) {
-					t = eval(`${pluginName}.${method}`)();
+					t = eval(`${pluginName.split(" ").join("")}.${method}`)();
 				} else {
 					const { pluginName, method } = item.op;
-					t = eval(`${pluginName}.${method}`)({ ...item.selectedFormValues });
+					t = eval(`${pluginName.split(" ").join("")}.${method}`)({
+						...item.selectedFormValues,
+					});
 				}
 			}
 		});
@@ -195,7 +215,7 @@ function App() {
 				QueDrawerClose();
 			})
 			.catch((err) => {
-				return onRefreshClick();
+				setIsLoading(false);
 			});
 	}
 
@@ -204,7 +224,7 @@ function App() {
 		parent.postMessage(
 			{
 				pluginMessage: {
-					type: "notify-user",
+					type: NOTIFY_USER,
 					value: "Url copied to clipboard",
 				},
 			},
@@ -310,63 +330,80 @@ function App() {
 
 	useEffect(() => {
 		setCreditsDetails();
+		getOperations();
 	}, [tokenValue]);
+
+	useEffect(() => {
+		console.log("currentFigmaCmd", currentFigmaCmd);
+	}, [currentFigmaCmd]);
 
 	return (
 		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
 			{isTokenSaved && !isTokenEditOn ? (
 				<div className="main-ui-container">
-					<CreditsUI
-						creditUSed={creditsUsed}
-						totalCredit={totalCredit}
-						orgId={orgId}
-					/>
-					<Divider />
-					<TabBar
-						isImageSelected={!!imgUrl.length}
-						isTranFormed={isTransformationApplied}
-						url={transFormedUrl}
-						onLinkCopy={copyLink}
-						setSelectedTabId={setSelectedTabId}
-					/>
-					<ImageCanvas
-						url={imgUrl}
-						transFormedUrl={transFormedUrl}
-						isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
-						onRefreshClick={onRefreshClick}
-						selectedTabId={seletedTabId}
-					/>
-					{isTransformationsDrawerOpen && (
-						<TransformationsDrawer
-							toggler={transformationsDrawerToggle}
-							plugins={plugins}
-							handleTransformationClick={handleTransformationClick}
+					{currentFigmaCmd === COMMANDS.OPEN_PIXELBIN_CMD && (
+						<>
+							<CreditsUI
+								creditUSed={creditsUsed}
+								totalCredit={totalCredit}
+								orgId={orgId}
+							/>
+							<Divider />
+							<TabBar
+								isImageSelected={!!imgUrl.length}
+								isTranFormed={isTransformationApplied}
+								url={transFormedUrl}
+								onLinkCopy={copyLink}
+								setSelectedTabId={setSelectedTabId}
+							/>
+							<ImageCanvas
+								url={imgUrl}
+								transFormedUrl={transFormedUrl}
+								isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
+								onRefreshClick={onRefreshClick}
+								selectedTabId={seletedTabId}
+							/>
+							{isTransformationsDrawerOpen && (
+								<TransformationsDrawer
+									toggler={transformationsDrawerToggle}
+									plugins={plugins}
+									handleTransformationClick={handleTransformationClick}
+								/>
+							)}
+							{isDynamicFormOpen && (
+								<DynamicFormDrawer
+									toggler={dynamicFormToggler}
+									operation={currentOp}
+									url={imgUrl}
+									onTransformationApply={onTransformationApply}
+									selectedValues={isFormReEditing ? {} : null}
+									index={isFormReEditing ? index : null}
+								/>
+							)}
+							{imgUrl && (
+								<div
+									onClick={transformationsDrawerToggle}
+									className="icon--plus icon--white plus-button"
+								/>
+							)}
+							{transformationQueue.length ? (
+								<QueuedTransformationsDrawer
+									closeFunc={QueDrawerClose}
+									queue={transformationQueue}
+									onDeleteClick={onDeleteClick}
+									onArrowClick={onArrowClick}
+								/>
+							) : null}
+						</>
+					)}
+					{currentFigmaCmd === COMMANDS.UPLOAD_CMD && (
+						<ImageUploader
+							cloudName={cloudName}
+							tokenValue={tokenValue}
+							isUploadSuccess={isUploadSuccess}
+							setIsLoading={setIsLoading}
 						/>
 					)}
-					{isDynamicFormOpen && (
-						<DynamicFormDrawer
-							toggler={dynamicFormToggler}
-							operation={currentOp}
-							url={imgUrl}
-							onTransformationApply={onTransformationApply}
-							selectedValues={isFormReEditing ? {} : null}
-							index={isFormReEditing ? index : null}
-						/>
-					)}
-					{imgUrl && (
-						<div
-							onClick={transformationsDrawerToggle}
-							className="icon--plus icon--white plus-button"
-						/>
-					)}
-					{transformationQueue.length ? (
-						<QueuedTransformationsDrawer
-							closeFunc={QueDrawerClose}
-							queue={transformationQueue}
-							onDeleteClick={onDeleteClick}
-							onArrowClick={onArrowClick}
-						/>
-					) : null}
 				</div>
 			) : (
 				<TokenUI

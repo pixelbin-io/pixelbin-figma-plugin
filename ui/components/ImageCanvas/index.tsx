@@ -31,9 +31,9 @@ function ImageCanvas({
 	}, [selectedTabId]);
 
 	async function fetchContext() {
-		let data = await axios.get(
-			"https://cdn.pixelbin.io/context?url=/v2/muddy-lab-41820d/generate.bg(p:YSBmb3Jlc3QgZnVsbCBvZiBvYWsgdHJlZXMsd2l0aCBicmlnaHQgbGlnaHRzLCBzdW4gYW5kIGEgbG90IG9mIG1hZ2ljLCB1bHRyYSByZWFsaXN0aWMsIDhr,f:Product,s:123)/__figma/ebg/49d56508-9841-47ef-aaf9-fe8c1df52824.jpeg"
-		);
+		var regex = /^(https?:\/\/[^\/]+)/;
+		var modifiedString = transFormedUrl.replace(regex, "$1/context?url=/");
+		let data = await axios.get(modifiedString);
 		setContext(JSON.stringify(data.data.context));
 		console.log("FETCHED CONTEXT", data);
 	}

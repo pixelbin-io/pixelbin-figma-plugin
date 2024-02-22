@@ -48,11 +48,15 @@ export enum EVENTS {
 	CLOSE_PLUGIN = "close-plugin",
 	CURRENT_IMAGE_SELECTION = "currentImageSelection",
 	ON_SELECTION_CHANGE = "selectionchange",
+	NOTIFY_USER = "notify-user",
 }
 
 export enum COMMANDS {
 	HOW_IT_WORKS_CMD = "how-it-works-command",
 	TOKEN_RESET_CMD = "token-reset-command",
+	UPLOAD_CMD = "upload-command",
+	DOWNLOAD_CMD = "download-command",
+	OPEN_PIXELBIN_CMD = "open-pixelbin-command",
 }
 
 export const PERSISTED_TOKEN = "persistedToken";
@@ -62,7 +66,7 @@ export const CLOUD_NAME = "cloudName";
 export const ORG_ID = "organisationId";
 
 export const createSignedURlDetails = {
-	path: "__figma/ebg",
+	path: "__figma/__pixelbin.io",
 	format: "jpeg",
 	access: "public-read",
 	tags: ["tag1", "tag2"],
