@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./style.scss";
 import axios from "axios";
+import {
+	JsonView,
+	allExpanded,
+	darkStyles,
+	defaultStyles,
+	collapseAllNested,
+} from "react-json-view-lite";
+import "react-json-view-lite/dist/index.css";
 
 interface CanvasProps {
 	url: string;
@@ -34,7 +42,7 @@ function ImageCanvas({
 		var regex = /^(https?:\/\/[^\/]+)/;
 		var modifiedString = transFormedUrl.replace(regex, "$1/context?url=/");
 		let data = await axios.get(modifiedString);
-		setContext(JSON.stringify(data.data.context));
+		setContext(data.data.context);
 		console.log("FETCHED CONTEXT", data);
 	}
 
@@ -50,7 +58,13 @@ function ImageCanvas({
 						onLoad={handleImageLoad}
 					/>
 				) : (
-					<div className="context-box">{context}</div>
+					// <div className="context-box">
+					<JsonView
+						data={context}
+						shouldExpandNode={collapseAllNested}
+						style={darkStyles}
+					/>
+					// </div>
 				)
 			) : (
 				<div className="note-text">Please Select an image.</div>

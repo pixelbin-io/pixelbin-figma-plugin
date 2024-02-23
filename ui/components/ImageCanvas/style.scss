@@ -36,13 +36,21 @@
 	margin-bottom: 25px;
 }
 
-.context-box {
-	height: 100%;
-	max-width: 100%;
-	min-height: 260px;
-	overflow-x: auto;
-	margin: 95px 12px 0 12px;
-	position: relative;
+// .context-box {
+// 	max-width: 250px;
+// 	min-width: 250px;
+// 	max-height: 325px;
+// 	min-height: 335px;
+// 	overflow-y: auto;
+// 	margin-top: 175px;
+// }
+
+._11RoI {
+	max-width: 250px;
+	min-width: 250px;
+	max-height: 325px;
+	min-height: 335px;
+	overflow-y: auto;
+	margin-top: 175px;
 	font-size: 12px;
-	word-wrap: break-word;
 }

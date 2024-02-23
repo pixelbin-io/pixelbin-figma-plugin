@@ -71,11 +71,11 @@ function DynamicFormDrawer({
 	}
 
 	function setbBoxListVaLues(arr: any) {
+		setbBoxList(arr);
 		let temp = {
 			...formValues,
 			listOfBboxes: Util.stringifyBBoxList(arr),
 		};
-		console.log("tempw", temp);
 		setFormValues({ ...temp });
 	}
 
@@ -229,12 +229,7 @@ function DynamicFormDrawer({
 							return (
 								<div className="bbox">
 									<div className="values">
-										{bBoxList.length
-											? // ? `[${bBoxList.map((item) => {
-											  // 		return `[${item.top}_${item.left}_${item.height}_${item.width}]`;
-											  //   })}]`
-											  ""
-											: null}
+										{bBoxList.length ? Util.stringifyBBoxList(bBoxList) : null}
 									</div>
 									<div onClick={multiBoxCropperToggler} className="draw-btn">
 										Draw

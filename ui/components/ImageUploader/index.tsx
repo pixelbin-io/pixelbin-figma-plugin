@@ -20,6 +20,13 @@ function ImageUploader({
 	isUploadSuccess,
 	setIsLoading,
 }: IUProps) {
+	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
+		new PixelbinConfig({
+			domain: `${API_PIXELBIN_IO}`,
+			apiSecret: tokenValue,
+		})
+	);
+
 	const staticFormValues = {
 		image: null,
 		imageName: "",
@@ -31,14 +38,17 @@ function ImageUploader({
 	const [formValues, setFormValues] = useState(staticFormValues);
 	const [currentTag, setCurrentTag] = useState("");
 
+	async function fetchFoldersList() {
+		let data = await defaultPixelBinClient.assets.listFiles({
+			onlyFolders: true,
+			pageSize: 40,
+		});
+
+		console.log("Folders List", data);
+	}
+
 	async function handleUpload() {
 		setIsLoading(true);
-		let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
-			new PixelbinConfig({
-				domain: `${API_PIXELBIN_IO}`,
-				apiSecret: tokenValue,
-			})
-		);
 
 		// var pixelbin = new Pixelbin({
 		// 	cloudName: cloudName,
@@ -77,6 +87,10 @@ function ImageUploader({
 				setIsLoading(false);
 			});
 	}
+
+	useEffect(() => {
+		fetchFoldersList();
+	}, []);
 
 	return (
 		<div className="uploader-main-container">
