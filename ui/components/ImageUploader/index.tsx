@@ -37,14 +37,37 @@ function ImageUploader({
 	const inputRef = useRef(null);
 	const [formValues, setFormValues] = useState(staticFormValues);
 	const [currentTag, setCurrentTag] = useState("");
+	const [data2, setData2] = useState(null);
 
 	async function fetchFoldersList() {
-		let data = await defaultPixelBinClient.assets.listFiles({
-			onlyFolders: true,
-			pageSize: 40,
-		});
+		// let data = await defaultPixelBinClient.assets.listFiles({
+		// 	onlyFolders: true,
+		// 	pageSize: 40,
+		// });
 
-		console.log("Folders List", data);
+		let temp = await defaultPixelBinClient.assets.listFilesPaginator({
+			onlyFolders: true,
+			pageSize: 2,
+		});
+		setData2(temp);
+		const { items, page } = await temp.next();
+		console.log(items);
+		console.log(page.current); // 1
+		console.log(page.hasNext); // false
+		console.log(page.size); // 3
+		console.log(items.length);
+	}
+
+	async function FetchOnCall() {
+		console.log("D@D@", data2);
+		if (data2.hasNext()) {
+			const { items, page } = await data2.next();
+			console.log(items);
+			console.log(page.current); // 1
+			console.log(page.hasNext); // false
+			console.log(page.size); // 3
+			console.log(items.length);
+		}
 	}
 
 	async function handleUpload() {
@@ -96,6 +119,7 @@ function ImageUploader({
 		<div className="uploader-main-container">
 			<div className="image-upload-form">
 				<>
+					<div onClick={FetchOnCall}>Click</div>
 					<div className="generic-text dropdown-label">Select Image</div>
 					<div className="dummy-file-input">
 						<div className="img-name">

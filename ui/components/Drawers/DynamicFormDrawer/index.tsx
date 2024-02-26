@@ -10,6 +10,10 @@ import "./style.scss";
 import SingleBoxCropper from "./SingleBoxCropper";
 import MultiBoxCropper from "./MultiBoxCropper";
 
+declare const Object: {
+	entries: <T>(o: T) => [keyof T, T[keyof T]][];
+};
+
 interface formProps {
 	toggler: () => void;
 	operation: any;
@@ -45,6 +49,11 @@ function DynamicFormDrawer({
 			const camelCaseName = Util.camelCase(option.name);
 			temp[camelCaseName] = option.default;
 		});
+
+		if (selectedValues !== null) {
+			temp = { ...selectedValues.selectedFormValues };
+		}
+
 		setFormValues({ ...temp });
 	}
 

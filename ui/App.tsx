@@ -333,10 +333,6 @@ function App() {
 		getOperations();
 	}, [tokenValue]);
 
-	useEffect(() => {
-		console.log("currentFigmaCmd", currentFigmaCmd);
-	}, [currentFigmaCmd]);
-
 	return (
 		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
 			{isTokenSaved && !isTokenEditOn ? (
@@ -376,7 +372,9 @@ function App() {
 									operation={currentOp}
 									url={imgUrl}
 									onTransformationApply={onTransformationApply}
-									selectedValues={isFormReEditing ? {} : null}
+									selectedValues={
+										isFormReEditing ? transformationQueue[index] : null
+									}
 									index={isFormReEditing ? index : null}
 								/>
 							)}
