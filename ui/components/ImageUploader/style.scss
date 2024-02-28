@@ -1,6 +1,6 @@
 .uploader-main-container {
 	height: 100%;
-	padding: 20px;
+	padding: 4px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -98,5 +98,51 @@
 		height: 32px;
 		position: relative;
 		gap: 12px;
+	}
+
+	.tree-container {
+		max-height: 172px;
+		min-height: 172px;
+		overflow-y: auto;
+	}
+
+	.css-f91fgu {
+		background: var(--figma-color-bg);
+	}
+
+	.css-79elbk {
+		font-size: 12px !important;
+	}
+
+	.path-string {
+		font-size: 12px;
+		padding: 10px 8px;
+		border-radius: 4px;
+		box-shadow: inset 0 0 0 1px var(--figma-color-border);
+		text-wrap: nowrap;
+		overflow-x: auto;
+	}
+
+	.placeholder {
+		color: var(--figma-color-border);
+	}
+
+	.uploader-form-container {
+		max-height: 367px;
+		overflow-y: auto;
+		padding: 20px 20px 0px 20px;
+	}
+
+	.api-key-btn-container {
+		padding: 0 20px 20px 20px;
+	}
+
+	.load-more-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		cursor: pointer;
+		color: var(--figma-color-bg-brand);
 	}
 }

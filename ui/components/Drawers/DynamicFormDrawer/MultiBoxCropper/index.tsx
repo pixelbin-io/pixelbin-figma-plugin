@@ -119,9 +119,6 @@ function MultiBoxCropper({ url, toggler, setBoxList }: BoxProps) {
 
 	const handleMouseUp = () => {
 		setIsDrawing(false);
-		if (boxes.length > 0) {
-			console.log("All Boxes Details:", boxes);
-		}
 	};
 
 	const handleMouseMove = (e: MouseEvent) => {

@@ -43,7 +43,6 @@ function ImageCanvas({
 		var modifiedString = transFormedUrl.replace(regex, "$1/context?url=/");
 		let data = await axios.get(modifiedString);
 		setContext(data.data.context);
-		console.log("FETCHED CONTEXT", data);
 	}
 
 	return (

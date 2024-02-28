@@ -87,9 +87,7 @@ function App() {
 
 				setPlugins(data?.plugins);
 			}
-		} catch (err) {
-			console.log(err);
-		}
+		} catch (err) {}
 	}
 
 	window.onmessage = async (event) => {
@@ -152,9 +150,7 @@ function App() {
 	async function onRefreshClick() {
 		setIsLoading(true);
 		let t = null;
-		console.log("transformationQueue", transformationQueue);
 		transformationQueue.forEach((item, index) => {
-			console.log(">><<", transformations);
 			const { pluginName, method } = item.op;
 			if (index !== 0) {
 				//If its a not a first operation queue we have to pipe it
@@ -311,9 +307,7 @@ function App() {
 				const cr = newData?.total?.credits;
 				setCreditUSed(cu);
 				setTotalCredit(cr);
-			} catch (err) {
-				console.log("error", err);
-			}
+			} catch (err) {}
 		}
 	}
 	function onDeleteClick(index: number) {
@@ -400,6 +394,17 @@ function App() {
 							tokenValue={tokenValue}
 							isUploadSuccess={isUploadSuccess}
 							setIsLoading={setIsLoading}
+							showErrMessage={() => {
+								parent.postMessage(
+									{
+										pluginMessage: {
+											type: NOTIFY_USER,
+											value: "SOmething Went wrong",
+										},
+									},
+									"*"
+								);
+							}}
 						/>
 					)}
 				</div>

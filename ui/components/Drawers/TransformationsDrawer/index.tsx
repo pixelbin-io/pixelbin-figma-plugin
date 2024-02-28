@@ -25,7 +25,6 @@ function TransformationsDrawer({
 
 	useEffect(() => {
 		filterTransformationList();
-		console.log("INSDIE DRAWER", plugins);
 	}, []);
 
 	const sortTransformationByName = (itemList) => {

@@ -104,12 +104,7 @@ function SingleCropper({ url, toggler, setCordinates }: BoxProps) {
 		}
 	};
 
-	const handleMouseUp = () => {
-		setIsDrawing(false);
-		if (box) {
-			console.log("Box Details:", box);
-		}
-	};
+	const handleMouseUp = () => setIsDrawing(false);
 
 	const handleMouseMove = (e: MouseEvent) => {
 		const canvas = canvasRef.current;

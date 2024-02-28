@@ -57,6 +57,15 @@ function DynamicFormDrawer({
 		setFormValues({ ...temp });
 	}
 
+	function resetAll() {
+		let temp = { ...formValues };
+		operation.params.forEach((option, index) => {
+			const camelCaseName = Util.camelCase(option.name);
+			temp[camelCaseName] = option.default;
+		});
+		setFormValues({ ...temp });
+	}
+
 	useEffect(() => {
 		formSetter();
 	}, [operation]);
@@ -214,7 +223,8 @@ function DynamicFormDrawer({
 											const { files }: { files: FileList } = event.target;
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]: files[0],
+												[Util.camelCase(obj.name)]:
+													"https://cdn.pixelbin.io/v2/muddy-lab-41820d/original/image.png",
 											});
 										}}
 										className="image-input"
@@ -310,7 +320,7 @@ function DynamicFormDrawer({
 				})}
 			</div>
 			<Divider />
-			<Footer handleReset={() => {}} handleSubmit={submitForm} />
+			<Footer handleReset={resetAll} handleSubmit={submitForm} />
 			{isCropperOpen && (
 				<SingleBoxCropper
 					setCordinates={setBboxValues}
