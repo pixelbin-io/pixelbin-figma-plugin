@@ -145,4 +145,14 @@
 		cursor: pointer;
 		color: var(--figma-color-bg-brand);
 	}
+
+	.no-folders-error {
+		font-size: 12px;
+		margin-top: 16px;
+		margin-left: 4px;
+		span {
+			cursor: pointer;
+			color: var(--figma-color-bg-brand);
+		}
+	}
 }

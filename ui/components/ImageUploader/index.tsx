@@ -3,10 +3,12 @@ import "./style.scss";
 import { ReactComponent as CloseIcon } from "../../../assets/close.svg";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
 import { PdkAxios } from "@pixelbin/admin/common.js";
-import { uploadOptions } from "../../../constants";
+import { uploadOptions, EVENTS } from "../../../constants";
 import Pixelbin, { transformations } from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
+
+const { OPEN_EXTERNAL_URL } = EVENTS;
 
 interface IUProps {
 	cloudName: string;
@@ -25,10 +27,22 @@ function ImageUploader({
 }: IUProps) {
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({
-			domain: `${API_PIXELBIN_IO}`,
+			domain: API_PIXELBIN_IO,
 			apiSecret: tokenValue,
 		})
 	);
+
+	function openExternalURl(url) {
+		parent.postMessage(
+			{
+				pluginMessage: {
+					type: OPEN_EXTERNAL_URL,
+					url,
+				},
+			},
+			"*"
+		);
+	}
 
 	const staticFormValues = {
 		image: null,
@@ -50,6 +64,7 @@ function ImageUploader({
 	const [selectedPath, setSelectedPath] = useState("");
 	const [isLoadMoreEnabled, setIsLoadMoreEnabled] = useState(false);
 	const [apiInstance, setAPIInstance] = useState(null);
+	const [foldersNotFound, setFolderNotFound] = useState(true);
 
 	function deactivateChildren(node) {
 		let temp = node;
@@ -79,8 +94,11 @@ function ImageUploader({
 				});
 			setData({ ...x });
 			setIsLoading(false);
+			if (!items.length) setFolderNotFound(true);
+			else setFolderNotFound(false);
 		} catch (err) {
 			setIsLoading(false);
+			console.log("1111");
 			showErrMessage();
 		}
 	}
@@ -103,6 +121,7 @@ function ImageUploader({
 			setIsLoading(false);
 		} catch (err) {
 			setIsLoading(false);
+			console.log("2222");
 			showErrMessage();
 		}
 	}
@@ -119,6 +138,7 @@ function ImageUploader({
 			return items;
 		} catch (err) {
 			setIsLoading(false);
+			console.log("33333");
 			showErrMessage();
 		}
 	}
@@ -130,7 +150,7 @@ function ImageUploader({
 			const regex = /\/([^\/]+)$/;
 
 			let createSignedURlDetails = {
-				path: "__figma/__pixelbin.io",
+				path: selectedPath,
 				name: formValues.imageName,
 				format: formValues.image.type.match(regex)[1],
 				access: "public-read",
@@ -147,9 +167,7 @@ function ImageUploader({
 
 			Pixelbin.upload(formValues.image as any, res.presignedUrl, uploadOptions)
 				.then(() => {
-					isUploadSuccess(
-						"Uploaded succesfully to storage in folder __figma/pixelbin"
-					);
+					isUploadSuccess("Uploaded succesfully");
 					setIsLoading(false);
 				})
 				.catch((err) => {
@@ -158,6 +176,7 @@ function ImageUploader({
 				});
 		} catch (err) {
 			setIsLoading(false);
+			console.log("44444");
 			showErrMessage();
 		}
 	}
@@ -199,6 +218,7 @@ function ImageUploader({
 			setIsLoading(false);
 		} catch (err) {
 			setIsLoading(false);
+			console.log("55555");
 			showErrMessage();
 		}
 	};
@@ -211,6 +231,21 @@ function ImageUploader({
 				</div>
 				<div className="tree-container">
 					<Treebeard data={data} onToggle={onToggle} />
+					{foldersNotFound && (
+						<div className="no-folders-error">
+							No folders found. Click{" "}
+							<span
+								onClick={() => {
+									openExternalURl(
+										"https://console.pixelbinz0.de/choose-org?redirectTo=storage"
+									);
+								}}
+							>
+								Here
+							</span>{" "}
+							to create.
+						</div>
+					)}
 					{isLoadMoreEnabled && (
 						<div className="load-more-button" onClick={loadMore}>
 							Load More ↓

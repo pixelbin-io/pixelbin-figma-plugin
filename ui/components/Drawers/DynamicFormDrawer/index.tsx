@@ -9,6 +9,18 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "./style.scss";
 import SingleBoxCropper from "./SingleBoxCropper";
 import MultiBoxCropper from "./MultiBoxCropper";
+import Pixelbin, { transformations } from "@pixelbin/core";
+import { v4 as uuidv4 } from "uuid";
+import { API_PIXELBIN_IO } from "../../../../config";
+import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
+import {
+	EVENTS,
+	createSignedURlDetails,
+	uploadOptions,
+	COMMANDS,
+} from "./../../../../constants";
+
+const { NOTIFY_USER } = EVENTS;
 
 declare const Object: {
 	entries: <T>(o: T) => [keyof T, T[keyof T]][];
@@ -21,6 +33,9 @@ interface formProps {
 	onTransformationApply: (data: any) => void;
 	selectedValues: any | null;
 	index: number | null;
+	tokenValue: string;
+	cloudName: string;
+	setIsLoading: (val: boolean) => void;
 }
 
 function DynamicFormDrawer({
@@ -29,6 +44,9 @@ function DynamicFormDrawer({
 	url,
 	onTransformationApply,
 	selectedValues = null,
+	tokenValue,
+	cloudName,
+	setIsLoading,
 }: formProps) {
 	const inputRef = useRef(null);
 	const colorRef = useRef(null);
@@ -42,6 +60,7 @@ function DynamicFormDrawer({
 	});
 	const [isMultiboxCropperOpen, setIsMultiboxCropperOpen] = useState(false);
 	const [bBoxList, setbBoxList] = useState("");
+	const [uploadedImageName, setUploadedImageName] = useState("");
 
 	function formSetter() {
 		let temp = { ...formValues };
@@ -102,6 +121,42 @@ function DynamicFormDrawer({
 		onTransformationApply(data);
 	}
 
+	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
+		new PixelbinConfig({
+			domain: `${API_PIXELBIN_IO}`,
+			apiSecret: tokenValue,
+		})
+	);
+
+	async function imageUpload(file) {
+		let x = null;
+		setIsLoading(true);
+		try {
+			let name = `${file.name}${uuidv4()}`;
+			let res = await defaultPixelBinClient.assets.createSignedUrlV2({
+				...createSignedURlDetails,
+				name: name,
+			});
+			await Pixelbin.upload(file as any, res.presignedUrl, uploadOptions);
+			x = JSON.parse(res.presignedUrl.fields["x-pixb-meta-assetdata"])?.fileId;
+			setIsLoading(false);
+			setUploadedImageName(name);
+		} catch (err) {
+			parent.postMessage(
+				{
+					pluginMessage: {
+						type: NOTIFY_USER,
+						value: "Failed Upload Image!",
+					},
+				},
+				"*"
+			);
+			setIsLoading(false);
+			setUploadedImageName(null);
+		}
+		return x;
+	}
+
 	return (
 		<div className="dfd-container">
 			<Divider />
@@ -116,8 +171,13 @@ function DynamicFormDrawer({
 					switch (obj.type) {
 						case "enum":
 							return (
-								<>
-									<div className="generic-text dropdown-label">{obj.title}</div>
+								<div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
+									</div>
 									<div className="select-wrapper">
 										<select
 											onChange={(e) => {
@@ -136,12 +196,17 @@ function DynamicFormDrawer({
 											))}
 										</select>
 									</div>
-								</>
+								</div>
 							);
 						case "color":
 							return (
 								<div>
-									<div className="generic-text dropdown-label">{obj.title}</div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
+									</div>
 									<div
 										className="color-picker-input"
 										onClick={() => colorRef.current?.click()}
@@ -202,14 +267,21 @@ function DynamicFormDrawer({
 							);
 						case "file":
 							return (
-								<>
-									<div className="generic-text dropdown-label">{obj.title}</div>
+								<div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
+									</div>
 									<div
-										className="dummy-file-input"
+										className={`dummy-file-input ${
+											!uploadedImageName.length ? "flexer" : ""
+										}`}
 										onClick={() => inputRef.current?.click()}
 									>
 										{formValues[Util.camelCase(obj.name)]
-											? formValues[Util.camelCase(obj.name)]?.name
+											? uploadedImageName
 											: "Browse Image"}
 									</div>
 									<input
@@ -219,39 +291,57 @@ function DynamicFormDrawer({
 										ref={inputRef}
 										accept="image/*"
 										style={{ display: "none" }}
-										onChange={(event) => {
+										onChange={async (event) => {
 											const { files }: { files: FileList } = event.target;
+											let temp = await imageUpload(files[0]);
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]:
-													"https://cdn.pixelbin.io/v2/muddy-lab-41820d/original/image.png",
+												[Util.camelCase(obj.name)]: btoa(temp),
 											});
 										}}
 										className="image-input"
 									/>
-								</>
+								</div>
 							);
 						case "bbox":
 							return (
-								<div className="bbox">
-									<div className="values">
-										{bboxCoordinates.height === 0
-											? null
-											: `${bboxCoordinates.top}_${bboxCoordinates.left}_${bboxCoordinates.height}_${bboxCoordinates.width}`}
+								<div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
 									</div>
-									<div onClick={cropToggler} className="draw-btn">
-										Draw
+									<div className="bbox">
+										<div className="values">
+											{bboxCoordinates.height === 0
+												? null
+												: `${bboxCoordinates.top}_${bboxCoordinates.left}_${bboxCoordinates.height}_${bboxCoordinates.width}`}
+										</div>
+										<div onClick={cropToggler} className="draw-btn">
+											Draw
+										</div>
 									</div>
 								</div>
 							);
 						case "bboxList":
 							return (
-								<div className="bbox">
-									<div className="values">
-										{bBoxList.length ? Util.stringifyBBoxList(bBoxList) : null}
+								<div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
 									</div>
-									<div onClick={multiBoxCropperToggler} className="draw-btn">
-										Draw
+									<div className="bbox">
+										<div className="values">
+											{bBoxList.length
+												? Util.stringifyBBoxList(bBoxList)
+												: null}
+										</div>
+										<div onClick={multiBoxCropperToggler} className="draw-btn">
+											Draw
+										</div>
 									</div>
 								</div>
 							);
@@ -260,7 +350,12 @@ function DynamicFormDrawer({
 						case "polygonList":
 							return (
 								<div className="text-box-container">
-									<div className="generic-text dropdown-label">{obj.title}</div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
+									</div>
 									<input
 										className="text-input-box"
 										id={Util.camelCase(obj.name)}
@@ -279,7 +374,12 @@ function DynamicFormDrawer({
 						case "float":
 							return operation.displayName.toLowerCase() !== "extract" ? (
 								<div className="slider-container">
-									<div className="generic-text dropdown-label">{obj.title}</div>
+									<div className="form-field-container">
+										<div className="generic-text dropdown-label">
+											{obj.title}
+										</div>
+										<div className="resetter">Reset</div>
+									</div>
 									<div className="slider-sub-container">
 										<div className="slider-div">
 											<div className="slider-values-container">

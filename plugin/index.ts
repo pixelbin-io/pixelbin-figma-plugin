@@ -209,34 +209,46 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify(msg.value);
 	}
 	if (msg.type === REPLACE_IMAGE) {
-		figma
-			.createImageAsync(msg?.transformedUrl)
-			.then(async (image: Image) => {
-				const { width, height } = await image.getSizeAsync();
-				node.resize(width, height);
-				node.fills = [
-					{
-						type: IMAGE,
-						imageHash: image.hash,
-						scaleMode: "FILL",
-					},
-				];
-				toggleLoader(false);
-				figma.notify("Transformation Applied ", { timeout: 2000 });
-				figma.ui.postMessage({
-					type: "isTransformationApplied",
-					value: true,
-					url: msg?.transformedUrl,
+		const applyTransformation = (retries) => {
+			figma
+				.createImageAsync(msg?.transformedUrl)
+				.then(async (image) => {
+					const { width, height } = await image.getSizeAsync();
+					node.resize(width, height);
+					node.fills = [
+						{
+							type: IMAGE,
+							imageHash: image.hash,
+							scaleMode: "FILL",
+						},
+					];
+					toggleLoader(false);
+					figma.notify("Transformation Applied ", { timeout: 2000 });
+					figma.ui.postMessage({
+						type: "isTransformationApplied",
+						value: true,
+						url: msg?.transformedUrl,
+					});
+				})
+				.catch((err) => {
+					if (retries > 0) {
+						// Retry the operation
+						console.log(`Retrying... ${retries} retries left.`);
+						applyTransformation(retries - 1);
+					} else {
+						// No more retries, execute catch block
+						figma.notify("Something went wrong");
+						figma.ui.postMessage({
+							type: "isTransformationApplied",
+							value: false,
+						});
+						toggleLoader(false);
+						console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
+					}
 				});
-			})
-			.catch((err) => {
-				figma.notify("Something went wrong");
-				figma.ui.postMessage({
-					type: "isTransformationApplied",
-					value: false,
-				});
-				toggleLoader(false);
-				console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
-			});
+		};
+
+		// Call the function with retries
+		applyTransformation(2); // 3 retries in total
 	} else if (msg.type === CLOSE_PLUGIN) figma.closePlugin();
 };

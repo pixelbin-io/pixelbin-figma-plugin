@@ -25,6 +25,7 @@ function TransformationsDrawer({
 
 	useEffect(() => {
 		filterTransformationList();
+		console.log("plugins2", plugins);
 	}, []);
 
 	const sortTransformationByName = (itemList) => {
@@ -77,11 +78,18 @@ function TransformationsDrawer({
 		});
 
 		setAiTransformationList(
-			identifierSequence.map(
-				(eachSequence) => transformationListObj[eachSequence]
+			identifierSequence
+				.map((eachSequence) => transformationListObj[eachSequence])
+				.filter((item) => item.plugin.name !== "PdfWatermarkRemoval")
+		);
+
+		setBasicTransformationsList(
+			sortTransformationByName(
+				basicTransformations.filter(
+					(item) => item.op.displayName !== "Change Format"
+				)
 			)
 		);
-		setBasicTransformationsList(sortTransformationByName(basicTransformations));
 	};
 
 	return (

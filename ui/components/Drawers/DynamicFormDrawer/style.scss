@@ -32,7 +32,6 @@
 	}
 
 	.dropdown-label {
-		margin-bottom: 4px;
 		font-size: 10px;
 	}
 	.checkbox__label::before {
@@ -84,20 +83,27 @@
 		color: #aaabc5;
 	}
 
+	.flexer {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 	.dummy-file-input {
 		width: 100%;
 		min-height: 34px;
 		border: 1px solid var(--figma-color-border);
 		border-radius: 5px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		/* display: flex; */
+		/* justify-content: center; */
+		/* align-items: center; */
 		font-size: 14px;
 		font-weight: 400;
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;
 		cursor: pointer;
+		padding: 8px;
+		/* text-overflow: clip; */
 		&:hover {
 			background-color: #aaabc433;
 		}
@@ -112,7 +118,7 @@
 		overflow-y: auto;
 		flex: 1 1 0%;
 		padding: 16px 14px;
-		gap: 10px;
+		gap: 16px;
 		display: flex;
 		flex-direction: column;
 	}
@@ -188,6 +194,11 @@
 		padding: 8px;
 	}
 
+	.form-field-container {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 4px;
+	}
 	.picker-icon {
 		height: 20px;
 		width: 20px;
@@ -200,6 +211,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		cursor: pointer;
+	}
+
+	.resetter {
+		font-size: 10px;
+		color: var(--figma-color-bg-brand);
 		cursor: pointer;
 	}
 

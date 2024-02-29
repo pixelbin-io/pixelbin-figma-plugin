@@ -84,8 +84,8 @@ function App() {
 		try {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
-
 				setPlugins(data?.plugins);
+				// console.log("Plugins", data?.plugins);
 			}
 		} catch (err) {}
 	}
@@ -370,6 +370,9 @@ function App() {
 										isFormReEditing ? transformationQueue[index] : null
 									}
 									index={isFormReEditing ? index : null}
+									tokenValue={tokenValue}
+									cloudName={cloudName}
+									setIsLoading={setIsLoading}
 								/>
 							)}
 							{imgUrl && (
@@ -399,7 +402,7 @@ function App() {
 									{
 										pluginMessage: {
 											type: NOTIFY_USER,
-											value: "SOmething Went wrong",
+											value: "Something Went wrong !!!",
 										},
 									},
 									"*"
