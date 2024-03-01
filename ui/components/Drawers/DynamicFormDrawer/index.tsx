@@ -176,7 +176,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div className="select-wrapper">
 										<select
@@ -205,7 +215,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div
 										className="color-picker-input"
@@ -250,19 +270,32 @@ function DynamicFormDrawer({
 							);
 						case "boolean":
 							return (
-								<div className="checkbox-container">
-									<input
-										id={Util.camelCase(obj.name)}
-										type="checkbox"
-										checked={formValues[Util.camelCase(obj.name)]}
-										onChange={(e) => {
+								<div className="bool-wrapper">
+									<div className="checkbox-container">
+										<input
+											id={Util.camelCase(obj.name)}
+											type="checkbox"
+											checked={formValues[Util.camelCase(obj.name)]}
+											onChange={(e) => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: e.target.checked,
+												});
+											}}
+										/>
+										<div className="generic-text">{obj.title}</div>
+									</div>
+									<div
+										className="resetter"
+										onClick={() => {
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]: e.target.checked,
+												[Util.camelCase(obj.name)]: obj.default,
 											});
 										}}
-									/>
-									<div className="generic-text">{obj.title}</div>
+									>
+										Reset
+									</div>
 								</div>
 							);
 						case "file":
@@ -272,7 +305,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div
 										className={`dummy-file-input ${
@@ -310,7 +353,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div className="bbox">
 										<div className="values">
@@ -331,7 +384,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div className="bbox">
 										<div className="values">
@@ -354,7 +417,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<input
 										className="text-input-box"
@@ -378,7 +451,17 @@ function DynamicFormDrawer({
 										<div className="generic-text dropdown-label">
 											{obj.title}
 										</div>
-										<div className="resetter">Reset</div>
+										<div
+											className="resetter"
+											onClick={() => {
+												setFormValues({
+													...formValues,
+													[Util.camelCase(obj.name)]: obj.default,
+												});
+											}}
+										>
+											Reset
+										</div>
 									</div>
 									<div className="slider-sub-container">
 										<div className="slider-div">

@@ -114,6 +114,13 @@
 	// 	border: 1px solid var(--figma-color-border);
 	// 	border-radius: 5px;
 	// }
+
+	.bool-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+	}
 	.form-container {
 		overflow-y: auto;
 		flex: 1 1 0%;

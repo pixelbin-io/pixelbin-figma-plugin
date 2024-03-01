@@ -60,6 +60,7 @@ function App() {
 		DELETE_TOKEN,
 		ON_SELECTION_CHANGE,
 		NOTIFY_USER,
+		IS_TRANSFORMATION_APPLIED,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -110,6 +111,9 @@ function App() {
 				setImgUrl(imageUrl);
 			}
 		}
+		if (data.pluginMessage.type === "changeTabID") {
+			setSelectedTabId(data.pluginMessage.tabId);
+		}
 		if (data.pluginMessage.type === IS_TOKEN_SAVED) {
 			setIsTokenSaved(data.pluginMessage.value);
 			setIsTokenEditOn(data.pluginMessage.isTokenEditing);
@@ -128,10 +132,12 @@ function App() {
 
 		if (data.pluginMessage.type === TOGGLE_LOADER)
 			setIsLoading(data.pluginMessage.value);
-		if (data.pluginMessage.type === "isTransformationApplied") {
+		if (data.pluginMessage.type === IS_TRANSFORMATION_APPLIED) {
 			setIsTransformationApplied(data.pluginMessage.value);
-			if (data.pluginMessage.value) setTransformedUrl(data.pluginMessage.url);
-			else setTransformedUrl("");
+			if (data.pluginMessage.value) {
+				setTransformedUrl(data.pluginMessage.url);
+				setSelectedTabId(2);
+			} else setTransformedUrl("");
 		}
 	};
 
@@ -345,6 +351,7 @@ function App() {
 								url={transFormedUrl}
 								onLinkCopy={copyLink}
 								setSelectedTabId={setSelectedTabId}
+								tabID={seletedTabId}
 							/>
 							<ImageCanvas
 								url={imgUrl}
@@ -402,7 +409,7 @@ function App() {
 									{
 										pluginMessage: {
 											type: NOTIFY_USER,
-											value: "Something Went wrong !!!",
+											value: "Something Went wrong!",
 										},
 									},
 									"*"

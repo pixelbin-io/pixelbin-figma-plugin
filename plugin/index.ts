@@ -34,6 +34,7 @@ const {
 	CURRENT_IMAGE_SELECTION,
 	ON_SELECTION_CHANGE,
 	NOTIFY_USER,
+	IS_TRANSFORMATION_APPLIED,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
@@ -54,6 +55,10 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 	};
 
 	if (figma.currentPage.selection.length > 0) {
+		figma.ui.postMessage({
+			type: "changeTabID",
+			tabId: 1,
+		});
 		var node: any = figma?.currentPage?.selection[0];
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
@@ -61,11 +66,11 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 			body.imageBytes = bytes;
 		} else {
 			body.imageBytes = null;
-			figma.ui.postMessage({ type: "isTransformationApplied", value: false });
+			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 		}
 	} else {
 		body.imageBytes = null;
-		figma.ui.postMessage({ type: "isTransformationApplied", value: false });
+		figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 	}
 	figma.ui.postMessage(body);
 });
@@ -209,46 +214,56 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify(msg.value);
 	}
 	if (msg.type === REPLACE_IMAGE) {
-		const applyTransformation = (retries) => {
-			figma
-				.createImageAsync(msg?.transformedUrl)
-				.then(async (image) => {
-					const { width, height } = await image.getSizeAsync();
-					node.resize(width, height);
-					node.fills = [
-						{
-							type: IMAGE,
-							imageHash: image.hash,
-							scaleMode: "FILL",
-						},
-					];
-					toggleLoader(false);
-					figma.notify("Transformation Applied ", { timeout: 2000 });
-					figma.ui.postMessage({
-						type: "isTransformationApplied",
-						value: true,
-						url: msg?.transformedUrl,
-					});
-				})
-				.catch((err) => {
-					if (retries > 0) {
-						// Retry the operation
-						console.log(`Retrying... ${retries} retries left.`);
-						applyTransformation(retries - 1);
-					} else {
-						// No more retries, execute catch block
-						figma.notify("Something went wrong");
+		let status,
+			retries = 5;
+
+		async function getStatus() {
+			toggleLoader(true);
+			let data = await fetch(msg?.transformedUrl);
+			status = data?.status;
+			if (data?.status === 202 && retries > 0) {
+				setTimeout(() => {
+					retries = retries - 1;
+					getStatus();
+				}, 5000);
+				return;
+			} else {
+				toggleLoader(false);
+			}
+
+			if (status === 200) {
+				toggleLoader(true);
+				figma
+					.createImageAsync(msg?.transformedUrl)
+					.then(async (image) => {
+						const { width, height } = await image.getSizeAsync();
+						node.resize(width, height);
+						node.fills = [
+							{
+								type: IMAGE,
+								imageHash: image.hash,
+								scaleMode: "FILL",
+							},
+						];
+						toggleLoader(false);
+						figma.notify("Transformation Applied ", { timeout: 2000 });
 						figma.ui.postMessage({
-							type: "isTransformationApplied",
-							value: false,
+							type: IS_TRANSFORMATION_APPLIED,
+							value: true,
+							url: msg?.transformedUrl,
 						});
+					})
+					.catch((err) => {
 						toggleLoader(false);
 						console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
-					}
-				});
-		};
+						figma.notify("Something went wrong");
+					});
+			} else {
+				figma.notify("Something went wrong");
+				toggleLoader(false);
+			}
+		}
 
-		// Call the function with retries
-		applyTransformation(2); // 3 retries in total
-	} else if (msg.type === CLOSE_PLUGIN) figma.closePlugin();
+		getStatus();
+	}
 };

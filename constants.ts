@@ -49,6 +49,7 @@ export enum EVENTS {
 	CURRENT_IMAGE_SELECTION = "currentImageSelection",
 	ON_SELECTION_CHANGE = "selectionchange",
 	NOTIFY_USER = "notify-user",
+	IS_TRANSFORMATION_APPLIED = "isTransformationApplied",
 }
 
 export enum COMMANDS {

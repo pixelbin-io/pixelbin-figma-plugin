@@ -9,6 +9,7 @@ interface tabBarProps {
 	url: string;
 	onLinkCopy: () => void;
 	setSelectedTabId: (id: number) => void;
+	tabID: number;
 }
 
 function TabBar({
@@ -16,9 +17,8 @@ function TabBar({
 	isTranFormed,
 	onLinkCopy,
 	setSelectedTabId,
+	tabID,
 }: tabBarProps) {
-	const [tabID, setTabId] = useState(1);
-
 	return (
 		<div
 			className={`container ${
@@ -30,7 +30,6 @@ function TabBar({
 					<div className="tab-container">
 						<div
 							onClick={() => {
-								setTabId(1);
 								setSelectedTabId(1);
 							}}
 							className={`tab ${tabID === 1 ? "active-tab" : ""}`}
@@ -40,7 +39,6 @@ function TabBar({
 						{isTranFormed && (
 							<div
 								onClick={() => {
-									setTabId(2);
 									setSelectedTabId(2);
 								}}
 								className={`tab ${tabID === 2 ? "active-tab" : ""}`}
@@ -51,7 +49,6 @@ function TabBar({
 						{isTranFormed && (
 							<div
 								onClick={() => {
-									setTabId(3);
 									setSelectedTabId(3);
 								}}
 								className={`tab ${tabID === 3 ? "active-tab" : ""}`}
