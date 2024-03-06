@@ -35,6 +35,7 @@ const {
 	IS_TRANSFORMATION_APPLIED,
 	TOKEN_SAVED,
 	CREATE_NEW_IMAGE,
+	CHANGE_TAB_ID,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
@@ -56,7 +57,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 
 	if (figma.currentPage.selection.length > 0) {
 		figma.ui.postMessage({
-			type: "changeTabID",
+			type: CHANGE_TAB_ID,
 			tabId: 1,
 		});
 		var node: any = figma?.currentPage?.selection[0];

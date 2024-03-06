@@ -63,6 +63,7 @@ function App() {
 		NOTIFY_USER,
 		IS_TRANSFORMATION_APPLIED,
 		TOKEN_SAVED,
+		CHANGE_TAB_ID,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -112,7 +113,7 @@ function App() {
 				setImgUrl(imageUrl);
 			}
 		}
-		if (data.pluginMessage.type === "changeTabID") {
+		if (data.pluginMessage.type === CHANGE_TAB_ID) {
 			setSelectedTabId(data.pluginMessage.tabId);
 		}
 		if (data.pluginMessage.type === IS_TOKEN_SAVED) {
@@ -392,7 +393,7 @@ function App() {
 							)}
 							{transformationQueue.length ? (
 								<QueuedTransformationsDrawer
-									closeFunc={QueDrawerClose}
+									onClose={QueDrawerClose}
 									queue={transformationQueue}
 									onDeleteClick={onDeleteClick}
 									onArrowClick={onArrowClick}

@@ -188,6 +188,7 @@ function ImageUploader({
 				.then(() => {
 					isUploadSuccess("Uploaded succesfully");
 					setIsLoading(false);
+					setStorageDetails();
 				})
 				.catch((err) => {
 					isUploadSuccess(err);
