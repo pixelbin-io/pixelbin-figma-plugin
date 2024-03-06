@@ -50,6 +50,8 @@ export enum EVENTS {
 	ON_SELECTION_CHANGE = "selectionchange",
 	NOTIFY_USER = "notify-user",
 	IS_TRANSFORMATION_APPLIED = "isTransformationApplied",
+	TOKEN_SAVED = "tokenSaved",
+	CREATE_NEW_IMAGE = "createNewImage",
 }
 
 export enum COMMANDS {

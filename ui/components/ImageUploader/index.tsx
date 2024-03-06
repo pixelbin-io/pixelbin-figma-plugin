@@ -90,7 +90,6 @@ function ImageUploader({
 		setIsLoading(true);
 		try {
 			const newData = await defaultPixelBinClient.billing.getUsage();
-			console.log("Storag Detail", newData);
 			setStorageUSed(newData?.usage?.storage);
 			setTotalStorage(newData?.total.storage);
 			setIsLoading(false);

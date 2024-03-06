@@ -30,14 +30,14 @@ const {
 	OPEN_EXTERNAL_URL,
 	REPLACE_IMAGE,
 	DELETE_TOKEN,
-	CLOSE_PLUGIN,
-	CURRENT_IMAGE_SELECTION,
 	ON_SELECTION_CHANGE,
 	NOTIFY_USER,
 	IS_TRANSFORMATION_APPLIED,
+	TOKEN_SAVED,
+	CREATE_NEW_IMAGE,
 } = EVENTS;
 
-const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
+const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
 
 if (figma.command === HOW_IT_WORKS_CMD) figma.openExternal(HOW_IT_WORKS_URL);
 
@@ -115,7 +115,7 @@ figma.ui.onmessage = async (msg) => {
 				});
 			}
 		} catch (err) {
-			figma.notify("Something wnet wrong");
+			figma.notify("Something went wrong");
 		}
 	}
 	if (msg.type === SAVE_TOKEN) {
@@ -133,11 +133,12 @@ figma.ui.onmessage = async (msg) => {
 					.catch(() => {});
 
 				const body = {
-					type: CREATE_FORM,
+					type: TOKEN_SAVED,
 					optionsArray: eraseBgOptions,
 					savedFormValue: eraseBgOptions,
 					cloudName: msg.cloudName,
 					orgId: msg.orgId,
+					command: OPEN_PIXELBIN_CMD,
 				};
 
 				figma.clientStorage
@@ -213,18 +214,13 @@ figma.ui.onmessage = async (msg) => {
 	if (msg.type === NOTIFY_USER) {
 		figma.notify(msg.value);
 	}
-	if (msg.type === "createNewImage") {
-		console.log("URLHERE", msg.url);
+	if (msg.type === CREATE_NEW_IMAGE) {
 		figma
 			.createImageAsync(msg?.url)
 			.then(async (image) => {
-				// Create a rectangle that's the same dimensions as the image.
 				const node = figma.createRectangle();
-
 				const { width, height } = await image.getSizeAsync();
 				node.resize(width, height);
-
-				// Render the image by filling the rectangle.
 				node.fills = [
 					{
 						type: "IMAGE",
@@ -279,7 +275,6 @@ figma.ui.onmessage = async (msg) => {
 					})
 					.catch((err) => {
 						toggleLoader(false);
-						console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
 						figma.notify("Something went wrong");
 					});
 			} else {

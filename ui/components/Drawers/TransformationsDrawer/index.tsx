@@ -25,7 +25,6 @@ function TransformationsDrawer({
 
 	useEffect(() => {
 		filterTransformationList();
-		console.log("plugins2", plugins);
 	}, []);
 
 	const sortTransformationByName = (itemList) => {

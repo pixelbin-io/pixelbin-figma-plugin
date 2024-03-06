@@ -62,6 +62,7 @@ function App() {
 		ON_SELECTION_CHANGE,
 		NOTIFY_USER,
 		IS_TRANSFORMATION_APPLIED,
+		TOKEN_SAVED,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -87,7 +88,6 @@ function App() {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
-				// console.log("Plugins", data?.plugins);
 			}
 		} catch (err) {}
 	}
@@ -126,9 +126,10 @@ function App() {
 			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
-		if (data.pluginMessage.type === CREATE_FORM) {
+		if (data.pluginMessage.type === TOKEN_SAVED) {
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
+			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
 		if (data.pluginMessage.type === TOGGLE_LOADER)

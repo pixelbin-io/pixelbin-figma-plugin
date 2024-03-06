@@ -13,7 +13,7 @@ interface downloadProps {
 	showErrMessage: () => void;
 }
 
-const { OPEN_EXTERNAL_URL } = EVENTS;
+const { OPEN_EXTERNAL_URL, CREATE_NEW_IMAGE } = EVENTS;
 
 function ImageDownloader({
 	setIsLoading,
@@ -334,7 +334,7 @@ function ImageDownloader({
 												parent.postMessage(
 													{
 														pluginMessage: {
-															type: "createNewImage",
+															type: CREATE_NEW_IMAGE,
 															url: item.url,
 														},
 													},
