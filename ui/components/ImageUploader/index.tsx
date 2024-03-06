@@ -7,6 +7,7 @@ import { uploadOptions, EVENTS } from "../../../constants";
 import Pixelbin, { transformations } from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
+import { Util } from "../../../util";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
 
@@ -65,6 +66,9 @@ function ImageUploader({
 	const [isLoadMoreEnabled, setIsLoadMoreEnabled] = useState(false);
 	const [apiInstance, setAPIInstance] = useState(null);
 	const [foldersNotFound, setFolderNotFound] = useState(true);
+	const [storageUsed, setStorageUSed] = useState(0);
+	const [totalStorage, setTotalStorage] = useState(0);
+	const [isAccOpen, setIsAccOpen] = useState(true);
 
 	function deactivateChildren(node) {
 		let temp = node;
@@ -73,6 +77,25 @@ function ImageUploader({
 				child.active = false;
 				deactivateChildren(child);
 			});
+		}
+	}
+
+	const formatDigits = (value) => {
+		const trimmed = parseFloat(parseFloat(value).toFixed(3));
+		if (Math.floor(trimmed) === trimmed) return Math.floor(trimmed);
+		return trimmed;
+	};
+
+	async function setStorageDetails() {
+		setIsLoading(true);
+		try {
+			const newData = await defaultPixelBinClient.billing.getUsage();
+			console.log("Storag Detail", newData);
+			setStorageUSed(newData?.usage?.storage);
+			setTotalStorage(newData?.total.storage);
+			setIsLoading(false);
+		} catch (err) {
+			setIsLoading(false);
 		}
 	}
 
@@ -98,7 +121,6 @@ function ImageUploader({
 			else setFolderNotFound(false);
 		} catch (err) {
 			setIsLoading(false);
-			console.log("1111");
 			showErrMessage();
 		}
 	}
@@ -121,7 +143,6 @@ function ImageUploader({
 			setIsLoading(false);
 		} catch (err) {
 			setIsLoading(false);
-			console.log("2222");
 			showErrMessage();
 		}
 	}
@@ -138,7 +159,6 @@ function ImageUploader({
 			return items;
 		} catch (err) {
 			setIsLoading(false);
-			console.log("33333");
 			showErrMessage();
 		}
 	}
@@ -176,13 +196,13 @@ function ImageUploader({
 				});
 		} catch (err) {
 			setIsLoading(false);
-			console.log("44444");
 			showErrMessage();
 		}
 	}
 
 	useEffect(() => {
 		fetchFoldersList();
+		setStorageDetails();
 	}, []);
 
 	const onToggle = async (node, toggled) => {
@@ -218,7 +238,6 @@ function ImageUploader({
 			setIsLoading(false);
 		} catch (err) {
 			setIsLoading(false);
-			console.log("55555");
 			showErrMessage();
 		}
 	};
@@ -226,32 +245,45 @@ function ImageUploader({
 	return (
 		<div className="uploader-main-container">
 			<div className="uploader-form-container">
-				<div className="generic-text dropdown-label">
+				{/* <div className="generic-text dropdown-label">
 					Select folder to upload image *
+				</div> */}
+				<div
+					onClick={() => setIsAccOpen(!isAccOpen)}
+					className="accordion generic-text dropdown-label"
+					style={{ marginTop: 8 }}
+				>
+					<div>Select Folder* &nbsp;</div>
+					<span className={`${isAccOpen ? "arrow-open" : ""}`}>&nbsp;▶</span>
 				</div>
-				<div className="tree-container">
-					<Treebeard data={data} onToggle={onToggle} />
-					{foldersNotFound && (
-						<div className="no-folders-error">
-							No folders found. Click{" "}
-							<span
-								onClick={() => {
-									openExternalURl(
-										"https://console.pixelbinz0.de/choose-org?redirectTo=storage"
-									);
-								}}
-							>
-								Here
-							</span>{" "}
-							to create.
+				{isAccOpen ? (
+					<div>
+						<div className="tree-container">
+							{!foldersNotFound ? (
+								<Treebeard data={data} onToggle={onToggle} />
+							) : (
+								<div className="no-folders-error">
+									No folders found. Click{" "}
+									<span
+										onClick={() => {
+											openExternalURl(
+												"https://console.pixelbin.io/choose-org?redirectTo=storage"
+											);
+										}}
+									>
+										Here
+									</span>{" "}
+									to create.
+								</div>
+							)}
 						</div>
-					)}
-					{isLoadMoreEnabled && (
-						<div className="load-more-button" onClick={loadMore}>
-							Load More ↓
-						</div>
-					)}
-				</div>
+						{isLoadMoreEnabled && (
+							<div className="load-more-button" onClick={loadMore}>
+								Load More ↓
+							</div>
+						)}
+					</div>
+				) : null}
 
 				<div style={{ marginTop: 12 }}>
 					<div className="generic-text dropdown-label">
@@ -387,23 +419,10 @@ function ImageUploader({
 					</div>
 				</div>
 			</div>
-			<div
-				className={`api-key-btn-container ${
-					formValues.image !== null ? "space-between" : "right"
-				}`}
-			>
-				{formValues.image !== null && (
-					<div
-						onClick={() => {
-							setFormValues(staticFormValues);
-						}}
-						className="delete-token-container"
-					>
-						<div className="reset-text" style={{ fontSize: 12 }}>
-							Reset All
-						</div>
-					</div>
-				)}
+			<div className={"api-key-btn-container space-between"}>
+				<div className="details-text" style={{ fontSize: 12 }}>
+					{Util.formatBytes(storageUsed || 0, 2)} of {`${totalStorage} GB used`}
+				</div>
 
 				<button
 					id="submit-token"

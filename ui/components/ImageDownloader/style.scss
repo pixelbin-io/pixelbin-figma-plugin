@@ -1,0 +1,103 @@
+.img-dwnld-main {
+	padding: 0 4px;
+	.img-dwnld-sub {
+		padding: 0 20px 20px 20px;
+	}
+	.tree-container {
+		max-height: 300px;
+		overflow-y: auto;
+	}
+	.css-f91fgu {
+		background: var(--figma-color-bg);
+	}
+
+	.css-79elbk {
+		font-size: 12px !important;
+	}
+
+	.accordion {
+		display: flex;
+		font-size: 12px;
+		cursor: pointer;
+		margin-bottom: 10px;
+		.arrow-open {
+			transform: rotate(90deg);
+		}
+	}
+
+	.image-list-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+		padding-right: 4px;
+	}
+	.load-more-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 10px;
+		cursor: pointer;
+	}
+
+	.img-list-img {
+		width: 100%;
+		border-radius: 8px;
+		object-fit: cover;
+		background: var(--dark-700);
+		min-height: 90px;
+		max-height: 90px;
+		border: 1px solid var(--figma-color-border);
+	}
+
+	.image-list-container {
+		max-height: 300px;
+		overflow-y: auto;
+	}
+
+	.sticky-search-box {
+		position: sticky;
+		top: 0;
+		background-color: var(
+			--figma-color-bg
+		); // Add your desired background color
+		z-index: 100; // Adjust z-index as needed
+		padding: 10px;
+	}
+
+	.no-imgs {
+		font-size: 14px;
+		display: flex;
+		justify-content: center;
+	}
+
+	.download-icon {
+		z-index: 100;
+		height: 16px;
+		position: absolute;
+		right: 4px;
+		top: 5px;
+		cursor: pointer;
+		background: rgba(170, 171, 196, 0.4);
+		padding: 8px 3px;
+		border-radius: 50px;
+		color: #fff;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 12px;
+	}
+
+	.no-folders-error {
+		font-size: 12px;
+		margin-top: 16px;
+		margin-left: 4px;
+		span {
+			cursor: pointer;
+			color: var(--figma-color-bg-brand);
+		}
+	}
+}
+
+.closed {
+	display: none !important;
+}

@@ -22,6 +22,7 @@ import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx"
 import copy from "copy-to-clipboard";
 import QueuedTransformationsDrawer from "./components/Drawers/QueuedTransformationsDrawer/index.tsx";
 import ImageUploader from "./components/ImageUploader/index.tsx";
+import ImageDownloader from "./components/ImageDownloader/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -404,6 +405,23 @@ function App() {
 							tokenValue={tokenValue}
 							isUploadSuccess={isUploadSuccess}
 							setIsLoading={setIsLoading}
+							showErrMessage={() => {
+								parent.postMessage(
+									{
+										pluginMessage: {
+											type: NOTIFY_USER,
+											value: "Something Went wrong!",
+										},
+									},
+									"*"
+								);
+							}}
+						/>
+					)}
+					{currentFigmaCmd === COMMANDS.DOWNLOAD_CMD && (
+						<ImageDownloader
+							setIsLoading={setIsLoading}
+							tokenValue={tokenValue}
 							showErrMessage={() => {
 								parent.postMessage(
 									{

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TansformationIcon from "../TansformationIcon";
-import { ReactComponent as Magnifier } from "../../../../../assets/magnifier.svg";
+import SearchBox from "../../../SearchBox";
 import "./style.scss";
 
 interface gridProps {
@@ -24,19 +24,7 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 
 	return (
 		<div className="transformation-container">
-			<div className="tc-search">
-				<input
-					className="text-input-box"
-					id="transformationSearch"
-					type="text"
-					value={searchedValue}
-					onChange={(e) => {
-						setSearchedValue(e.target.value);
-					}}
-					placeholder="Search"
-				/>
-				<Magnifier className="magnifier" />
-			</div>
+			<SearchBox setValue={setSearchedValue} />
 			{filteredList.length ? (
 				<div className="transformation-grid">
 					{filteredList.map((item: any) => {

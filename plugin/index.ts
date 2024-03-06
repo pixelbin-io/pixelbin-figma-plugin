@@ -213,6 +213,30 @@ figma.ui.onmessage = async (msg) => {
 	if (msg.type === NOTIFY_USER) {
 		figma.notify(msg.value);
 	}
+	if (msg.type === "createNewImage") {
+		console.log("URLHERE", msg.url);
+		figma
+			.createImageAsync(msg?.url)
+			.then(async (image) => {
+				// Create a rectangle that's the same dimensions as the image.
+				const node = figma.createRectangle();
+
+				const { width, height } = await image.getSizeAsync();
+				node.resize(width, height);
+
+				// Render the image by filling the rectangle.
+				node.fills = [
+					{
+						type: "IMAGE",
+						imageHash: image.hash,
+						scaleMode: "FILL",
+					},
+				];
+			})
+			.catch((err) => {
+				figma.notify("Something went wrong");
+			});
+	}
 	if (msg.type === REPLACE_IMAGE) {
 		let status,
 			retries = 5;

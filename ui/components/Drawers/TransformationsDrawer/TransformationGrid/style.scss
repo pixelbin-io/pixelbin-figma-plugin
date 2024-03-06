@@ -9,10 +9,6 @@
 		overflow-y: auto;
 	}
 
-	.magnifier {
-		height: 16px;
-	}
-
 	.error-container {
 		font-size: 15px;
 		width: 100%;
@@ -21,28 +17,5 @@
 		align-items: center;
 		justify-content: center;
 		color: #f24822;
-	}
-	.tc-search {
-		max-width: 100%;
-		margin: 8px;
-		display: flex;
-		align-items: center;
-		padding-right: 8px;
-		transition: box-shadow 0.2s;
-		background: none;
-		border-radius: 5px;
-		border: 1px solid var(--figma-color-border);
-	}
-	.text-input-box {
-		background: none;
-		font-family: Inter, sans-serif;
-		font-size: 12px;
-		line-height: 16px;
-		margin: 0;
-		border: none;
-		outline: none;
-		padding: 5px;
-		flex-grow: 1;
-		color: var(--figma-color-text);
 	}
 }
