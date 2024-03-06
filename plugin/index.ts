@@ -30,11 +30,10 @@ const {
 	OPEN_EXTERNAL_URL,
 	REPLACE_IMAGE,
 	DELETE_TOKEN,
-	CLOSE_PLUGIN,
-	CURRENT_IMAGE_SELECTION,
 	ON_SELECTION_CHANGE,
 	NOTIFY_USER,
 	IS_TRANSFORMATION_APPLIED,
+	CHANGE_TAB_ID,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
@@ -56,7 +55,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 
 	if (figma.currentPage.selection.length > 0) {
 		figma.ui.postMessage({
-			type: "changeTabID",
+			type: CHANGE_TAB_ID,
 			tabId: 1,
 		});
 		var node: any = figma?.currentPage?.selection[0];
@@ -115,7 +114,7 @@ figma.ui.onmessage = async (msg) => {
 				});
 			}
 		} catch (err) {
-			figma.notify("Something wnet wrong");
+			figma.notify("Something went wrong");
 		}
 	}
 	if (msg.type === SAVE_TOKEN) {

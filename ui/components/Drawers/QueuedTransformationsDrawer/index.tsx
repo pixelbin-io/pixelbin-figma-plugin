@@ -4,22 +4,19 @@ import { ReactComponent as TrashCan } from "../../../../assets/trashcan.svg";
 import { Util } from "../../../../util";
 import "./style.scss";
 
-interface qtdProps {
-	closeFunc: () => void;
+interface drawerProps {
+	onClose: () => void;
 	queue: Array<any>;
 	onDeleteClick: (index: number) => void;
 	onArrowClick: (index: number, selectedFormValues: any) => void;
 }
 
 function QueuedTransformationsDrawer({
-	closeFunc,
+	onClose,
 	queue,
 	onDeleteClick,
 	onArrowClick,
-}: qtdProps) {
-	useEffect(() => {
-		console.log("queue", queue);
-	}, [queue]);
+}: drawerProps) {
 	return (
 		<div className="qtd-container">
 			<Divider />
@@ -28,7 +25,7 @@ function QueuedTransformationsDrawer({
 				<div
 					className="clear"
 					onClick={() => {
-						closeFunc();
+						onClose();
 					}}
 				>
 					Clear All

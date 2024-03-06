@@ -16,7 +16,20 @@ Figma Plugin for [PixelBin.io](PixelBin.io), it helps users remove watermark fro
 
 - **`ui`**: Manages the user interface. The `index.html` file, integrated via the `showUI` function in the plugin folder, displays the UI. The primary UI component is in `App.tsx`, which outlines the interface layout and interactions.
 
+- **`Pages`**: For pages such as 1>set/reset token 2>tranform 3>Upload 4>Download UI components to open is decided on basis state called currentFigmaCmd
+
 ## Development Process
+
+    Workflow :
+
+    1> As Entry point is plugin/index.ts therefore the UI is opened on basis of commands
+    2> While working with figma objets like creating editing node/image in figma we are using "figma.ui.onmessage" in  plugin/index.ts which receives Events/data from UI and passes to UI also on the basis of message type reveived.
+    3> As to work with sdk operations we are using UI File (entry file:App.tsx) , to pass Events/data from UI to plugin we are using "parent.postMessage".
+
+    Details :
+
+    1> In operations where we need to draw boxes over an image , we are allowing user to draw boxes on smaller image shown in our plugin , but while saving those values we multiplying the co-ordinates with origin height and width of image so that correct selected region of image reflects on actual image also.
+    2> We are fetching transformations list from "defaultPixelBinClient.assets.getModules()" from "@pixelbin/admin" and for passing the list of plugins to "@pixelbin/core" we are camel casing the names of transformations
 
 **Clone Repository**:
 

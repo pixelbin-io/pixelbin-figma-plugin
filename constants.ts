@@ -34,6 +34,7 @@ export const eraseBgOptions = [
 	},
 ];
 
+//Events are used to pass event/messages/data from UI to Plugin or vice versa
 export enum EVENTS {
 	TOGGLE_LOADER = "toggle-loader",
 	INITIAL_CALL = "initial-call",
@@ -46,12 +47,14 @@ export enum EVENTS {
 	OPEN_EXTERNAL_URL = "open-external-url",
 	DELETE_TOKEN = "delete-token",
 	CLOSE_PLUGIN = "close-plugin",
-	CURRENT_IMAGE_SELECTION = "currentImageSelection",
+	CURRENT_IMAGE_SELECTION = "current-image-selection",
 	ON_SELECTION_CHANGE = "selectionchange",
 	NOTIFY_USER = "notify-user",
-	IS_TRANSFORMATION_APPLIED = "isTransformationApplied",
+	IS_TRANSFORMATION_APPLIED = "is-transformation-applied",
+	CHANGE_TAB_ID = "change-tab-id",
 }
 
+// This set is used for which tab is currently active (used as a plain string in manifest.json)
 export enum COMMANDS {
 	HOW_IT_WORKS_CMD = "how-it-works-command",
 	TOKEN_RESET_CMD = "token-reset-command",
@@ -60,6 +63,7 @@ export enum COMMANDS {
 	OPEN_PIXELBIN_CMD = "open-pixelbin-command",
 }
 
+// This set is used to keep values in local storage
 export const PERSISTED_TOKEN = "persistedToken";
 export const SAVED_FORM_VALUE = "savedFormValue";
 export const IMAGE = "IMAGE";
