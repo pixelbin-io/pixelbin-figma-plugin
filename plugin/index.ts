@@ -33,10 +33,12 @@ const {
 	ON_SELECTION_CHANGE,
 	NOTIFY_USER,
 	IS_TRANSFORMATION_APPLIED,
+	TOKEN_SAVED,
+	CREATE_NEW_IMAGE,
 	CHANGE_TAB_ID,
 } = EVENTS;
 
-const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD } = COMMANDS;
+const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
 
 if (figma.command === HOW_IT_WORKS_CMD) figma.openExternal(HOW_IT_WORKS_URL);
 
@@ -132,11 +134,12 @@ figma.ui.onmessage = async (msg) => {
 					.catch(() => {});
 
 				const body = {
-					type: CREATE_FORM,
+					type: TOKEN_SAVED,
 					optionsArray: eraseBgOptions,
 					savedFormValue: eraseBgOptions,
 					cloudName: msg.cloudName,
 					orgId: msg.orgId,
+					command: OPEN_PIXELBIN_CMD,
 				};
 
 				figma.clientStorage
@@ -212,6 +215,25 @@ figma.ui.onmessage = async (msg) => {
 	if (msg.type === NOTIFY_USER) {
 		figma.notify(msg.value);
 	}
+	if (msg.type === CREATE_NEW_IMAGE) {
+		figma
+			.createImageAsync(msg?.url)
+			.then(async (image) => {
+				const node = figma.createRectangle();
+				const { width, height } = await image.getSizeAsync();
+				node.resize(width, height);
+				node.fills = [
+					{
+						type: "IMAGE",
+						imageHash: image.hash,
+						scaleMode: "FILL",
+					},
+				];
+			})
+			.catch((err) => {
+				figma.notify("Something went wrong");
+			});
+	}
 	if (msg.type === REPLACE_IMAGE) {
 		let status,
 			retries = 5;
@@ -254,7 +276,6 @@ figma.ui.onmessage = async (msg) => {
 					})
 					.catch((err) => {
 						toggleLoader(false);
-						console.log("HEY , GET YOUR MOST WAITED ERROR HERE", err);
 						figma.notify("Something went wrong");
 					});
 			} else {

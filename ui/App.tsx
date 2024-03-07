@@ -22,6 +22,7 @@ import DynamicFormDrawer from "./components/Drawers/DynamicFormDrawer/index.tsx"
 import copy from "copy-to-clipboard";
 import QueuedTransformationsDrawer from "./components/Drawers/QueuedTransformationsDrawer/index.tsx";
 import ImageUploader from "./components/ImageUploader/index.tsx";
+import ImageDownloader from "./components/ImageDownloader/index.tsx";
 
 PdkAxios.defaults.withCredentials = false;
 
@@ -61,6 +62,7 @@ function App() {
 		ON_SELECTION_CHANGE,
 		NOTIFY_USER,
 		IS_TRANSFORMATION_APPLIED,
+		TOKEN_SAVED,
 		CHANGE_TAB_ID,
 	} = EVENTS;
 
@@ -87,7 +89,6 @@ function App() {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
-				// console.log("Plugins", data?.plugins);
 			}
 		} catch (err) {}
 	}
@@ -126,9 +127,10 @@ function App() {
 			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
-		if (data.pluginMessage.type === CREATE_FORM) {
+		if (data.pluginMessage.type === TOKEN_SAVED) {
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
+			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
 		if (data.pluginMessage.type === TOGGLE_LOADER)
@@ -405,6 +407,23 @@ function App() {
 							tokenValue={tokenValue}
 							isUploadSuccess={isUploadSuccess}
 							setIsLoading={setIsLoading}
+							showErrMessage={() => {
+								parent.postMessage(
+									{
+										pluginMessage: {
+											type: NOTIFY_USER,
+											value: "Something Went wrong!",
+										},
+									},
+									"*"
+								);
+							}}
+						/>
+					)}
+					{currentFigmaCmd === COMMANDS.DOWNLOAD_CMD && (
+						<ImageDownloader
+							setIsLoading={setIsLoading}
+							tokenValue={tokenValue}
 							showErrMessage={() => {
 								parent.postMessage(
 									{

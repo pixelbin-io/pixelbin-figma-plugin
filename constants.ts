@@ -50,6 +50,8 @@ export enum EVENTS {
 	CURRENT_IMAGE_SELECTION = "current-image-selection",
 	ON_SELECTION_CHANGE = "selectionchange",
 	NOTIFY_USER = "notify-user",
+	TOKEN_SAVED = "tokenSaved",
+	CREATE_NEW_IMAGE = "createNewImage",
 	IS_TRANSFORMATION_APPLIED = "is-transformation-applied",
 	CHANGE_TAB_ID = "change-tab-id",
 }

@@ -106,6 +106,21 @@
 		overflow-y: auto;
 	}
 
+	.accordion {
+		display: flex;
+		font-size: 10px;
+		cursor: pointer;
+		margin-bottom: 10px;
+		span {
+			font-size: 13px;
+			top: -2px !important;
+			position: relative;
+		}
+		.arrow-open {
+			transform: rotate(90deg);
+		}
+	}
+
 	.css-f91fgu {
 		background: var(--figma-color-bg);
 	}
@@ -137,13 +152,16 @@
 		padding: 0 20px 20px 20px;
 	}
 
+	.details-text {
+		font-size: 10px !important;
+		font-weight: 300;
+	}
 	.load-more-button {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 12px;
+		font-size: 10px;
 		cursor: pointer;
-		color: var(--figma-color-bg-brand);
 	}
 
 	.no-folders-error {
