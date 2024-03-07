@@ -1,0 +1,31 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+.credit-details-container {
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 8px;
+}
+
+.credit-details-sub-container {
+}
+
+.token-err {
+	font-size: 10px;
+	color: #f24822;
+	padding-left: 4px;
+}
+
+.buy-credits-btn {
+	color: var(--figma-color-bg-brand);
+	font-size: 12px;
+	padding: 4px 8px;
+	cursor: pointer;
+	border-radius: 4px;
+	// border: 1px solid var(--figma-color-bg-brand);
+}

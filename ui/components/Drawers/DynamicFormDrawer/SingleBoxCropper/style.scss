@@ -1,0 +1,27 @@
+.image-box-drawer-container {
+	height: 100vh;
+	width: 100vw;
+	background: var(--figma-color-bg);
+	width: 269px;
+	position: absolute;
+	/* height: 300px; */
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	position: fixed;
+	top: 0;
+
+	.footer {
+	}
+
+	.done-btn-container {
+		display: flex;
+		width: 100%;
+		justify-content: flex-end;
+		padding: 8px;
+	}
+
+	.canvas-container {
+		align-self: center;
+	}
+}

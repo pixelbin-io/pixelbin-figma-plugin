@@ -1,0 +1,21 @@
+.transformation-container {
+	.transformation-grid {
+		width: 100%;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		padding: 0 6px;
+		gap: 4px;
+		max-height: 207px;
+		overflow-y: auto;
+	}
+
+	.error-container {
+		font-size: 15px;
+		width: 100%;
+		height: 150px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #f24822;
+	}
+}

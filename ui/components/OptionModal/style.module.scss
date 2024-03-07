@@ -1,0 +1,31 @@
+.transformation-container {
+	min-width: 100px;
+	max-height: 350px;
+	border-radius: 8px;
+	overflow-y: auto;
+	box-shadow: #000000ed -2px 3px 8px;
+	position: fixed;
+	right: 56px;
+	bottom: 90;
+	z-index: 999999;
+	background: var(--figma-color-bg);
+}
+
+.heading {
+	width: 100%;
+	color: var(--figma-color-bg-brand);
+	font-size: 14px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-bottom: 1px solid #1a7ec6;
+	padding: 4px 12px;
+}
+
+.list_item {
+	padding: 4px;
+	color: var(--figma-color-bg-brand);
+	border-top: 1px solid var(--figma-color-border);
+	font-size: 12px;
+	cursor: pointer;
+	font-weight: 600;
+}

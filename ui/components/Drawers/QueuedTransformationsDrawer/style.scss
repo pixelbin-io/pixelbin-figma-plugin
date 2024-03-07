@@ -1,0 +1,115 @@
+.qtd-container {
+	background-color: var(--figma-color-bg);
+	z-index: 2;
+	height: 245px;
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	box-shadow: 0 0 2.5rem #00000040 !important;
+	width: 96%;
+	left: 6px;
+	display: flex;
+	flex-direction: column;
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px;
+	}
+
+	.name {
+		font-size: 10px;
+		font-weight: 500;
+	}
+
+	.clear {
+		font-size: 10px;
+		padding: 4px 6px;
+		font-weight: 600;
+		border: 1px solid #e83f5d;
+		color: #e83f5d;
+		border-radius: 3px;
+		cursor: pointer;
+	}
+
+	.queue-container {
+		width: 100%;
+		margin-top: 8px;
+		padding: 0 12px;
+		max-height: 207px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding-bottom: 4px;
+	}
+
+	.transformation-card {
+		width: 100%;
+		border-radius: 4px;
+		background: var(--figma-color-bg-hover);
+		border: 1px solid var(--figma-color-border);
+	}
+
+	.tc-img {
+		width: 20px;
+		height: 20px;
+		cursor: pointer;
+	}
+
+	.tc-name {
+		font-size: 10px;
+	}
+
+	.tc-header {
+		display: flex;
+		justify-content: space-between;
+		padding: 2px 16px 2px 6px;
+	}
+
+	.tc-h-left {
+		display: flex;
+		gap: 4px;
+		align-items: center;
+	}
+	.tc-h-right {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+	}
+
+	.trash-icon {
+		fill: var(--figma-color-bg-inverse);
+		height: 14px;
+		cursor: pointer;
+	}
+
+	.tc-arrow {
+		font-size: 16px;
+		padding: 1px;
+		cursor: pointer;
+	}
+	.tc-body {
+		margin-top: 15px;
+		margin-bottom: 10px;
+		display: grid;
+		grid-template-columns: auto auto;
+		gap: 5px 0px;
+		padding: 0 16px;
+	}
+
+	.tc-property-name,
+	.tc-property-value {
+		font-size: 9px;
+		overflow-wrap: break-word;
+		max-width: 12ch;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.tc-property-name {
+		color: #aaabc5;
+	}
+}

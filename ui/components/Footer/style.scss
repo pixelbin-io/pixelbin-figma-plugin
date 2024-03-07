@@ -1,0 +1,20 @@
+.bottom-btn-container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	gap: 20px;
+	justify-content: space-between;
+	padding: 8px;
+}
+
+.reset-container {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	cursor: pointer;
+}
+
+.reset-text {
+	color: var(--figma-color-bg-brand);
+	font-size: 12px;
+}
