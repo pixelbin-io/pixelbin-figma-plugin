@@ -245,15 +245,17 @@ button {
 	opacity: 0.3;
 }
 
-// .css-1u94gzr {
-// 	display: none;
-// }
-// .css-1abq8k5 {
-// 	// top: 6px;
-// 	&:after {
-// 		content: "▶";
-// 		font-size: 12px;
-// 	}
-// }
+.css-1u94gzr {
+	display: none;
+}
+.css-1abq8k5 {
+	&:after {
+		content: "▶";
+		font-size: 12px;
+		position: relative;
+		top: 6px;
+		left: 6px;
+	}
+}
 
 // *********************************** ------ ************************************** //
