@@ -137,6 +137,9 @@
 		box-shadow: inset 0 0 0 1px var(--figma-color-border);
 		text-wrap: nowrap;
 		overflow-x: auto;
+		color: #9da5ab;
+		cursor: not-allowed;
+		opacity: 0.6;
 	}
 
 	.placeholder {

@@ -8,6 +8,7 @@ import Pixelbin, { transformations } from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
 import { Util } from "../../../util";
+import { v4 as uuidv4 } from "uuid";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
 
@@ -17,6 +18,9 @@ interface IUProps {
 	isUploadSuccess: (msg: string) => void;
 	setIsLoading: (val: boolean) => void;
 	showErrMessage: () => void;
+	imgUrl: any;
+	imageBytes;
+	imgName;
 }
 
 function ImageUploader({
@@ -25,6 +29,9 @@ function ImageUploader({
 	isUploadSuccess,
 	setIsLoading,
 	showErrMessage,
+	imgUrl,
+	imageBytes,
+	imgName,
 }: IUProps) {
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({
@@ -170,8 +177,7 @@ function ImageUploader({
 
 			let createSignedURlDetails = {
 				path: selectedPath,
-				name: formValues.imageName,
-				format: formValues.image.type.match(regex)[1],
+				name: uuidv4(),
 				access: "public-read",
 				tags: [...formValues.tags],
 				metadata: {},
@@ -181,7 +187,7 @@ function ImageUploader({
 
 			let res = await defaultPixelBinClient.assets.createSignedUrlV2({
 				...createSignedURlDetails,
-				name: formValues.imageName,
+				name: imgName,
 			});
 
 			Pixelbin.upload(formValues.image as any, res.presignedUrl, uploadOptions)
@@ -191,6 +197,7 @@ function ImageUploader({
 					setStorageDetails();
 				})
 				.catch((err) => {
+					console.log("err", err);
 					isUploadSuccess(err);
 					setIsLoading(false);
 				});
@@ -199,6 +206,13 @@ function ImageUploader({
 			showErrMessage();
 		}
 	}
+
+	useEffect(() => {
+		setFormValues({
+			...formValues,
+			image: new Blob(imageBytes, { type: "image/jpeg" }),
+		});
+	}, [imageBytes]);
 
 	useEffect(() => {
 		fetchFoldersList();
@@ -286,52 +300,17 @@ function ImageUploader({
 				) : null}
 
 				<div style={{ marginTop: 12 }}>
-					<div className="generic-text dropdown-label">
+					<div
+						className="generic-text dropdown-label"
+						style={{ color: "#9da5ab" }}
+					>
 						Selected folder's path
 					</div>
 					<div className="path-string">
-						{selectedPath || (
-							<span className="placeholder">path will be shown here ...</span>
-						)}
+						{selectedPath || <span>path will be shown here ...</span>}
 					</div>
 				</div>
 				<div className="image-upload-form">
-					<>
-						<div
-							className="generic-text dropdown-label"
-							style={{ marginTop: 12 }}
-						>
-							Select Image *
-						</div>
-						<div className="dummy-file-input">
-							<div className="img-name">
-								{formValues.image !== null ? formValues.image?.name : ""}
-							</div>
-							<div
-								className="browse-btn"
-								onClick={() => inputRef.current?.click()}
-							>
-								Browse
-							</div>
-						</div>
-						<input
-							type="file"
-							id="imageUpload"
-							name="image"
-							ref={inputRef}
-							accept="image/*"
-							style={{ display: "none" }}
-							onChange={(event) => {
-								const { files }: { files: FileList } = event.target;
-								setFormValues({
-									...formValues,
-									image: files[0],
-									imageName: files[0].name,
-								});
-							}}
-							className="image-input"
-						/>
-					</>
 					<div className="tag-main-container">
 						<div className="generic-text dropdown-label">Tags</div>
 						<div className="dummy-file-input">
@@ -428,7 +407,7 @@ function ImageUploader({
 					id="submit-token"
 					onClick={handleUpload}
 					className="button button--primary"
-					disabled={formValues.image === null || !selectedPath.length}
+					disabled={!imgUrl || !selectedPath.length}
 				>
 					Upload
 				</button>

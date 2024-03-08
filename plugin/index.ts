@@ -49,10 +49,39 @@ function toggleLoader(value: boolean) {
 	});
 }
 
+async function handleInitialSelection() {
+	const body = {
+		type: ON_SELECTION_CHANGE,
+		imageBytes: null,
+		imgName: "",
+	};
+
+	if (figma.currentPage.selection.length > 0) {
+		figma.ui.postMessage({
+			type: CHANGE_TAB_ID,
+			tabId: 1,
+		});
+
+		var node: any = figma?.currentPage?.selection[0];
+
+		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
+			const image = figma.getImageByHash(node.fills[0].imageHash);
+			let bytes = await image.getBytesAsync();
+			body.imageBytes = bytes;
+			body.imgName = node?.name?.replace(/ /g, "");
+			figma.ui.postMessage(body);
+		}
+	}
+}
+
+// Check if there is an initial selection when the plugin is launched
+handleInitialSelection();
+
 figma.on(ON_SELECTION_CHANGE, async () => {
 	const body = {
 		type: ON_SELECTION_CHANGE,
 		imageBytes: null,
+		imgName: "",
 	};
 
 	if (figma.currentPage.selection.length > 0) {
@@ -65,6 +94,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
+			body.imgName = node?.name?.replace(/ /g, "");
 		} else {
 			body.imageBytes = null;
 			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });

@@ -50,6 +50,7 @@ function App() {
 	const [isTransformationApplied, setIsTransformationApplied] = useState(false);
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
+	const [imgName, setImgName] = useState("");
 
 	const {
 		INITIAL_CALL,
@@ -101,6 +102,7 @@ function App() {
 				setImgUrl("");
 			} else {
 				setImageBytes([data.pluginMessage.imageBytes]);
+				setImgName(data.pluginMessage.imgName);
 				function bytesToDataURL(bytes, contentType) {
 					const blob = new Blob([new Uint8Array(bytes)], { type: contentType });
 					return URL.createObjectURL(blob);
@@ -408,6 +410,9 @@ function App() {
 							tokenValue={tokenValue}
 							isUploadSuccess={isUploadSuccess}
 							setIsLoading={setIsLoading}
+							imgUrl={imgUrl}
+							imageBytes={imageBytes}
+							imgName={imgName}
 							showErrMessage={() => {
 								parent.postMessage(
 									{
