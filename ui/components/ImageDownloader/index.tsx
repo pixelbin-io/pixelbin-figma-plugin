@@ -36,7 +36,7 @@ function ImageDownloader({
 	const [hasMoreImages, setHasMoreImages] = useState(false);
 	const [imgApiInstance, setImgApiInstance] = useState(null);
 	const [isFileAccOpen, setIsFileAccOpen] = useState(true);
-	const [isFolderAccOpen, setIsFolderAccOpen] = useState(true);
+	const [isFolderAccOpen, setIsFolderAccOpen] = useState(false);
 
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({

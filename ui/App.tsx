@@ -130,6 +130,7 @@ function App() {
 		if (data.pluginMessage.type === TOKEN_SAVED) {
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
+			setCloudName(data.pluginMessage.cloudName);
 			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
