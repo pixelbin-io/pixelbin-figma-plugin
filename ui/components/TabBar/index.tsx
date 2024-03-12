@@ -19,6 +19,8 @@ function TabBar({
 	setSelectedTabId,
 	tabID,
 }: tabBarProps) {
+	const [isLinkHovered, setIsLinkHovered] = useState(false);
+
 	return (
 		<div
 			className={`container ${
@@ -46,23 +48,20 @@ function TabBar({
 								Transformed
 							</div>
 						)}
-						{isTranFormed && (
-							<div
-								onClick={() => {
-									setSelectedTabId(3);
-								}}
-								className={`tab ${tabID === 3 ? "active-tab" : ""}`}
-							>
-								Context
-							</div>
-						)}
 					</div>
 					{isTranFormed && (
 						<LinkIcon
 							className="link-icon"
 							onClick={onLinkCopy}
+							onMouseEnter={() => setIsLinkHovered(true)}
+							onMouseLeave={() => setIsLinkHovered(false)}
 							style={{ cursor: "pointer" }}
 						/>
+					)}
+					{isLinkHovered && (
+						<div className="info-box">
+							Copy link/adress of the transformed image
+						</div>
 					)}
 				</>
 			) : null}

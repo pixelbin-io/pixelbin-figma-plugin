@@ -54,7 +54,6 @@ function App() {
 
 	const {
 		INITIAL_CALL,
-		CREATE_FORM,
 		TOGGLE_LOADER,
 		IS_TOKEN_SAVED,
 		SAVE_TOKEN,

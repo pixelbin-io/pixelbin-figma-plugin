@@ -79,7 +79,11 @@ function TransformationsDrawer({
 		setAiTransformationList(
 			identifierSequence
 				.map((eachSequence) => transformationListObj[eachSequence])
-				.filter((item) => item.plugin.name !== "PdfWatermarkRemoval")
+				.filter(
+					(item) =>
+						item.plugin.name !== "PdfWatermarkRemoval" &&
+						item.plugin.name !== "VideoWatermarkRemoval"
+				)
 		);
 
 		setBasicTransformationsList(

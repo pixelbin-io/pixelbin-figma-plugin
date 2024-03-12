@@ -12,14 +12,18 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 	const [filteredList, setFilteredList] = useState([]);
 
 	useEffect(() => {
+		let x = list.filter(
+			(item, index) => item?.plugin?.operations[0]?.returnType !== "json"
+		);
+
 		if (searchedValue.length) {
-			let temp = list.filter((item) => {
+			let temp = x.filter((item) => {
 				return item.op.displayName
 					.toLowerCase()
 					.includes(searchedValue.toLowerCase());
 			});
 			setFilteredList([...temp]);
-		} else setFilteredList([...list]);
+		} else setFilteredList([...x]);
 	}, [searchedValue, list]);
 
 	return (

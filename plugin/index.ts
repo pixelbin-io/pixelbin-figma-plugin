@@ -269,8 +269,10 @@ figma.ui.onmessage = async (msg) => {
 			retries = 5;
 
 		async function getStatus() {
+			let x;
 			toggleLoader(true);
 			let data = await fetch(msg?.transformedUrl);
+			x = data;
 			status = data?.status;
 			if (data?.status === 202 && retries > 0) {
 				setTimeout(() => {
@@ -309,6 +311,7 @@ figma.ui.onmessage = async (msg) => {
 						figma.notify("Something went wrong");
 					});
 			} else {
+				console.log(">>", x);
 				figma.notify("Something went wrong");
 				toggleLoader(false);
 			}

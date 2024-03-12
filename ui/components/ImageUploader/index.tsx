@@ -197,7 +197,6 @@ function ImageUploader({
 					setStorageDetails();
 				})
 				.catch((err) => {
-					console.log("err", err);
 					isUploadSuccess(err);
 					setIsLoading(false);
 				});

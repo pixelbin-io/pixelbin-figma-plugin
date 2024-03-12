@@ -18,6 +18,27 @@
 	border-bottom: 1px solid var(--figma-color-border);
 }
 
+.info-box {
+	font-size: 8px;
+	color: var(--figma-color-bg);
+	height: 20px;
+	background: var(--figma-color-bg-inverse);
+	border-radius: 8px;
+	position: absolute;
+	top: 13px;
+	right: 4px;
+	padding: 1px 4px 4px 12px;
+
+	&:after {
+		content: "▼";
+		color: var(--figma-color-bg-inverse);
+		font-size: 12px;
+		top: 14px;
+		right: 10px;
+		position: relative;
+	}
+}
+
 .tab {
 	color: var(--figma-color-bg-inverse);
 	font-size: 12px;
