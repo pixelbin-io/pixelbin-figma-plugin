@@ -366,8 +366,7 @@ function ImageUploader({
 								: null}
 						</div>
 					</div>
-
-					<div className="checkbox-container">
+					{/* <div className="checkbox-container">
 						<input
 							id="overwrite-sb"
 							type="checkbox"
@@ -380,8 +379,8 @@ function ImageUploader({
 							}}
 						/>
 						<div className="generic-text">Overwrite</div>
-					</div>
-					<div className="checkbox-container">
+					</div> */}
+					{/* <div className="checkbox-container">
 						<input
 							id="overwrite-sb"
 							type="checkbox"
@@ -394,7 +393,7 @@ function ImageUploader({
 							}}
 						/>
 						<div className="generic-text">Filename Override</div>
-					</div>
+					</div> */}
 				</div>
 			</div>
 			<div className={"api-key-btn-container space-between"}>

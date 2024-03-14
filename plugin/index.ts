@@ -13,7 +13,7 @@ import { HOW_IT_WORKS_URL } from "../config";
 //Append the UI
 figma.showUI(__html__, {
 	title: "PixelBin.io",
-	height: 460,
+	height: 505,
 	width: 280,
 	themeColors: true,
 });
@@ -252,6 +252,7 @@ figma.ui.onmessage = async (msg) => {
 				const node = figma.createRectangle();
 				const { width, height } = await image.getSizeAsync();
 				node.resize(width, height);
+
 				node.fills = [
 					{
 						type: "IMAGE",
@@ -259,6 +260,35 @@ figma.ui.onmessage = async (msg) => {
 						scaleMode: "FILL",
 					},
 				];
+
+				figma.currentPage.selection = [node];
+				const viewport = figma.viewport;
+				if (!isRectangleVisibleInViewport(viewport, node)) {
+					figma.viewport.scrollAndZoomIntoView([node]);
+				}
+
+				function isRectangleVisibleInViewport(viewport, rectangle) {
+					const viewportRect = {
+						x: viewport.bounds.x,
+						y: viewport.bounds.y,
+						width: viewport.bounds.width,
+						height: viewport.bounds.height,
+					};
+					const rectangleRect = {
+						x: rectangle.x,
+						y: rectangle.y,
+						width: rectangle.width,
+						height: rectangle.height,
+					};
+					return (
+						viewportRect.x <= rectangleRect.x &&
+						viewportRect.y <= rectangleRect.y &&
+						viewportRect.x + viewportRect.width >=
+							rectangleRect.x + rectangleRect.width &&
+						viewportRect.y + viewportRect.height >=
+							rectangleRect.y + rectangleRect.height
+					);
+				}
 			})
 			.catch((err) => {
 				figma.notify("Something went wrong");
@@ -269,10 +299,10 @@ figma.ui.onmessage = async (msg) => {
 			retries = 5;
 
 		async function getStatus() {
-			let x;
+			let statusData;
 			toggleLoader(true);
 			let data = await fetch(msg?.transformedUrl);
-			x = data;
+			statusData = data;
 			status = data?.status;
 			if (data?.status === 202 && retries > 0) {
 				setTimeout(() => {
@@ -311,12 +341,15 @@ figma.ui.onmessage = async (msg) => {
 						figma.notify("Something went wrong");
 					});
 			} else {
-				console.log(">>", x);
-				figma.notify("Something went wrong");
+				statusData?.url?.includes("shadow.gen") && statusData?.status === 404
+					? figma.notify(
+							"The image must contain full human to generate the shadow",
+							{ timeout: 5000 }
+					  )
+					: figma.notify("Something went wrong");
 				toggleLoader(false);
 			}
 		}
-
 		getStatus();
 	}
 };

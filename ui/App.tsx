@@ -54,6 +54,7 @@ function App() {
 
 	const {
 		INITIAL_CALL,
+
 		TOGGLE_LOADER,
 		IS_TOKEN_SAVED,
 		SAVE_TOKEN,
@@ -89,8 +90,19 @@ function App() {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
+				setIsTransformationsDrawerOpen(true);
 			}
-		} catch (err) {}
+		} catch (err) {
+			parent.postMessage(
+				{
+					pluginMessage: {
+						type: NOTIFY_USER,
+						value: "Something went wrong",
+					},
+				},
+				"*"
+			);
+		}
 	}
 
 	window.onmessage = async (event) => {
@@ -308,9 +320,13 @@ function App() {
 		}
 	}
 
-	const QueDrawerClose = () => setTransformationQueue([]);
+	const QueDrawerClose = () => {
+		setTransformationQueue([]);
+		setIsTransformationsDrawerOpen(true);
+	};
 
 	async function setCreditsDetails() {
+		setIsLoading(true);
 		if (tokenValue && tokenValue !== null) {
 			try {
 				const newData = await defaultPixelBinClient.billing.getUsage();
@@ -318,7 +334,19 @@ function App() {
 				const cr = newData?.total?.credits;
 				setCreditUSed(cu);
 				setTotalCredit(cr);
-			} catch (err) {}
+				setIsLoading(false);
+			} catch (err) {
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: NOTIFY_USER,
+							value: "Url copied to clipboard",
+						},
+					},
+					"*"
+				);
+				setIsLoading(false);
+			}
 		}
 	}
 	function onDeleteClick(index: number) {
@@ -365,7 +393,7 @@ function App() {
 								onRefreshClick={onRefreshClick}
 								selectedTabId={seletedTabId}
 							/>
-							{isTransformationsDrawerOpen && (
+							{isTransformationsDrawerOpen && imgUrl && (
 								<TransformationsDrawer
 									toggler={transformationsDrawerToggle}
 									plugins={plugins}
@@ -387,12 +415,12 @@ function App() {
 									setIsLoading={setIsLoading}
 								/>
 							)}
-							{imgUrl && (
+							{transformationQueue.length || !isTransformationsDrawerOpen ? (
 								<div
 									onClick={transformationsDrawerToggle}
 									className="icon--plus icon--white plus-button"
 								/>
-							)}
+							) : null}
 							{transformationQueue.length ? (
 								<QueuedTransformationsDrawer
 									onClose={QueDrawerClose}

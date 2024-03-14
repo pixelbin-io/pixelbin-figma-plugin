@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import TansformationIcon from "../TansformationIcon";
-import SearchBox from "../../../SearchBox";
+
 import "./style.scss";
 
 interface gridProps {
 	list: any;
 	handleTransformationClick: (op: any) => void;
+	searchedValue: string;
 }
-function TransformationGrid({ list, handleTransformationClick }: gridProps) {
-	const [searchedValue, setSearchedValue] = useState("");
+function TransformationGrid({
+	list,
+	searchedValue,
+	handleTransformationClick,
+}: gridProps) {
 	const [filteredList, setFilteredList] = useState([]);
 
 	useEffect(() => {
@@ -28,26 +32,24 @@ function TransformationGrid({ list, handleTransformationClick }: gridProps) {
 
 	return (
 		<div className="transformation-container">
-			<SearchBox setValue={setSearchedValue} />
 			{filteredList.length ? (
 				<div className="transformation-grid">
 					{filteredList.map((item: any) => {
 						return (
-							<>
-								<div
-									onClick={() => {
-										handleTransformationClick({
-											op: item.op,
-											pluginName: item.plugin.name,
-										});
-									}}
-								>
-									<TansformationIcon
-										src={item.op.icon}
-										name={item.op.displayName}
-									/>
-								</div>
-							</>
+							<div
+								key={item.op.displayName} // You should add a unique key for each child element in a list
+								onClick={() => {
+									handleTransformationClick({
+										op: item.op,
+										pluginName: item.plugin.name,
+									});
+								}}
+							>
+								<TansformationIcon
+									src={item.op.icon}
+									name={item.op.displayName}
+								/>
+							</div>
 						);
 					})}
 				</div>
