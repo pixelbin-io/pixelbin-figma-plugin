@@ -12,19 +12,11 @@ import "react-json-view-lite/dist/index.css";
 
 interface CanvasProps {
 	url: string;
-	isRefereshEnabled: any;
-	onRefreshClick: () => void;
 	selectedTabId: number;
 	transFormedUrl: string;
 }
 
-function ImageCanvas({
-	url,
-	isRefereshEnabled,
-	onRefreshClick,
-	selectedTabId,
-	transFormedUrl,
-}: CanvasProps) {
+function ImageCanvas({ url, selectedTabId, transFormedUrl }: CanvasProps) {
 	const [imageLoaded, setImageLoaded] = useState(false);
 	const [context, setContext] = useState("");
 
@@ -57,26 +49,14 @@ function ImageCanvas({
 						onLoad={handleImageLoad}
 					/>
 				) : (
-					// <div className="context-box">
 					<JsonView
 						data={context}
 						shouldExpandNode={collapseAllNested}
 						style={darkStyles}
 					/>
-					// </div>
 				)
 			) : (
 				<div className="note-text">Please Select an image.</div>
-			)}
-			{isRefereshEnabled && (
-				<div className="refresh-container">
-					<button
-						onClick={onRefreshClick}
-						className="button button--primary refresh-btn"
-					>
-						Refresh
-					</button>
-				</div>
 			)}
 		</div>
 	);

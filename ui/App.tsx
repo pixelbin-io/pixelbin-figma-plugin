@@ -42,7 +42,6 @@ function App() {
 	const [plugins, setPlugins] = useState({});
 	const [isDynamicFormOpen, setIsDynamicFormOpen] = useState(false);
 	const [currentOp, setCurrentOP] = useState({});
-	const [transformationQueue, setTransformationQueue] = useState([]);
 	const [isFormReEditing, setIsFormReEditing] = useState(false);
 	const [index, setIndex] = useState(-1);
 	const [cloudName, setCloudName] = useState("");
@@ -51,6 +50,10 @@ function App() {
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
 	const [imgName, setImgName] = useState("");
+	const [currentTransformation, setCurrentTransformation] = useState({
+		op: {},
+		plugin: {},
+	});
 
 	const {
 		INITIAL_CALL,
@@ -170,34 +173,21 @@ function App() {
 		);
 	}
 
-	async function onRefreshClick() {
+	async function onTransformationApply(data) {
+		setIsFormReEditing(false);
+		setCurrentTransformation(data);
+
 		setIsLoading(true);
 		let t = null;
-		transformationQueue.forEach((item, index) => {
-			const { pluginName, method } = item.op;
-			if (index !== 0) {
-				//If its a not a first operation queue we have to pipe it
-				if (!item.op.params.length) {
-					t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
-				} else {
-					t = t.pipe(
-						eval(`${pluginName.split(" ").join("")}.${method}`)({
-							...item.selectedFormValues,
-						})
-					);
-				}
-			} else {
-				//If its a first operation queue
-				if (!item.op.params.length) {
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)();
-				} else {
-					const { pluginName, method } = item.op;
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)({
-						...item.selectedFormValues,
-					});
-				}
-			}
-		});
+		if (!data.op.params.length) {
+			t = eval(`${data.op.pluginName.split(" ").join("")}.${data.op.method}`)();
+		} else {
+			const { pluginName, method } = data.op;
+			t = eval(`${pluginName.split(" ").join("")}.${method}`)({
+				...data.selectedFormValues,
+			});
+		}
+
 		let name = `${uuidv4()}`;
 
 		var pixelbin = new Pixelbin({
@@ -211,8 +201,6 @@ function App() {
 		});
 
 		let blob = new Blob(imageBytes, { type: "image/jpeg" });
-
-		const EraseBg = transformations.EraseBG;
 
 		return Pixelbin.upload(blob as any, res.presignedUrl, uploadOptions)
 			.then(() => {
@@ -232,9 +220,11 @@ function App() {
 				);
 				setCreditsDetails();
 				QueDrawerClose();
+				setIsDynamicFormOpen(false);
 			})
 			.catch((err) => {
 				setIsLoading(false);
+				setIsDynamicFormOpen(false);
 			});
 	}
 
@@ -295,38 +285,24 @@ function App() {
 	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
 
 	function handleTransformationClick(data: any) {
+		console.log("data", data);
 		setCurrentOP({ ...data.op, pluginName: data.pluginName });
 		transformationsDrawerToggle();
 		setIsFormReEditing(false);
 		if (data.op.params.length) {
 			dynamicFormToggler();
-		} else
-			setTransformationQueue([
-				...transformationQueue,
-				{ op: { ...data.op, pluginName: data.pluginName } },
-			]);
-	}
-
-	function onTransformationApply(data) {
-		dynamicFormToggler();
-		setIsFormReEditing(false);
-		if (isFormReEditing) {
-			let temp = transformationQueue;
-			temp[index] = data;
-			setTransformationQueue([...temp]);
-			setIndex(-1);
 		} else {
-			setTransformationQueue([...transformationQueue, data]);
+			onTransformationApply({
+				op: { ...data.op, pluginName: data.pluginName },
+			});
 		}
 	}
 
 	const QueDrawerClose = () => {
-		setTransformationQueue([]);
 		setIsTransformationsDrawerOpen(true);
 	};
 
 	async function setCreditsDetails() {
-		setIsLoading(true);
 		if (tokenValue && tokenValue !== null) {
 			try {
 				const newData = await defaultPixelBinClient.billing.getUsage();
@@ -334,7 +310,6 @@ function App() {
 				const cr = newData?.total?.credits;
 				setCreditUSed(cu);
 				setTotalCredit(cr);
-				setIsLoading(false);
 			} catch (err) {
 				parent.postMessage(
 					{
@@ -345,13 +320,8 @@ function App() {
 					},
 					"*"
 				);
-				setIsLoading(false);
 			}
 		}
-	}
-	function onDeleteClick(index: number) {
-		const updatedQueue = transformationQueue.filter((_, i) => i !== index);
-		setTransformationQueue([...updatedQueue]);
 	}
 
 	function onArrowClick(index: number, data: any) {
@@ -389,8 +359,6 @@ function App() {
 							<ImageCanvas
 								url={imgUrl}
 								transFormedUrl={transFormedUrl}
-								isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
-								onRefreshClick={onRefreshClick}
 								selectedTabId={seletedTabId}
 							/>
 							{isTransformationsDrawerOpen && imgUrl && (
@@ -406,27 +374,16 @@ function App() {
 									operation={currentOp}
 									url={imgUrl}
 									onTransformationApply={onTransformationApply}
-									selectedValues={
-										isFormReEditing ? transformationQueue[index] : null
-									}
 									index={isFormReEditing ? index : null}
 									tokenValue={tokenValue}
 									cloudName={cloudName}
 									setIsLoading={setIsLoading}
 								/>
 							)}
-							{transformationQueue.length || !isTransformationsDrawerOpen ? (
+							{!isTransformationsDrawerOpen ? (
 								<div
 									onClick={transformationsDrawerToggle}
 									className="icon--plus icon--white plus-button"
-								/>
-							) : null}
-							{transformationQueue.length ? (
-								<QueuedTransformationsDrawer
-									onClose={QueDrawerClose}
-									queue={transformationQueue}
-									onDeleteClick={onDeleteClick}
-									onArrowClick={onArrowClick}
 								/>
 							) : null}
 						</>
