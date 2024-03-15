@@ -346,6 +346,7 @@ function App() {
 								url={imgUrl}
 								transFormedUrl={transFormedUrl}
 								selectedTabId={seletedTabId}
+								isTransformationApplied={isTransformationApplied}
 								onDiscardClick={() => {
 									parent.postMessage(
 										{

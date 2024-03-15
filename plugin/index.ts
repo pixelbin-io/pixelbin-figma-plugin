@@ -65,7 +65,6 @@ async function handleInitialSelection() {
 		});
 
 		var node: any = figma?.currentPage?.selection[0];
-		console.log("NodeDetails", node);
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
 			savedHash = node.fills[0].imageHash;
@@ -75,6 +74,7 @@ async function handleInitialSelection() {
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
 			figma.ui.postMessage(body);
+			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 		}
 	}
 }
@@ -103,6 +103,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
+			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 		} else {
 			body.imageBytes = null;
 			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });

@@ -7,6 +7,7 @@ interface CanvasProps {
 	selectedTabId: number;
 	transFormedUrl: string;
 	onDiscardClick: () => void;
+	isTransformationApplied: boolean;
 }
 
 function ImageCanvas({
@@ -14,6 +15,7 @@ function ImageCanvas({
 	selectedTabId,
 	transFormedUrl,
 	onDiscardClick,
+	isTransformationApplied,
 }: CanvasProps) {
 	const [imageLoaded, setImageLoaded] = useState(false);
 	const [isImageHovered, setIsImageHovered] = useState(false);
@@ -36,7 +38,7 @@ function ImageCanvas({
 				<div className="note-text">Please Select an image.</div>
 			)}
 
-			{transFormedUrl && selectedTabId === 1 && isImageHovered ? (
+			{isTransformationApplied && selectedTabId === 1 && isImageHovered ? (
 				<div
 					className="discard-modal"
 					onMouseEnter={() => setIsImageHovered(true)}
