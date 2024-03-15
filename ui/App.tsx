@@ -50,11 +50,6 @@ function App() {
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
 	const [imgName, setImgName] = useState("");
-	const [currentTransformation, setCurrentTransformation] = useState({
-		op: {},
-		plugin: {},
-	});
-
 	const {
 		INITIAL_CALL,
 
@@ -175,8 +170,6 @@ function App() {
 
 	async function onTransformationApply(data) {
 		setIsFormReEditing(false);
-		setCurrentTransformation(data);
-
 		setIsLoading(true);
 		let t = null;
 		if (!data.op.params.length) {
@@ -192,7 +185,7 @@ function App() {
 
 		var pixelbin = new Pixelbin({
 			cloudName: cloudName,
-			zone: "default", // optional
+			zone: "default",
 		});
 
 		let res = await defaultPixelBinClient.assets.createSignedUrlV2({
@@ -285,7 +278,6 @@ function App() {
 	const dynamicFormToggler = () => setIsDynamicFormOpen(!isDynamicFormOpen);
 
 	function handleTransformationClick(data: any) {
-		console.log("data", data);
 		setCurrentOP({ ...data.op, pluginName: data.pluginName });
 		transformationsDrawerToggle();
 		setIsFormReEditing(false);
@@ -324,13 +316,6 @@ function App() {
 		}
 	}
 
-	function onArrowClick(index: number, data: any) {
-		setIndex(index);
-		dynamicFormToggler();
-		setCurrentOP(data.op);
-		setIsFormReEditing(true);
-	}
-
 	useEffect(() => {
 		setCreditsDetails();
 		getOperations();
@@ -360,6 +345,19 @@ function App() {
 								url={imgUrl}
 								transFormedUrl={transFormedUrl}
 								selectedTabId={seletedTabId}
+								onDiscardClick={() => {
+									parent.postMessage(
+										{
+											pluginMessage: {
+												type: "DISCARD_CHANGES",
+												url: imgUrl,
+											},
+										},
+										"*"
+									);
+									setSelectedTabId(1);
+									setIsTransformationApplied(false);
+								}}
 							/>
 							{isTransformationsDrawerOpen && imgUrl && (
 								<TransformationsDrawer

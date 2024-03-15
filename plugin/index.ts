@@ -18,7 +18,6 @@ figma.showUI(__html__, {
 	themeColors: true,
 });
 
-const rectangles: RectangleNode[] = [];
 const {
 	INITIAL_CALL,
 	CREATE_FORM,
@@ -39,6 +38,8 @@ const {
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
+
+let savedWidth, saveHeight, savedHash;
 
 if (figma.command === HOW_IT_WORKS_CMD) figma.openExternal(HOW_IT_WORKS_URL);
 
@@ -63,9 +64,12 @@ async function handleInitialSelection() {
 		});
 
 		var node: any = figma?.currentPage?.selection[0];
-
+		console.log("NodeDetails", node);
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
+			savedHash = node.fills[0].imageHash;
+			saveHeight = node.height;
+			savedWidth = node.width;
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
@@ -92,6 +96,9 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 		var node: any = figma?.currentPage?.selection[0];
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
+			savedHash = node.fills[0].imageHash;
+			saveHeight = node.height;
+			savedWidth = node.width;
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
@@ -294,6 +301,20 @@ figma.ui.onmessage = async (msg) => {
 				figma.notify("Something went wrong");
 			});
 	}
+
+	if (msg.type === "DISCARD_CHANGES") {
+		node.resize(savedWidth, saveHeight);
+		node.fills = [
+			{
+				type: IMAGE,
+				imageHash: savedHash,
+				scaleMode: "FILL",
+			},
+		];
+		toggleLoader(false);
+		figma.notify("changes discarded", { timeout: 2000 });
+	}
+
 	if (msg.type === REPLACE_IMAGE) {
 		let status,
 			retries = 5;
@@ -329,7 +350,10 @@ figma.ui.onmessage = async (msg) => {
 							},
 						];
 						toggleLoader(false);
-						figma.notify("Transformation Applied ", { timeout: 2000 });
+						figma.notify(
+							"Transformation Applied. You can use Ctrl/Cmd + Z to undo transformations",
+							{ timeout: 5000 }
+						);
 						figma.ui.postMessage({
 							type: IS_TRANSFORMATION_APPLIED,
 							value: true,
