@@ -63,6 +63,7 @@ function App() {
 		IS_TRANSFORMATION_APPLIED,
 		TOKEN_SAVED,
 		CHANGE_TAB_ID,
+		DISCARD_CHANGES,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -349,7 +350,7 @@ function App() {
 									parent.postMessage(
 										{
 											pluginMessage: {
-												type: "DISCARD_CHANGES",
+												type: DISCARD_CHANGES,
 												url: imgUrl,
 											},
 										},

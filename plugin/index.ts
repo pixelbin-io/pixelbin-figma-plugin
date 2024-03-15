@@ -35,6 +35,7 @@ const {
 	TOKEN_SAVED,
 	CREATE_NEW_IMAGE,
 	CHANGE_TAB_ID,
+	DISCARD_CHANGES,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
@@ -302,7 +303,7 @@ figma.ui.onmessage = async (msg) => {
 			});
 	}
 
-	if (msg.type === "DISCARD_CHANGES") {
+	if (msg.type === DISCARD_CHANGES) {
 		node.resize(savedWidth, saveHeight);
 		node.fills = [
 			{
@@ -312,7 +313,7 @@ figma.ui.onmessage = async (msg) => {
 			},
 		];
 		toggleLoader(false);
-		figma.notify("changes discarded", { timeout: 2000 });
+		figma.notify("Changes discarded", { timeout: 2000 });
 	}
 
 	if (msg.type === REPLACE_IMAGE) {
