@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./style.scss";
 import { ReactComponent as CloseIcon } from "../../../assets/close.svg";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { PdkAxios } from "@pixelbin/admin/common.js";
 import { uploadOptions, EVENTS } from "../../../constants";
-import Pixelbin, { transformations } from "@pixelbin/core";
+import Pixelbin from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
-import { Treebeard } from "react-treebeard";
 import { Util } from "../../../util";
 import { v4 as uuidv4 } from "uuid";
 
@@ -52,44 +50,44 @@ function ImageUploader({
 		);
 	}
 
+	const modalRef = useRef(null);
+
 	const staticFormValues = {
 		image: null,
 		imageName: "",
 		tags: [],
 	};
-	const inputRef = useRef(null);
 	const [formValues, setFormValues] = useState(staticFormValues);
 	const [currentTag, setCurrentTag] = useState("");
-	const [cursor, setCursor] = useState(false);
 	const [data, setData] = useState({
 		name: "root",
 		toggled: true,
 		path: "root",
 		children: [],
 	});
-	const [selectedPath, setSelectedPath] = useState("");
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [currentFoldersList, setCurrrentFoldersList] = useState([]);
+	const [pathsList, setPathsList] = useState([]);
 	const [isLoadMoreEnabled, setIsLoadMoreEnabled] = useState(false);
 	const [apiInstance, setAPIInstance] = useState(null);
 	const [foldersNotFound, setFolderNotFound] = useState(true);
 	const [storageUsed, setStorageUSed] = useState(0);
 	const [totalStorage, setTotalStorage] = useState(0);
 	const [isAccOpen, setIsAccOpen] = useState(true);
+	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
 
-	function deactivateChildren(node) {
-		let temp = node;
-		if (temp.children && node.children.length > 0) {
-			node.children.forEach((child) => {
-				child.active = false;
-				deactivateChildren(child);
-			});
-		}
-	}
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (modalRef.current && !modalRef.current.contains(event.target)) {
+				setIsModalOpen(false);
+			}
+		};
 
-	const formatDigits = (value) => {
-		const trimmed = parseFloat(parseFloat(value).toFixed(3));
-		if (Math.floor(trimmed) === trimmed) return Math.floor(trimmed);
-		return trimmed;
-	};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	async function setStorageDetails() {
 		setIsLoading(true);
@@ -112,14 +110,10 @@ function ImageUploader({
 			setAPIInstance(temp);
 			const { items, page } = await temp.next();
 			setIsLoadMoreEnabled(temp.hasNext());
-
+			let temp2 = items.filter((item, index) => item.path === "");
+			setCurrrentFoldersList([...temp2]);
+			setIsRouteDirectory(true);
 			let x = data;
-			x.children = items
-				.filter((item, index) => item.path === "")
-				.map((item, index) => {
-					return { ...item, children: [] };
-				});
-			setData({ ...x });
 			setIsLoading(false);
 			if (!items.length) setFolderNotFound(true);
 			else setFolderNotFound(false);
@@ -133,16 +127,13 @@ function ImageUploader({
 		try {
 			setIsLoading(true);
 			const { items, page } = await apiInstance.next();
-			let temp1 = data;
-			temp1.children = [
-				...data.children,
-				...items
-					.filter((item, index) => item.path === "")
-					.map((item, index) => {
-						return { ...item, children: [] };
-					}),
+			let temp = [
+				...currentFoldersList,
+				...(isRouteDirectory
+					? items.filter((item, index) => item.path === "")
+					: items),
 			];
-			setData({ ...temp1 });
+			setCurrrentFoldersList([...temp]);
 			setIsLoadMoreEnabled(apiInstance.hasNext());
 			setIsLoading(false);
 		} catch (err) {
@@ -151,14 +142,17 @@ function ImageUploader({
 		}
 	}
 
-	async function fetchByName(name) {
+	async function fetchByPath(list) {
 		try {
 			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
-				path: name,
+				path: list.join("/"),
 			});
+			setAPIInstance(temp);
 			const { items, page } = await temp.next();
+			setIsLoadMoreEnabled(temp.hasNext());
+			setCurrrentFoldersList([...items]);
 			setIsLoading(false);
 			return items;
 		} catch (err) {
@@ -174,7 +168,7 @@ function ImageUploader({
 			const regex = /\/([^\/]+)$/;
 
 			let createSignedURlDetails = {
-				path: selectedPath,
+				path: pathsList.join("/"),
 				name: uuidv4(),
 				access: "public-read",
 				tags: [...formValues.tags],
@@ -214,97 +208,137 @@ function ImageUploader({
 		setStorageDetails();
 	}, []);
 
-	const onToggle = async (node, toggled) => {
-		try {
-			setIsLoading(true);
-			if (cursor) {
-				setCursor(false);
-			}
-			if (node.path === "root") {
-				fetchFoldersList();
-				deactivateChildren(data);
-				setSelectedPath("");
-			}
-			if (node.path !== "root") {
-				let pathname = node.path.length
-					? `${node.path}/${node.name}`
-					: node.name;
-				let x = await fetchByName(pathname);
-				x = [
-					...x.map((item, index) => {
-						return { ...item, children: [] };
-					}),
-				];
-				node.children = x;
-				deactivateChildren(data);
-				node.active = true;
-				setSelectedPath(pathname);
-			}
-
-			node.toggled = toggled;
-			setCursor(node);
-			setData(Object.assign({}, data));
-			setIsLoading(false);
-		} catch (err) {
-			setIsLoading(false);
-			showErrMessage();
-		}
-	};
-
 	return (
 		<div className="uploader-main-container">
 			<div className="uploader-form-container">
-				{/* <div className="generic-text dropdown-label">
-					Select folder to upload image *
-				</div> */}
 				<div
 					onClick={() => setIsAccOpen(!isAccOpen)}
 					className="accordion generic-text dropdown-label"
 					style={{ marginTop: 8 }}
 				>
 					<div>Select Folder* &nbsp;</div>
-					<span className={`${isAccOpen ? "arrow-open" : ""}`}>&nbsp;▶</span>
 				</div>
-				{isAccOpen ? (
-					<div>
-						<div className="tree-container">
-							{!foldersNotFound ? (
-								<Treebeard data={data} onToggle={onToggle} />
-							) : (
-								<div className="no-folders-error">
-									No folders found. Click{" "}
-									<span
-										onClick={() => {
-											openExternalURl(
-												"https://console.pixelbin.io/choose-org?redirectTo=storage"
-											);
-										}}
-									>
-										Here
-									</span>{" "}
-									to create.
+
+				<div>
+					{pathsList.length < 3 ? (
+						<div className="path-chain">
+							<div className="chain-hook">
+								<div
+									className="hook-name"
+									onClick={() => {
+										setPathsList([]);
+										fetchFoldersList();
+									}}
+								>
+									My Library
 								</div>
-							)}
+								{pathsList.length ? (
+									<div style={{ fontSize: 10 }}>〉</div>
+								) : null}
+							</div>
+							{pathsList.map((item, index) => {
+								return (
+									<div className="chain-hook">
+										<div
+											className="hook-name"
+											onClick={() => {
+												if (index !== pathsList.length - 1)
+													setIsRouteDirectory(false);
+												const newPathList = [...pathsList.slice(0, index + 1)];
+												fetchByPath(newPathList);
+												setPathsList(newPathList);
+											}}
+										>
+											{item}
+										</div>
+										{index < pathsList.length - 1 && (
+											<div style={{ fontSize: 10 }}>〉</div>
+										)}
+									</div>
+								);
+							})}
 						</div>
-						{isLoadMoreEnabled && (
-							<div className="load-more-button" onClick={loadMore}>
-								Load More ↓
+					) : (
+						<div className="path-chain">
+							<div className="chain-hook">
+								<div
+									className="hook-name"
+									onClick={() => {
+										setPathsList([]);
+										fetchFoldersList();
+									}}
+								>
+									My Library
+								</div>
+								<div style={{ fontSize: 10 }}>〉</div>
+							</div>
+							<div className="chain-hook">
+								<div
+									className="hook-name"
+									onClick={() => {
+										setIsModalOpen(true);
+									}}
+								>
+									...
+								</div>
+								<div style={{ fontSize: 10 }}>〉</div>
+							</div>
+							<div></div>
+							<div className="chain-hook">
+								<div className="hook-name">
+									{pathsList[pathsList.length - 1]}
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+
+				<div>
+					<div className="tree-container">
+						{!foldersNotFound ? (
+							<div className="folders-list-container">
+								{currentFoldersList.length ? (
+									currentFoldersList?.map((item, index) => {
+										return (
+											<div
+												onClick={() => {
+													setIsRouteDirectory(false);
+													fetchByPath([...pathsList, item.name]);
+													setPathsList([...pathsList, item.name]);
+												}}
+												className="folder-card"
+											>
+												{item.name}
+											</div>
+										);
+									})
+								) : (
+									<div className="no-folders-error">Empty !</div>
+								)}
+								{isLoadMoreEnabled && (
+									<div className="load-more-button" onClick={loadMore}>
+										Load More ↓
+									</div>
+								)}
+							</div>
+						) : (
+							<div className="no-folders-error">
+								No folders found. Click
+								<span
+									onClick={() => {
+										openExternalURl(
+											"https://console.pixelbin.io/choose-org?redirectTo=storage"
+										);
+									}}
+								>
+									Here
+								</span>
+								to create.
 							</div>
 						)}
 					</div>
-				) : null}
-
-				<div style={{ marginTop: 12 }}>
-					<div
-						className="generic-text dropdown-label"
-						style={{ color: "#9da5ab" }}
-					>
-						Selected folder's path
-					</div>
-					<div className="path-string">
-						{selectedPath || <span>path will be shown here ...</span>}
-					</div>
 				</div>
+
 				<div className="image-upload-form">
 					<div className="tag-main-container">
 						<div className="generic-text dropdown-label">Tags</div>
@@ -373,11 +407,31 @@ function ImageUploader({
 					id="submit-token"
 					onClick={handleUpload}
 					className="button button--primary"
-					disabled={!imgUrl || !selectedPath.length}
+					disabled={!imgUrl || !pathsList.length}
 				>
 					Upload
 				</button>
 			</div>
+			{isModalOpen ? (
+				<div ref={modalRef} className="list-modal">
+					{pathsList?.map((item, index) => {
+						return index > 0 && index < pathsList.length - 1 ? (
+							<div
+								onClick={() => {
+									setIsRouteDirectory(false);
+									const newPathList = [...pathsList.slice(0, index + 1)];
+									fetchByPath(newPathList);
+									setPathsList(newPathList);
+									setIsModalOpen(false);
+								}}
+								className="folder-card"
+							>
+								{item}
+							</div>
+						) : null;
+					})}
+				</div>
+			) : null}
 		</div>
 	);
 }
