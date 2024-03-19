@@ -211,6 +211,13 @@
 		overflow-y: auto;
 	}
 
+	.home-icon {
+		fill: var(--figma-color-text);
+		width: 16px;
+		height: 18px;
+		margin-top: -2px;
+	}
+
 	.no-folders-error {
 		font-size: 12px;
 		margin-top: 16px;

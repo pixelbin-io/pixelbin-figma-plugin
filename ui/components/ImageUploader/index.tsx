@@ -7,6 +7,7 @@ import Pixelbin from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Util } from "../../../util";
 import { v4 as uuidv4 } from "uuid";
+import { ReactComponent as Home } from "../../../assets/home.svg";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
 
@@ -106,6 +107,7 @@ function ImageUploader({
 			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
+				path: "",
 			});
 			setAPIInstance(temp);
 			const { items, page } = await temp.next();
@@ -230,11 +232,9 @@ function ImageUploader({
 										fetchFoldersList();
 									}}
 								>
-									My Library
+									<Home className="home-icon" />
 								</div>
-								{pathsList.length ? (
-									<div style={{ fontSize: 10 }}>〉</div>
-								) : null}
+								<div style={{ fontSize: 10 }}>〉</div>
 							</div>
 							{pathsList.map((item, index) => {
 								return (
@@ -268,7 +268,7 @@ function ImageUploader({
 										fetchFoldersList();
 									}}
 								>
-									My Library
+									<Home className="home-icon" />
 								</div>
 								<div style={{ fontSize: 10 }}>〉</div>
 							</div>
@@ -317,7 +317,7 @@ function ImageUploader({
 								)}
 								{isLoadMoreEnabled && (
 									<div className="load-more-button" onClick={loadMore}>
-										Load More ↓
+										Show More ↓
 									</div>
 								)}
 							</div>

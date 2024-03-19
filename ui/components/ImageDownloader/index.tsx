@@ -5,7 +5,7 @@ import { EVENTS } from "../../../constants";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
 import SearchBox from "../SearchBox";
-import { ReactComponent as Download } from "../../../assets/download.svg";
+import { ReactComponent as Home } from "../../../assets/home.svg";
 
 interface downloadProps {
 	setIsLoading: (val: boolean) => void;
@@ -77,6 +77,7 @@ function ImageDownloader({
 			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
+				path: "",
 			});
 			setAPIInstance(temp);
 			const { items, page } = await temp.next();
@@ -132,22 +133,6 @@ function ImageDownloader({
 		}
 	}
 
-	async function fetchByName(name) {
-		try {
-			setIsLoading(true);
-			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
-				onlyFolders: true,
-				path: name,
-			});
-			const { items, page } = await temp.next();
-			setIsLoading(false);
-			return items;
-		} catch (err) {
-			setIsLoading(false);
-			showErrMessage();
-		}
-	}
-
 	async function fetchImagesByPath(list) {
 		try {
 			setIsLoading(true);
@@ -190,6 +175,7 @@ function ImageDownloader({
 		setIsLoading(true);
 		let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 			onlyFiles: true,
+			path: "",
 		});
 		setImgApiInstance(temp);
 		const { items, page } = await temp.next();
@@ -271,8 +257,11 @@ function ImageDownloader({
 					<div className="accordion-name">
 						{`Folders  (${currentFoldersList.length})`} &nbsp;
 					</div>
-					<div className={`${isFolderAccOpen ? "arrow-open" : ""}`}>
-						&nbsp;▶
+					<div
+						style={{ fontSize: 10 }}
+						className={`${isFolderAccOpen ? "arrow-open" : ""}`}
+					>
+						▶
 					</div>
 				</div>
 				<div className={`${!isFolderAccOpen ? "closed" : ""}`}>
@@ -289,11 +278,9 @@ function ImageDownloader({
 											setSearchedValue("");
 										}}
 									>
-										My Library
+										<Home className="home-icon" />
 									</div>
-									{pathsList.length ? (
-										<div style={{ fontSize: 10 }}>〉</div>
-									) : null}
+									<div style={{ fontSize: 10 }}>〉</div>
 								</div>
 								{pathsList.map((item, index) => {
 									return (
@@ -331,7 +318,7 @@ function ImageDownloader({
 											setSearchedValue("");
 										}}
 									>
-										My Library
+										<Home className="home-icon" />
 									</div>
 									<div style={{ fontSize: 10 }}>〉</div>
 								</div>
@@ -379,7 +366,7 @@ function ImageDownloader({
 								)}
 								{isLoadMoreEnabled && (
 									<div className="load-more-button" onClick={loadMore}>
-										Load More ↓
+										Show More ↓
 									</div>
 								)}
 							</div>
@@ -410,7 +397,12 @@ function ImageDownloader({
 					<div className="accordion-name">
 						{`Files (${imagesList.length})`}&nbsp;
 					</div>
-					<div className={`${isFileAccOpen ? "arrow-open" : ""}`}>&nbsp;▶</div>
+					<div
+						style={{ fontSize: 10 }}
+						className={`${isFileAccOpen ? "arrow-open" : ""}`}
+					>
+						▶
+					</div>
 				</div>
 				<div className={`${!isFileAccOpen ? "closed" : ""}`}>
 					<div>
@@ -437,16 +429,16 @@ function ImageDownloader({
 										</div>
 									</div>
 								))}
+								{hasMoreImages && (
+									<div className="load-more-button" onClick={loadMoreImages}>
+										Show More ↓
+									</div>
+								)}
 							</div>
 						) : (
 							<div className="no-imgs">No images at this path !</div>
 						)}
 					</div>
-					{hasMoreImages && (
-						<div className="load-more-button" onClick={loadMoreImages}>
-							Load More ↓
-						</div>
-					)}
 				</div>
 			</div>
 			{isModalOpen ? (

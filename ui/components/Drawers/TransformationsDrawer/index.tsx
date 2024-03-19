@@ -104,7 +104,6 @@ function TransformationsDrawer({
 				<div style={{ flex: 1 }}>
 					<SearchBox setValue={setSearchedValue} />
 				</div>
-				<CloseIcon className="close-icon" onClick={toggler} />
 			</div>
 			<Divider />
 			<TransformationGrid

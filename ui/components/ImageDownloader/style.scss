@@ -37,6 +37,7 @@
 		justify-content: center;
 		font-size: 10px;
 		cursor: pointer;
+		grid-column: span 2;
 	}
 
 	.img-list-img {
@@ -50,7 +51,7 @@
 	}
 
 	.image-list-container {
-		max-height: 300px;
+		max-height: 350px;
 		overflow-y: auto;
 	}
 
@@ -127,7 +128,6 @@
 
 	.no-folders-error {
 		font-size: 12px;
-		margin-top: 16px;
 		width: 100%;
 		display: flex;
 		/* color: var(--figma-color-border); */
@@ -136,6 +136,13 @@
 			cursor: pointer;
 			color: var(--figma-color-bg-brand);
 		}
+	}
+
+	.home-icon {
+		fill: var(--figma-color-text);
+		width: 16px;
+		height: 18px;
+		margin-top: -2px;
 	}
 
 	.download-icon {
@@ -154,18 +161,13 @@
 		align-items: center;
 		font-size: 12px;
 	}
-
-	.no-folders-error {
-		font-size: 12px;
-		margin-top: 16px;
-		margin-left: 4px;
-		span {
-			cursor: pointer;
-			color: var(--figma-color-bg-brand);
-		}
-	}
 }
 
 .closed {
 	display: none !important;
+}
+
+.grid-container {
+	max-height: 300px;
+	overflow-y: auto;
 }

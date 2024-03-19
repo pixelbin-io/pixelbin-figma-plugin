@@ -212,7 +212,7 @@ function App() {
 					},
 					"*"
 				);
-				setCreditsDetails();
+				setCreditsDetails(false);
 				QueDrawerClose();
 				setIsDynamicFormOpen(false);
 			})
@@ -295,7 +295,8 @@ function App() {
 		setIsTransformationsDrawerOpen(true);
 	};
 
-	async function setCreditsDetails() {
+	async function setCreditsDetails(loader = true) {
+		if (loader) setIsLoading(true);
 		if (tokenValue && tokenValue !== null) {
 			try {
 				const newData = await defaultPixelBinClient.billing.getUsage();
@@ -303,6 +304,7 @@ function App() {
 				const cr = newData?.total?.credits;
 				setCreditUSed(cu);
 				setTotalCredit(cr);
+				if (loader) setIsLoading(false);
 			} catch (err) {
 				parent.postMessage(
 					{
@@ -313,6 +315,7 @@ function App() {
 					},
 					"*"
 				);
+				if (loader) setIsLoading(false);
 			}
 		}
 	}
@@ -380,12 +383,6 @@ function App() {
 									setIsLoading={setIsLoading}
 								/>
 							)}
-							{!isTransformationsDrawerOpen ? (
-								<div
-									onClick={transformationsDrawerToggle}
-									className="icon--plus icon--white plus-button"
-								/>
-							) : null}
 						</>
 					)}
 					{currentFigmaCmd === COMMANDS.UPLOAD_CMD && (
