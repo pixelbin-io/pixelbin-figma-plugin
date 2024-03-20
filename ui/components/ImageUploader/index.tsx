@@ -8,6 +8,7 @@ import { API_PIXELBIN_IO } from "../../../config";
 import { Util } from "../../../util";
 import { v4 as uuidv4 } from "uuid";
 import { ReactComponent as Home } from "../../../assets/home.svg";
+import Loader from "../Loader";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
 
@@ -76,6 +77,7 @@ function ImageUploader({
 	const [totalStorage, setTotalStorage] = useState(0);
 	const [isAccOpen, setIsAccOpen] = useState(true);
 	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
+	const [foldersLoading, setFoldersLoading] = useState(false);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -103,8 +105,8 @@ function ImageUploader({
 	}
 
 	async function fetchFoldersList() {
+		setIsLoading(true);
 		try {
-			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
 				path: "",
@@ -126,8 +128,8 @@ function ImageUploader({
 	}
 
 	async function loadMore() {
+		setFoldersLoading(true);
 		try {
-			setIsLoading(true);
 			const { items, page } = await apiInstance.next();
 			let temp = [
 				...currentFoldersList,
@@ -137,16 +139,16 @@ function ImageUploader({
 			];
 			setCurrrentFoldersList([...temp]);
 			setIsLoadMoreEnabled(apiInstance.hasNext());
-			setIsLoading(false);
+			setFoldersLoading(false);
 		} catch (err) {
-			setIsLoading(false);
+			setFoldersLoading(false);
 			showErrMessage();
 		}
 	}
 
 	async function fetchByPath(list) {
+		setFoldersLoading(true);
 		try {
-			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
 				path: list.join("/"),
@@ -155,10 +157,10 @@ function ImageUploader({
 			const { items, page } = await temp.next();
 			setIsLoadMoreEnabled(temp.hasNext());
 			setCurrrentFoldersList([...items]);
-			setIsLoading(false);
+			setFoldersLoading(false);
 			return items;
 		} catch (err) {
-			setIsLoading(false);
+			setFoldersLoading(false);
 			showErrMessage();
 		}
 	}
@@ -221,121 +223,136 @@ function ImageUploader({
 					<div>Select Folder* &nbsp;</div>
 				</div>
 
-				<div>
-					{pathsList.length < 3 ? (
-						<div className="path-chain">
-							<div className="chain-hook">
-								<div
-									className="hook-name"
-									onClick={() => {
-										setPathsList([]);
-										fetchFoldersList();
-									}}
-								>
-									<Home className="home-icon" />
-								</div>
-								<div style={{ fontSize: 10 }}>〉</div>
-							</div>
-							{pathsList.map((item, index) => {
-								return (
-									<div className="chain-hook">
-										<div
-											className="hook-name"
-											onClick={() => {
-												if (index !== pathsList.length - 1)
-													setIsRouteDirectory(false);
-												const newPathList = [...pathsList.slice(0, index + 1)];
-												fetchByPath(newPathList);
-												setPathsList(newPathList);
-											}}
-										>
-											{item}
-										</div>
-										{index < pathsList.length - 1 && (
-											<div style={{ fontSize: 10 }}>〉</div>
-										)}
+				<div
+					style={{
+						position: "relative",
+						overflowY: `${foldersLoading ? "hidden" : "auto"}`,
+					}}
+				>
+					{foldersLoading ? <Loader /> : null}
+					<div>
+						{pathsList.length < 3 ? (
+							<div className="path-chain">
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setPathsList([]);
+											fetchFoldersList();
+										}}
+									>
+										<Home className="home-icon" />
 									</div>
-								);
-							})}
-						</div>
-					) : (
-						<div className="path-chain">
-							<div className="chain-hook">
-								<div
-									className="hook-name"
-									onClick={() => {
-										setPathsList([]);
-										fetchFoldersList();
-									}}
-								>
-									<Home className="home-icon" />
+									<div style={{ fontSize: 10 }}>〉</div>
 								</div>
-								<div style={{ fontSize: 10 }}>〉</div>
-							</div>
-							<div className="chain-hook">
-								<div
-									className="hook-name"
-									onClick={() => {
-										setIsModalOpen(true);
-									}}
-								>
-									...
-								</div>
-								<div style={{ fontSize: 10 }}>〉</div>
-							</div>
-							<div></div>
-							<div className="chain-hook">
-								<div className="hook-name">
-									{pathsList[pathsList.length - 1]}
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
-
-				<div>
-					<div className="tree-container">
-						{!foldersNotFound ? (
-							<div className="folders-list-container">
-								{currentFoldersList.length ? (
-									currentFoldersList?.map((item, index) => {
-										return (
+								{pathsList.map((item, index) => {
+									return (
+										<div className="chain-hook">
 											<div
+												className="hook-name"
 												onClick={() => {
-													setIsRouteDirectory(false);
-													fetchByPath([...pathsList, item.name]);
-													setPathsList([...pathsList, item.name]);
+													if (index !== pathsList.length - 1)
+														setIsRouteDirectory(false);
+													const newPathList = [
+														...pathsList.slice(0, index + 1),
+													];
+													fetchByPath(newPathList);
+													setPathsList(newPathList);
 												}}
-												className="folder-card"
 											>
-												{item.name}
+												{item}
 											</div>
-										);
-									})
-								) : (
-									<div className="no-folders-error">Empty !</div>
-								)}
-								{isLoadMoreEnabled && (
-									<div className="load-more-button" onClick={loadMore}>
-										Show More ↓
-									</div>
-								)}
+											{index < pathsList.length - 1 && (
+												<div style={{ fontSize: 10 }}>〉</div>
+											)}
+										</div>
+									);
+								})}
 							</div>
 						) : (
-							<div className="no-folders-error">
-								No folders found. Click
-								<span
-									onClick={() => {
-										openExternalURl(
-											"https://console.pixelbin.io/choose-org?redirectTo=storage"
-										);
-									}}
-								>
-									Here
-								</span>
-								to create.
+							<div className="path-chain">
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setPathsList([]);
+											fetchFoldersList();
+										}}
+									>
+										<Home className="home-icon" />
+									</div>
+									<div style={{ fontSize: 10 }}>〉</div>
+								</div>
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setIsModalOpen(true);
+										}}
+									>
+										...
+									</div>
+									<div style={{ fontSize: 10 }}>〉</div>
+								</div>
+								<div></div>
+								<div className="chain-hook">
+									<div className="hook-name">
+										{pathsList[pathsList.length - 1]}
+									</div>
+								</div>
 							</div>
 						)}
+					</div>
+
+					<div>
+						<div
+							className="tree-container"
+							style={{
+								overflowY: `${foldersLoading ? "hidden" : "auto"}`,
+							}}
+						>
+							{!foldersNotFound ? (
+								<div className="folders-list-container">
+									{currentFoldersList.length ? (
+										currentFoldersList?.map((item, index) => {
+											return (
+												<div
+													onClick={() => {
+														setIsRouteDirectory(false);
+														fetchByPath([...pathsList, item.name]);
+														setPathsList([...pathsList, item.name]);
+													}}
+													className="folder-card"
+												>
+													{item.name}
+												</div>
+											);
+										})
+									) : (
+										<div className="no-folders-error">Empty !</div>
+									)}
+									{isLoadMoreEnabled && (
+										<div className="load-more-button" onClick={loadMore}>
+											Show More ↓
+										</div>
+									)}
+								</div>
+							) : (
+								<div className="no-folders-error">
+									No folders found. Click
+									<span
+										onClick={() => {
+											openExternalURl(
+												"https://console.pixelbin.io/choose-org?redirectTo=storage"
+											);
+										}}
+									>
+										Here
+									</span>
+									to create.
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 
