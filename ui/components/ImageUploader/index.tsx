@@ -78,6 +78,7 @@ function ImageUploader({
 	const [isAccOpen, setIsAccOpen] = useState(true);
 	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
 	const [foldersLoading, setFoldersLoading] = useState(false);
+	const [isStorageLinkVisible, setIsStorageLinkVisisble] = useState(false);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -189,6 +190,10 @@ function ImageUploader({
 					isUploadSuccess("Uploaded succesfully");
 					setIsLoading(false);
 					setStorageDetails();
+					setIsStorageLinkVisisble(true);
+					setTimeout(() => {
+						setIsStorageLinkVisisble(false);
+					}, 5000);
 				})
 				.catch((err) => {
 					isUploadSuccess(err);
@@ -415,6 +420,21 @@ function ImageUploader({
 					</div>
 				</div>
 			</div>
+			{isStorageLinkVisible ? (
+				<div className="storage-link">
+					Click&nbsp;
+					<span
+						onClick={() => {
+							openExternalURl(
+								"https://console.pixelbin.io/choose-org?redirectTo=storage"
+							);
+						}}
+					>
+						Here
+					</span>
+					&nbsp;to go to storage.
+				</div>
+			) : null}
 			<div className={"api-key-btn-container space-between"}>
 				<div className="details-text" style={{ fontSize: 12 }}>
 					{Util.formatBytes(storageUsed || 0, 2)} of {`${totalStorage} GB used`}

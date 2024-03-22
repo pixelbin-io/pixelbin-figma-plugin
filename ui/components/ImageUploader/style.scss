@@ -235,6 +235,19 @@
 		}
 	}
 
+	.storage-link {
+		font-size: 12px;
+		/* margin-left: 4px; */
+		width: 100%;
+		display: flex;
+		/* color: var(--figma-color-border); */
+		justify-content: center;
+		span {
+			cursor: pointer;
+			color: var(--figma-color-bg-brand);
+		}
+	}
+
 	.loader-modal {
 		background-color: rgb(16, 19, 20, 0.5) !important;
 	}
