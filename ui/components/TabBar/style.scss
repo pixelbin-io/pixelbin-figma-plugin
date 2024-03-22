@@ -11,13 +11,33 @@
 	align-items: center;
 	padding: 2px 8px;
 	max-width: 100%;
-	gap: 16px;
+	gap: 32px;
 }
 
 .add-border {
 	border-bottom: 1px solid var(--figma-color-border);
 }
 
+.info-box-revert {
+	font-size: 8px;
+	color: var(--figma-color-bg);
+	height: 20px;
+	background: var(--figma-color-bg-inverse);
+	border-radius: 8px;
+	position: absolute;
+	top: 13px;
+	right: 38px;
+	padding: 1px 4px 4px 12px;
+
+	&:after {
+		content: "▼";
+		color: var(--figma-color-bg-inverse);
+		font-size: 12px;
+		top: 14px;
+		right: 10px;
+		position: relative;
+	}
+}
 .info-box {
 	font-size: 8px;
 	color: var(--figma-color-bg);
@@ -56,6 +76,13 @@
 	stroke: var(--figma-color-bg-brand);
 	width: 32px;
 	height: 32px;
+}
+
+.symbol-container {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	justify-content: center;
 }
 
 .tab-container {

@@ -344,13 +344,7 @@ function App() {
 								onLinkCopy={copyLink}
 								setSelectedTabId={setSelectedTabId}
 								tabID={seletedTabId}
-							/>
-							<ImageCanvas
-								url={imgUrl}
-								transFormedUrl={transFormedUrl}
-								selectedTabId={seletedTabId}
-								isTransformationApplied={isTransformationApplied}
-								onDiscardClick={() => {
+								onRevertClick={() => {
 									parent.postMessage(
 										{
 											pluginMessage: {
@@ -363,6 +357,12 @@ function App() {
 									setSelectedTabId(1);
 									setIsTransformationApplied(false);
 								}}
+							/>
+							<ImageCanvas
+								url={imgUrl}
+								transFormedUrl={transFormedUrl}
+								selectedTabId={seletedTabId}
+								isTransformationApplied={isTransformationApplied}
 							/>
 							{isTransformationsDrawerOpen && imgUrl && (
 								<TransformationsDrawer
