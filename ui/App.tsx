@@ -129,6 +129,7 @@ function App() {
 			setSelectedTabId(data.pluginMessage.tabId);
 		}
 		if (data.pluginMessage.type === IS_TOKEN_SAVED) {
+			setIsLoading(false);
 			setIsTokenSaved(data.pluginMessage.value);
 			setIsTokenEditOn(data.pluginMessage.isTokenEditing);
 			if (data.pluginMessage.value) {
@@ -317,7 +318,7 @@ function App() {
 				);
 				if (loader) setIsLoading(false);
 			}
-		}
+		} else setIsLoading(false);
 	}
 
 	useEffect(() => {
