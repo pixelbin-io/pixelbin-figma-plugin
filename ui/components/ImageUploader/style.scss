@@ -251,4 +251,8 @@
 	.loader-modal {
 		background-color: rgb(16, 19, 20, 0.5) !important;
 	}
+
+	.folder-without-child {
+		background-color: var(--figma-color-bg-brand);
+	}
 }

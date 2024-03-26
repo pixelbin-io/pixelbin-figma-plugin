@@ -37,7 +37,7 @@ function TransformationGrid({
 					{filteredList.map((item: any) => {
 						return (
 							<div
-								key={item.op.displayName} // You should add a unique key for each child element in a list
+								key={item.op.displayName}
 								onClick={() => {
 									handleTransformationClick({
 										op: item.op,

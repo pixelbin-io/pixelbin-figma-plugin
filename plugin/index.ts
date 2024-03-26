@@ -40,7 +40,7 @@ const {
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
 
-let savedWidth, saveHeight, savedHash;
+let savedWidth, savedHeight, savedHash;
 
 if (figma.command === HOW_IT_WORKS_CMD) figma.openExternal(HOW_IT_WORKS_URL);
 
@@ -68,12 +68,11 @@ async function handleInitialSelection() {
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
 			savedHash = node.fills[0].imageHash;
-			saveHeight = node.height;
+			savedHeight = node.height;
 			savedWidth = node.width;
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
-			figma.ui.postMessage(body);
 			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 		}
 	}
@@ -98,7 +97,7 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
 			savedHash = node.fills[0].imageHash;
-			saveHeight = node.height;
+			savedHeight = node.height;
 			savedWidth = node.width;
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
@@ -305,7 +304,7 @@ figma.ui.onmessage = async (msg) => {
 	}
 
 	if (msg.type === DISCARD_CHANGES) {
-		node.resize(savedWidth, saveHeight);
+		node.resize(savedWidth, savedHeight);
 		node.fills = [
 			{
 				type: IMAGE,

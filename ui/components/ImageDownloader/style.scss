@@ -175,3 +175,16 @@
 .loader-modal {
 	background-color: rgb(16, 19, 20, 0.5) !important;
 }
+
+.rotating-div {
+	animation: rotate 4s linear infinite; /* Adjust duration as needed */
+}
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}

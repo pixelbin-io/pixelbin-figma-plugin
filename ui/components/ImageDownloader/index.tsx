@@ -41,6 +41,8 @@ function ImageDownloader({
 	const [currentFoldersList, setCurrrentFoldersList] = useState([]);
 	const [pathsList, setPathsList] = useState([]);
 	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
+	const [currentIndex, setCurrentIndex] = useState(-1);
+	const [isDownLoadLoaderVisible, setIsDownLoadLoaderVisible] = useState(false);
 
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({
@@ -170,7 +172,13 @@ function ImageDownloader({
 			showErrMessage();
 		}
 	}
-
+	function showDownloadIconLoader(index) {
+		setCurrentIndex(index);
+		setIsDownLoadLoaderVisible(true);
+		setTimeout(() => {
+			setIsDownLoadLoaderVisible(false);
+		}, 2000);
+	}
 	async function fetchImageList() {
 		setIsLoading(true);
 		let temp = await defaultPixelBinClient.assets.listFilesPaginator({
@@ -414,6 +422,7 @@ function ImageDownloader({
 										<div
 											className="download-icon"
 											onClick={() => {
+												showDownloadIconLoader(index);
 												parent.postMessage(
 													{
 														pluginMessage: {
@@ -425,7 +434,11 @@ function ImageDownloader({
 												);
 											}}
 										>
-											↓
+											{isDownLoadLoaderVisible && index === currentIndex ? (
+												<div className="icon icon--swap icon--blue reset-icon rotating-div" />
+											) : (
+												`↓`
+											)}
 										</div>
 									</div>
 								))}
