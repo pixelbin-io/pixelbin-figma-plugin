@@ -304,7 +304,6 @@ figma.ui.onmessage = async (msg) => {
 	}
 
 	if (msg.type === DISCARD_CHANGES) {
-		node.resize(savedWidth, savedHeight);
 		node.fills = [
 			{
 				type: IMAGE,
@@ -342,7 +341,6 @@ figma.ui.onmessage = async (msg) => {
 					.createImageAsync(msg?.transformedUrl)
 					.then(async (image) => {
 						const { width, height } = await image.getSizeAsync();
-						node.resize(width, height);
 						node.fills = [
 							{
 								type: IMAGE,
