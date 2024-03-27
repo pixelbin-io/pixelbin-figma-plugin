@@ -281,7 +281,6 @@ function App() {
 
 	function handleTransformationClick(data: any) {
 		setCurrentOP({ ...data.op, pluginName: data.pluginName });
-		transformationsDrawerToggle();
 		setIsFormReEditing(false);
 		if (data.op.params.length) {
 			dynamicFormToggler();
