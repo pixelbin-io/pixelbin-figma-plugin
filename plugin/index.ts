@@ -13,12 +13,11 @@ import { HOW_IT_WORKS_URL } from "../config";
 //Append the UI
 figma.showUI(__html__, {
 	title: "PixelBin.io",
-	height: 460,
+	height: 505,
 	width: 280,
 	themeColors: true,
 });
 
-const rectangles: RectangleNode[] = [];
 const {
 	INITIAL_CALL,
 	CREATE_FORM,
@@ -36,9 +35,12 @@ const {
 	TOKEN_SAVED,
 	CREATE_NEW_IMAGE,
 	CHANGE_TAB_ID,
+	DISCARD_CHANGES,
 } = EVENTS;
 
 const { HOW_IT_WORKS_CMD, TOKEN_RESET_CMD, OPEN_PIXELBIN_CMD } = COMMANDS;
+
+let savedWidth, savedHeight, savedHash;
 
 if (figma.command === HOW_IT_WORKS_CMD) figma.openExternal(HOW_IT_WORKS_URL);
 
@@ -49,10 +51,44 @@ function toggleLoader(value: boolean) {
 	});
 }
 
+async function handleInitialSelection() {
+	const body = {
+		type: ON_SELECTION_CHANGE,
+		imageBytes: null,
+		imgName: "",
+	};
+
+	if (figma.currentPage.selection.length > 0) {
+		figma.ui.postMessage({
+			type: CHANGE_TAB_ID,
+			tabId: 1,
+		});
+
+		var node: any = figma?.currentPage?.selection[0];
+		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
+			const image = figma.getImageByHash(node.fills[0].imageHash);
+			savedHash = node.fills[0].imageHash;
+			savedHeight = node.height;
+			savedWidth = node.width;
+			let bytes = await image.getBytesAsync();
+			body.imageBytes = bytes;
+			body.imgName = node?.name?.replace(/ /g, "");
+			figma.ui.postMessage({
+				...body,
+				value: false,
+			});
+		}
+	}
+}
+
+// Check if there is an initial selection when the plugin is launched
+handleInitialSelection();
+
 figma.on(ON_SELECTION_CHANGE, async () => {
 	const body = {
 		type: ON_SELECTION_CHANGE,
 		imageBytes: null,
+		imgName: "",
 	};
 
 	if (figma.currentPage.selection.length > 0) {
@@ -63,8 +99,13 @@ figma.on(ON_SELECTION_CHANGE, async () => {
 		var node: any = figma?.currentPage?.selection[0];
 		if (node.fills && node.fills.length && node.fills[0].type === IMAGE) {
 			const image = figma.getImageByHash(node.fills[0].imageHash);
+			savedHash = node.fills[0].imageHash;
+			savedHeight = node.height;
+			savedWidth = node.width;
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
+			body.imgName = node?.name?.replace(/ /g, "");
+			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
 		} else {
 			body.imageBytes = null;
 			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
@@ -222,6 +263,7 @@ figma.ui.onmessage = async (msg) => {
 				const node = figma.createRectangle();
 				const { width, height } = await image.getSizeAsync();
 				node.resize(width, height);
+
 				node.fills = [
 					{
 						type: "IMAGE",
@@ -229,18 +271,62 @@ figma.ui.onmessage = async (msg) => {
 						scaleMode: "FILL",
 					},
 				];
+
+				figma.currentPage.selection = [node];
+				const viewport = figma.viewport;
+				if (!isRectangleVisibleInViewport(viewport, node)) {
+					figma.viewport.scrollAndZoomIntoView([node]);
+				}
+
+				function isRectangleVisibleInViewport(viewport, rectangle) {
+					const viewportRect = {
+						x: viewport.bounds.x,
+						y: viewport.bounds.y,
+						width: viewport.bounds.width,
+						height: viewport.bounds.height,
+					};
+					const rectangleRect = {
+						x: rectangle.x,
+						y: rectangle.y,
+						width: rectangle.width,
+						height: rectangle.height,
+					};
+					return (
+						viewportRect.x <= rectangleRect.x &&
+						viewportRect.y <= rectangleRect.y &&
+						viewportRect.x + viewportRect.width >=
+							rectangleRect.x + rectangleRect.width &&
+						viewportRect.y + viewportRect.height >=
+							rectangleRect.y + rectangleRect.height
+					);
+				}
 			})
 			.catch((err) => {
 				figma.notify("Something went wrong");
 			});
 	}
+
+	if (msg.type === DISCARD_CHANGES) {
+		node.fills = [
+			{
+				type: IMAGE,
+				imageHash: savedHash,
+				scaleMode: "FILL",
+			},
+		];
+		toggleLoader(false);
+		figma.notify("Changes discarded", { timeout: 2000 });
+	}
+
 	if (msg.type === REPLACE_IMAGE) {
 		let status,
 			retries = 5;
 
 		async function getStatus() {
+			let statusData;
 			toggleLoader(true);
 			let data = await fetch(msg?.transformedUrl);
+			statusData = data;
 			status = data?.status;
 			if (data?.status === 202 && retries > 0) {
 				setTimeout(() => {
@@ -258,7 +344,6 @@ figma.ui.onmessage = async (msg) => {
 					.createImageAsync(msg?.transformedUrl)
 					.then(async (image) => {
 						const { width, height } = await image.getSizeAsync();
-						node.resize(width, height);
 						node.fills = [
 							{
 								type: IMAGE,
@@ -267,7 +352,10 @@ figma.ui.onmessage = async (msg) => {
 							},
 						];
 						toggleLoader(false);
-						figma.notify("Transformation Applied ", { timeout: 2000 });
+						figma.notify(
+							"Transformation Applied. You can use Ctrl/Cmd + Z to undo transformations",
+							{ timeout: 5000 }
+						);
 						figma.ui.postMessage({
 							type: IS_TRANSFORMATION_APPLIED,
 							value: true,
@@ -279,11 +367,15 @@ figma.ui.onmessage = async (msg) => {
 						figma.notify("Something went wrong");
 					});
 			} else {
-				figma.notify("Something went wrong");
+				statusData?.url?.includes("shadow.gen") && statusData?.status === 404
+					? figma.notify(
+							"The image must contain full human to generate the shadow",
+							{ timeout: 5000 }
+					  )
+					: figma.notify("Something went wrong");
 				toggleLoader(false);
 			}
 		}
-
 		getStatus();
 	}
 };

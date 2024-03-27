@@ -7,15 +7,15 @@
 	"ui": "dist/ui/index.html",
 	"menu": [
 		{
-			"name": "Transform",
+			"name": "Edit Image",
 			"command": "open-pixelbin-command"
 		},
 		{
-			"name": "Upload",
+			"name": "Export images to PixelBin",
 			"command": "upload-command"
 		},
 		{
-			"name": "Download",
+			"name": "Import images from PixelBin",
 			"command": "download-command"
 		},
 		{

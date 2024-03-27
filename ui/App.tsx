@@ -42,7 +42,6 @@ function App() {
 	const [plugins, setPlugins] = useState({});
 	const [isDynamicFormOpen, setIsDynamicFormOpen] = useState(false);
 	const [currentOp, setCurrentOP] = useState({});
-	const [transformationQueue, setTransformationQueue] = useState([]);
 	const [isFormReEditing, setIsFormReEditing] = useState(false);
 	const [index, setIndex] = useState(-1);
 	const [cloudName, setCloudName] = useState("");
@@ -50,10 +49,10 @@ function App() {
 	const [isTransformationApplied, setIsTransformationApplied] = useState(false);
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
-
+	const [imgName, setImgName] = useState("");
 	const {
 		INITIAL_CALL,
-		CREATE_FORM,
+
 		TOGGLE_LOADER,
 		IS_TOKEN_SAVED,
 		SAVE_TOKEN,
@@ -64,6 +63,7 @@ function App() {
 		IS_TRANSFORMATION_APPLIED,
 		TOKEN_SAVED,
 		CHANGE_TAB_ID,
+		DISCARD_CHANGES,
 	} = EVENTS;
 
 	useEffect(() => {
@@ -89,8 +89,19 @@ function App() {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
+				setIsTransformationsDrawerOpen(true);
 			}
-		} catch (err) {}
+		} catch (err) {
+			parent.postMessage(
+				{
+					pluginMessage: {
+						type: NOTIFY_USER,
+						value: "Something went wrong",
+					},
+				},
+				"*"
+			);
+		}
 	}
 
 	window.onmessage = async (event) => {
@@ -101,6 +112,7 @@ function App() {
 				setImgUrl("");
 			} else {
 				setImageBytes([data.pluginMessage.imageBytes]);
+				setImgName(data.pluginMessage.imgName);
 				function bytesToDataURL(bytes, contentType) {
 					const blob = new Blob([new Uint8Array(bytes)], { type: contentType });
 					return URL.createObjectURL(blob);
@@ -117,6 +129,7 @@ function App() {
 			setSelectedTabId(data.pluginMessage.tabId);
 		}
 		if (data.pluginMessage.type === IS_TOKEN_SAVED) {
+			setIsLoading(false);
 			setIsTokenSaved(data.pluginMessage.value);
 			setIsTokenEditOn(data.pluginMessage.isTokenEditing);
 			if (data.pluginMessage.value) {
@@ -130,6 +143,7 @@ function App() {
 		if (data.pluginMessage.type === TOKEN_SAVED) {
 			setIsTokenEditOn(false);
 			setIsTokenSaved(true);
+			setCloudName(data.pluginMessage.cloudName);
 			setCurrentFigmaCmd(data.pluginMessage.command);
 		}
 
@@ -156,39 +170,24 @@ function App() {
 		);
 	}
 
-	async function onRefreshClick() {
+	async function onTransformationApply(data) {
+		setIsFormReEditing(false);
 		setIsLoading(true);
 		let t = null;
-		transformationQueue.forEach((item, index) => {
-			const { pluginName, method } = item.op;
-			if (index !== 0) {
-				//If its a not a first operation queue we have to pipe it
-				if (!item.op.params.length) {
-					t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
-				} else {
-					t = t.pipe(
-						eval(`${pluginName.split(" ").join("")}.${method}`)({
-							...item.selectedFormValues,
-						})
-					);
-				}
-			} else {
-				//If its a first operation queue
-				if (!item.op.params.length) {
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)();
-				} else {
-					const { pluginName, method } = item.op;
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)({
-						...item.selectedFormValues,
-					});
-				}
-			}
-		});
+		if (!data.op.params.length) {
+			t = eval(`${data.op.pluginName.split(" ").join("")}.${data.op.method}`)();
+		} else {
+			const { pluginName, method } = data.op;
+			t = eval(`${pluginName.split(" ").join("")}.${method}`)({
+				...data.selectedFormValues,
+			});
+		}
+
 		let name = `${uuidv4()}`;
 
 		var pixelbin = new Pixelbin({
 			cloudName: cloudName,
-			zone: "default", // optional
+			zone: "default",
 		});
 
 		let res = await defaultPixelBinClient.assets.createSignedUrlV2({
@@ -197,8 +196,6 @@ function App() {
 		});
 
 		let blob = new Blob(imageBytes, { type: "image/jpeg" });
-
-		const EraseBg = transformations.EraseBG;
 
 		return Pixelbin.upload(blob as any, res.presignedUrl, uploadOptions)
 			.then(() => {
@@ -216,11 +213,13 @@ function App() {
 					},
 					"*"
 				);
-				setCreditsDetails();
+				setCreditsDetails(false);
 				QueDrawerClose();
+				setIsDynamicFormOpen(false);
 			})
 			.catch((err) => {
 				setIsLoading(false);
+				setIsDynamicFormOpen(false);
 			});
 	}
 
@@ -286,29 +285,19 @@ function App() {
 		setIsFormReEditing(false);
 		if (data.op.params.length) {
 			dynamicFormToggler();
-		} else
-			setTransformationQueue([
-				...transformationQueue,
-				{ op: { ...data.op, pluginName: data.pluginName } },
-			]);
-	}
-
-	function onTransformationApply(data) {
-		dynamicFormToggler();
-		setIsFormReEditing(false);
-		if (isFormReEditing) {
-			let temp = transformationQueue;
-			temp[index] = data;
-			setTransformationQueue([...temp]);
-			setIndex(-1);
 		} else {
-			setTransformationQueue([...transformationQueue, data]);
+			onTransformationApply({
+				op: { ...data.op, pluginName: data.pluginName },
+			});
 		}
 	}
 
-	const QueDrawerClose = () => setTransformationQueue([]);
+	const QueDrawerClose = () => {
+		setIsTransformationsDrawerOpen(true);
+	};
 
-	async function setCreditsDetails() {
+	async function setCreditsDetails(loader = true) {
+		if (loader) setIsLoading(true);
 		if (tokenValue && tokenValue !== null) {
 			try {
 				const newData = await defaultPixelBinClient.billing.getUsage();
@@ -316,19 +305,20 @@ function App() {
 				const cr = newData?.total?.credits;
 				setCreditUSed(cu);
 				setTotalCredit(cr);
-			} catch (err) {}
-		}
-	}
-	function onDeleteClick(index: number) {
-		const updatedQueue = transformationQueue.filter((_, i) => i !== index);
-		setTransformationQueue([...updatedQueue]);
-	}
-
-	function onArrowClick(index: number, data: any) {
-		setIndex(index);
-		dynamicFormToggler();
-		setCurrentOP(data.op);
-		setIsFormReEditing(true);
+				if (loader) setIsLoading(false);
+			} catch (err) {
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: NOTIFY_USER,
+							value: "Url copied to clipboard",
+						},
+					},
+					"*"
+				);
+				if (loader) setIsLoading(false);
+			}
+		} else setIsLoading(false);
 	}
 
 	useEffect(() => {
@@ -355,15 +345,27 @@ function App() {
 								onLinkCopy={copyLink}
 								setSelectedTabId={setSelectedTabId}
 								tabID={seletedTabId}
+								onRevertClick={() => {
+									parent.postMessage(
+										{
+											pluginMessage: {
+												type: DISCARD_CHANGES,
+												url: imgUrl,
+											},
+										},
+										"*"
+									);
+									setSelectedTabId(1);
+									setIsTransformationApplied(false);
+								}}
 							/>
 							<ImageCanvas
 								url={imgUrl}
 								transFormedUrl={transFormedUrl}
-								isRefereshEnabled={!!(transformationQueue.length && imgUrl)}
-								onRefreshClick={onRefreshClick}
 								selectedTabId={seletedTabId}
+								isTransformationApplied={isTransformationApplied}
 							/>
-							{isTransformationsDrawerOpen && (
+							{isTransformationsDrawerOpen && imgUrl && (
 								<TransformationsDrawer
 									toggler={transformationsDrawerToggle}
 									plugins={plugins}
@@ -376,29 +378,12 @@ function App() {
 									operation={currentOp}
 									url={imgUrl}
 									onTransformationApply={onTransformationApply}
-									selectedValues={
-										isFormReEditing ? transformationQueue[index] : null
-									}
 									index={isFormReEditing ? index : null}
 									tokenValue={tokenValue}
 									cloudName={cloudName}
 									setIsLoading={setIsLoading}
 								/>
 							)}
-							{imgUrl && (
-								<div
-									onClick={transformationsDrawerToggle}
-									className="icon--plus icon--white plus-button"
-								/>
-							)}
-							{transformationQueue.length ? (
-								<QueuedTransformationsDrawer
-									onClose={QueDrawerClose}
-									queue={transformationQueue}
-									onDeleteClick={onDeleteClick}
-									onArrowClick={onArrowClick}
-								/>
-							) : null}
 						</>
 					)}
 					{currentFigmaCmd === COMMANDS.UPLOAD_CMD && (
@@ -407,6 +392,9 @@ function App() {
 							tokenValue={tokenValue}
 							isUploadSuccess={isUploadSuccess}
 							setIsLoading={setIsLoading}
+							imgUrl={imgUrl}
+							imageBytes={imageBytes}
+							imgName={imgName}
 							showErrMessage={() => {
 								parent.postMessage(
 									{

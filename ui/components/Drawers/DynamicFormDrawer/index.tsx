@@ -31,7 +31,6 @@ interface formProps {
 	operation: any;
 	url: any;
 	onTransformationApply: (data: any) => void;
-	selectedValues: any | null;
 	index: number | null;
 	tokenValue: string;
 	cloudName: string;
@@ -43,7 +42,6 @@ function DynamicFormDrawer({
 	operation,
 	url,
 	onTransformationApply,
-	selectedValues = null,
 	tokenValue,
 	cloudName,
 	setIsLoading,
@@ -68,11 +66,6 @@ function DynamicFormDrawer({
 			const camelCaseName = Util.camelCase(option.name);
 			temp[camelCaseName] = option.default;
 		});
-
-		if (selectedValues !== null) {
-			temp = { ...selectedValues.selectedFormValues };
-		}
-
 		setFormValues({ ...temp });
 	}
 

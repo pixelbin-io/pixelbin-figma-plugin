@@ -28,7 +28,7 @@ function CreditsUI({ creditUSed, totalCredit, orgId }: creditsProps) {
 	return (
 		<div className="credit-details-container">
 			<div className="credit-details-sub-container">
-				<div>
+				<div style={{ fontSize: 10 }}>
 					Credits : {Util.abbreviateNumber(creditUSed)}/
 					{Util.abbreviateNumber(totalCredit)} used
 				</div>

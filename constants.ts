@@ -54,6 +54,7 @@ export enum EVENTS {
 	CREATE_NEW_IMAGE = "createNewImage",
 	IS_TRANSFORMATION_APPLIED = "is-transformation-applied",
 	CHANGE_TAB_ID = "change-tab-id",
+	DISCARD_CHANGES = "discard-changes",
 }
 
 // This set is used for which tab is currently active (used as a plain string in manifest.json)

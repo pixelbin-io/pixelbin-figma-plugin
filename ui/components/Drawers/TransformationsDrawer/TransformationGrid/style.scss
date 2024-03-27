@@ -5,14 +5,14 @@
 		grid-template-columns: repeat(3, 1fr);
 		padding: 0 6px;
 		gap: 4px;
-		max-height: 207px;
+		height: 205px;
 		overflow-y: auto;
 	}
 
 	.error-container {
 		font-size: 15px;
 		width: 100%;
-		height: 150px;
+		height: 205px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

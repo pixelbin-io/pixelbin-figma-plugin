@@ -10,6 +10,7 @@ interface tabBarProps {
 	onLinkCopy: () => void;
 	setSelectedTabId: (id: number) => void;
 	tabID: number;
+	onRevertClick: () => void;
 }
 
 function TabBar({
@@ -18,7 +19,11 @@ function TabBar({
 	onLinkCopy,
 	setSelectedTabId,
 	tabID,
+	onRevertClick,
 }: tabBarProps) {
+	const [isLinkHovered, setIsLinkHovered] = useState(false);
+	const [isRevertHovered, setIsRevertHovered] = useState(false);
+
 	return (
 		<div
 			className={`container ${
@@ -46,23 +51,35 @@ function TabBar({
 								Transformed
 							</div>
 						)}
-						{isTranFormed && (
-							<div
-								onClick={() => {
-									setSelectedTabId(3);
-								}}
-								className={`tab ${tabID === 3 ? "active-tab" : ""}`}
-							>
-								Context
-							</div>
-						)}
 					</div>
 					{isTranFormed && (
-						<LinkIcon
-							className="link-icon"
-							onClick={onLinkCopy}
-							style={{ cursor: "pointer" }}
-						/>
+						<div className="symbol-container">
+							<div
+								className="icon icon--swap icon--blue reset-icon"
+								onClick={() => {
+									onRevertClick();
+									setIsRevertHovered(false);
+								}}
+								onMouseEnter={() => setIsRevertHovered(true)}
+								onMouseLeave={() => setIsRevertHovered(false)}
+								style={{ cursor: "pointer" }}
+							/>
+							<LinkIcon
+								className="link-icon"
+								onClick={onLinkCopy}
+								onMouseEnter={() => setIsLinkHovered(true)}
+								onMouseLeave={() => setIsLinkHovered(false)}
+								style={{ cursor: "pointer" }}
+							/>
+						</div>
+					)}
+					{isLinkHovered && (
+						<div className="info-box">
+							Copy link/adress of the transformed image
+						</div>
+					)}
+					{isRevertHovered && (
+						<div className="info-box-revert">Revert to original image</div>
 					)}
 				</>
 			) : null}

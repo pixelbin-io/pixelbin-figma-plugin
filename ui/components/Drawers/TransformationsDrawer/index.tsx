@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./style.scss";
 import Divider from "../../Divider";
 import { ReactComponent as CloseIcon } from "../../../../assets/close.svg";
+import SearchBox from "../../SearchBox";
 import TransformationGrid from "./TransformationGrid";
 
 interface drawerProps {
@@ -21,6 +22,7 @@ function TransformationsDrawer({
 }: drawerProps) {
 	const [aiTransformationList, setAiTransformationList] = useState([]);
 	const [basicTransformationsList, setBasicTransformationsList] = useState([]);
+	const [searchedValue, setSearchedValue] = useState("");
 	const [tabID, setTabId] = useState("ai");
 
 	useEffect(() => {
@@ -79,7 +81,11 @@ function TransformationsDrawer({
 		setAiTransformationList(
 			identifierSequence
 				.map((eachSequence) => transformationListObj[eachSequence])
-				.filter((item) => item.plugin.name !== "PdfWatermarkRemoval")
+				.filter(
+					(item) =>
+						item.plugin.name !== "PdfWatermarkRemoval" &&
+						item.plugin.name !== "VideoWatermarkRemoval"
+				)
 		);
 
 		setBasicTransformationsList(
@@ -95,30 +101,15 @@ function TransformationsDrawer({
 		<div className="transformations-drawer">
 			<Divider />
 			<div className="header">
-				<div className="tab-container">
-					<div
-						onClick={() => {
-							setTabId("ai");
-						}}
-						className={`tab ${tabID === "ai" ? "active-tab" : ""}`}
-					>
-						AI Transformations
-					</div>
-					<div
-						onClick={() => {
-							setTabId("basic");
-						}}
-						className={`tab ${tabID === "basic" ? "active-tab" : ""}`}
-					>
-						Basic Transformations
-					</div>
+				<div style={{ flex: 1 }}>
+					<SearchBox setValue={setSearchedValue} />
 				</div>
-				<CloseIcon className="close-icon" onClick={toggler} />
 			</div>
 			<Divider />
 			<TransformationGrid
-				list={tabID === "ai" ? aiTransformationList : basicTransformationsList}
+				list={[...aiTransformationList, ...basicTransformationsList]}
 				handleTransformationClick={handleTransformationClick}
+				searchedValue={searchedValue}
 			/>
 		</div>
 	);

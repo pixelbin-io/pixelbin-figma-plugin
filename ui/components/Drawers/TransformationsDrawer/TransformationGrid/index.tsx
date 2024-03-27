@@ -1,49 +1,55 @@
 import React, { useEffect, useState } from "react";
 import TansformationIcon from "../TansformationIcon";
-import SearchBox from "../../../SearchBox";
+
 import "./style.scss";
 
 interface gridProps {
 	list: any;
 	handleTransformationClick: (op: any) => void;
+	searchedValue: string;
 }
-function TransformationGrid({ list, handleTransformationClick }: gridProps) {
-	const [searchedValue, setSearchedValue] = useState("");
+function TransformationGrid({
+	list,
+	searchedValue,
+	handleTransformationClick,
+}: gridProps) {
 	const [filteredList, setFilteredList] = useState([]);
 
 	useEffect(() => {
+		let x = list.filter(
+			(item, index) => item?.plugin?.operations[0]?.returnType !== "json"
+		);
+
 		if (searchedValue.length) {
-			let temp = list.filter((item) => {
+			let temp = x.filter((item) => {
 				return item.op.displayName
 					.toLowerCase()
 					.includes(searchedValue.toLowerCase());
 			});
 			setFilteredList([...temp]);
-		} else setFilteredList([...list]);
+		} else setFilteredList([...x]);
 	}, [searchedValue, list]);
 
 	return (
 		<div className="transformation-container">
-			<SearchBox setValue={setSearchedValue} />
 			{filteredList.length ? (
 				<div className="transformation-grid">
 					{filteredList.map((item: any) => {
 						return (
-							<>
-								<div
-									onClick={() => {
-										handleTransformationClick({
-											op: item.op,
-											pluginName: item.plugin.name,
-										});
-									}}
-								>
-									<TansformationIcon
-										src={item.op.icon}
-										name={item.op.displayName}
-									/>
-								</div>
-							</>
+							<div
+								key={item.op.displayName}
+								onClick={() => {
+									handleTransformationClick({
+										op: item.op,
+										pluginName: item.plugin.name,
+									});
+								}}
+							>
+								<TansformationIcon
+									src={item.op.icon}
+									name={item.op.displayName}
+								/>
+							</div>
 						);
 					})}
 				</div>

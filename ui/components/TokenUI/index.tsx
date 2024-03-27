@@ -52,7 +52,7 @@ function TokenUI({
 				</div>
 				<br />
 				<div>
-					2. After that you can find your API key here
+					2. After that you can find your API token here
 					<span
 						className="link"
 						onClick={() => {

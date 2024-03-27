@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import "./style.scss";
 import { ReactComponent as CloseIcon } from "../../../assets/close.svg";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { PdkAxios } from "@pixelbin/admin/common.js";
 import { uploadOptions, EVENTS } from "../../../constants";
-import Pixelbin, { transformations } from "@pixelbin/core";
+import Pixelbin from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
-import { Treebeard } from "react-treebeard";
 import { Util } from "../../../util";
+import { v4 as uuidv4 } from "uuid";
+import { ReactComponent as Home } from "../../../assets/home.svg";
+import Loader from "../Loader";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
 
@@ -17,6 +18,9 @@ interface IUProps {
 	isUploadSuccess: (msg: string) => void;
 	setIsLoading: (val: boolean) => void;
 	showErrMessage: () => void;
+	imgUrl: any;
+	imageBytes;
+	imgName;
 }
 
 function ImageUploader({
@@ -25,6 +29,9 @@ function ImageUploader({
 	isUploadSuccess,
 	setIsLoading,
 	showErrMessage,
+	imgUrl,
+	imageBytes,
+	imgName,
 }: IUProps) {
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({
@@ -45,46 +52,46 @@ function ImageUploader({
 		);
 	}
 
+	const modalRef = useRef(null);
+
 	const staticFormValues = {
 		image: null,
 		imageName: "",
-		filenameOverride: true,
-		overwrite: false,
 		tags: [],
 	};
-	const inputRef = useRef(null);
 	const [formValues, setFormValues] = useState(staticFormValues);
 	const [currentTag, setCurrentTag] = useState("");
-	const [cursor, setCursor] = useState(false);
 	const [data, setData] = useState({
 		name: "root",
 		toggled: true,
 		path: "root",
 		children: [],
 	});
-	const [selectedPath, setSelectedPath] = useState("");
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [currentFoldersList, setCurrrentFoldersList] = useState([]);
+	const [pathsList, setPathsList] = useState([]);
 	const [isLoadMoreEnabled, setIsLoadMoreEnabled] = useState(false);
 	const [apiInstance, setAPIInstance] = useState(null);
 	const [foldersNotFound, setFolderNotFound] = useState(true);
 	const [storageUsed, setStorageUSed] = useState(0);
 	const [totalStorage, setTotalStorage] = useState(0);
 	const [isAccOpen, setIsAccOpen] = useState(true);
+	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
+	const [foldersLoading, setFoldersLoading] = useState(false);
+	const [isStorageLinkVisible, setIsStorageLinkVisisble] = useState(false);
 
-	function deactivateChildren(node) {
-		let temp = node;
-		if (temp.children && node.children.length > 0) {
-			node.children.forEach((child) => {
-				child.active = false;
-				deactivateChildren(child);
-			});
-		}
-	}
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (modalRef.current && !modalRef.current.contains(event.target)) {
+				setIsModalOpen(false);
+			}
+		};
 
-	const formatDigits = (value) => {
-		const trimmed = parseFloat(parseFloat(value).toFixed(3));
-		if (Math.floor(trimmed) === trimmed) return Math.floor(trimmed);
-		return trimmed;
-	};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	async function setStorageDetails() {
 		setIsLoading(true);
@@ -99,22 +106,19 @@ function ImageUploader({
 	}
 
 	async function fetchFoldersList() {
+		setIsLoading(true);
 		try {
-			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
+				path: "",
 			});
 			setAPIInstance(temp);
 			const { items, page } = await temp.next();
 			setIsLoadMoreEnabled(temp.hasNext());
-
+			let temp2 = items.filter((item, index) => item.path === "");
+			setCurrrentFoldersList([...temp2]);
+			setIsRouteDirectory(true);
 			let x = data;
-			x.children = items
-				.filter((item, index) => item.path === "")
-				.map((item, index) => {
-					return { ...item, children: [] };
-				});
-			setData({ ...x });
 			setIsLoading(false);
 			if (!items.length) setFolderNotFound(true);
 			else setFolderNotFound(false);
@@ -125,39 +129,39 @@ function ImageUploader({
 	}
 
 	async function loadMore() {
+		setFoldersLoading(true);
 		try {
-			setIsLoading(true);
 			const { items, page } = await apiInstance.next();
-			let temp1 = data;
-			temp1.children = [
-				...data.children,
-				...items
-					.filter((item, index) => item.path === "")
-					.map((item, index) => {
-						return { ...item, children: [] };
-					}),
+			let temp = [
+				...currentFoldersList,
+				...(isRouteDirectory
+					? items.filter((item, index) => item.path === "")
+					: items),
 			];
-			setData({ ...temp1 });
+			setCurrrentFoldersList([...temp]);
 			setIsLoadMoreEnabled(apiInstance.hasNext());
-			setIsLoading(false);
+			setFoldersLoading(false);
 		} catch (err) {
-			setIsLoading(false);
+			setFoldersLoading(false);
 			showErrMessage();
 		}
 	}
 
-	async function fetchByName(name) {
+	async function fetchByPath(list) {
+		setFoldersLoading(true);
 		try {
-			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
-				path: name,
+				path: list.join("/"),
 			});
+			setAPIInstance(temp);
 			const { items, page } = await temp.next();
-			setIsLoading(false);
+			setIsLoadMoreEnabled(temp.hasNext());
+			setCurrrentFoldersList([...items]);
+			setFoldersLoading(false);
 			return items;
 		} catch (err) {
-			setIsLoading(false);
+			setFoldersLoading(false);
 			showErrMessage();
 		}
 	}
@@ -169,19 +173,16 @@ function ImageUploader({
 			const regex = /\/([^\/]+)$/;
 
 			let createSignedURlDetails = {
-				path: selectedPath,
-				name: formValues.imageName,
-				format: formValues.image.type.match(regex)[1],
+				path: pathsList.join("/"),
+				name: uuidv4(),
 				access: "public-read",
 				tags: [...formValues.tags],
 				metadata: {},
-				overwrite: formValues.overwrite,
-				filenameOverride: formValues.filenameOverride,
 			};
 
 			let res = await defaultPixelBinClient.assets.createSignedUrlV2({
 				...createSignedURlDetails,
-				name: formValues.imageName,
+				name: imgName,
 			});
 
 			Pixelbin.upload(formValues.image as any, res.presignedUrl, uploadOptions)
@@ -189,6 +190,10 @@ function ImageUploader({
 					isUploadSuccess("Uploaded succesfully");
 					setIsLoading(false);
 					setStorageDetails();
+					setIsStorageLinkVisisble(true);
+					setTimeout(() => {
+						setIsStorageLinkVisisble(false);
+					}, 5000);
 				})
 				.catch((err) => {
 					isUploadSuccess(err);
@@ -201,69 +206,145 @@ function ImageUploader({
 	}
 
 	useEffect(() => {
+		setFormValues({
+			...formValues,
+			image: new Blob(imageBytes, { type: "image/jpeg" }),
+		});
+	}, [imageBytes]);
+
+	useEffect(() => {
 		fetchFoldersList();
 		setStorageDetails();
 	}, []);
 
-	const onToggle = async (node, toggled) => {
-		try {
-			setIsLoading(true);
-			if (cursor) {
-				setCursor(false);
-			}
-			if (node.path === "root") {
-				fetchFoldersList();
-				deactivateChildren(data);
-				setSelectedPath("");
-			}
-			if (node.path !== "root") {
-				let pathname = node.path.length
-					? `${node.path}/${node.name}`
-					: node.name;
-				let x = await fetchByName(pathname);
-				x = [
-					...x.map((item, index) => {
-						return { ...item, children: [] };
-					}),
-				];
-				node.children = x;
-				deactivateChildren(data);
-				node.active = true;
-				setSelectedPath(pathname);
-			}
-
-			node.toggled = toggled;
-			setCursor(node);
-			setData(Object.assign({}, data));
-			setIsLoading(false);
-		} catch (err) {
-			setIsLoading(false);
-			showErrMessage();
-		}
-	};
-
 	return (
 		<div className="uploader-main-container">
 			<div className="uploader-form-container">
-				{/* <div className="generic-text dropdown-label">
-					Select folder to upload image *
-				</div> */}
 				<div
 					onClick={() => setIsAccOpen(!isAccOpen)}
 					className="accordion generic-text dropdown-label"
 					style={{ marginTop: 8 }}
 				>
 					<div>Select Folder* &nbsp;</div>
-					<span className={`${isAccOpen ? "arrow-open" : ""}`}>&nbsp;▶</span>
 				</div>
-				{isAccOpen ? (
+
+				<div
+					style={{
+						position: "relative",
+						overflowY: `${foldersLoading ? "hidden" : "auto"}`,
+					}}
+				>
+					{foldersLoading ? <Loader /> : null}
 					<div>
-						<div className="tree-container">
+						{pathsList.length < 3 ? (
+							<div className="path-chain">
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setPathsList([]);
+											fetchFoldersList();
+										}}
+									>
+										<Home className="home-icon" />
+									</div>
+									<div style={{ fontSize: 10 }}>〉</div>
+								</div>
+								{pathsList.map((item, index) => {
+									return (
+										<div className="chain-hook">
+											<div
+												className="hook-name"
+												onClick={() => {
+													if (index !== pathsList.length - 1)
+														setIsRouteDirectory(false);
+													const newPathList = [
+														...pathsList.slice(0, index + 1),
+													];
+													fetchByPath(newPathList);
+													setPathsList(newPathList);
+												}}
+											>
+												{item}
+											</div>
+											{index < pathsList.length - 1 && (
+												<div style={{ fontSize: 10 }}>〉</div>
+											)}
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<div className="path-chain">
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setPathsList([]);
+											fetchFoldersList();
+										}}
+									>
+										<Home className="home-icon" />
+									</div>
+									<div style={{ fontSize: 10 }}>〉</div>
+								</div>
+								<div className="chain-hook">
+									<div
+										className="hook-name"
+										onClick={() => {
+											setIsModalOpen(true);
+										}}
+									>
+										...
+									</div>
+									<div style={{ fontSize: 10 }}>〉</div>
+								</div>
+								<div></div>
+								<div className="chain-hook">
+									<div className="hook-name">
+										{pathsList[pathsList.length - 1]}
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+
+					<div>
+						<div
+							className="tree-container"
+							style={{
+								overflowY: `${foldersLoading ? "hidden" : "auto"}`,
+							}}
+						>
 							{!foldersNotFound ? (
-								<Treebeard data={data} onToggle={onToggle} />
+								<div className="folders-list-container">
+									{currentFoldersList.length ? (
+										currentFoldersList?.map((item, index) => {
+											return (
+												<div
+													onClick={() => {
+														setIsRouteDirectory(false);
+														fetchByPath([...pathsList, item.name]);
+														setPathsList([...pathsList, item.name]);
+													}}
+													className="folder-card"
+												>
+													{item.name}
+												</div>
+											);
+										})
+									) : (
+										<div className="no-folders-error">Empty !</div>
+									)}
+									{isLoadMoreEnabled && (
+										<div className="load-more-button" onClick={loadMore}>
+											Show More ↓
+										</div>
+									)}
+								</div>
 							) : (
 								<div className="no-folders-error">
-									No folders found. Click{" "}
+									No folders found. Click
 									<span
 										onClick={() => {
 											openExternalURl(
@@ -272,66 +353,15 @@ function ImageUploader({
 										}}
 									>
 										Here
-									</span>{" "}
+									</span>
 									to create.
 								</div>
 							)}
 						</div>
-						{isLoadMoreEnabled && (
-							<div className="load-more-button" onClick={loadMore}>
-								Load More ↓
-							</div>
-						)}
-					</div>
-				) : null}
-
-				<div style={{ marginTop: 12 }}>
-					<div className="generic-text dropdown-label">
-						Selected folder's path
-					</div>
-					<div className="path-string">
-						{selectedPath || (
-							<span className="placeholder">path will be shown here ...</span>
-						)}
 					</div>
 				</div>
+
 				<div className="image-upload-form">
-					<>
-						<div
-							className="generic-text dropdown-label"
-							style={{ marginTop: 12 }}
-						>
-							Select Image *
-						</div>
-						<div className="dummy-file-input">
-							<div className="img-name">
-								{formValues.image !== null ? formValues.image?.name : ""}
-							</div>
-							<div
-								className="browse-btn"
-								onClick={() => inputRef.current?.click()}
-							>
-								Browse
-							</div>
-						</div>
-						<input
-							type="file"
-							id="imageUpload"
-							name="image"
-							ref={inputRef}
-							accept="image/*"
-							style={{ display: "none" }}
-							onChange={(event) => {
-								const { files }: { files: FileList } = event.target;
-								setFormValues({
-									...formValues,
-									image: files[0],
-									imageName: files[0].name,
-								});
-							}}
-							className="image-input"
-						/>
-					</>
 					<div className="tag-main-container">
 						<div className="generic-text dropdown-label">Tags</div>
 						<div className="dummy-file-input">
@@ -388,37 +418,23 @@ function ImageUploader({
 								: null}
 						</div>
 					</div>
-
-					<div className="checkbox-container">
-						<input
-							id="overwrite-sb"
-							type="checkbox"
-							checked={formValues.overwrite}
-							onChange={(e) => {
-								setFormValues({
-									...formValues,
-									overwrite: e.target.checked,
-								});
-							}}
-						/>
-						<div className="generic-text">Overwrite</div>
-					</div>
-					<div className="checkbox-container">
-						<input
-							id="overwrite-sb"
-							type="checkbox"
-							checked={formValues.filenameOverride}
-							onChange={(e) => {
-								setFormValues({
-									...formValues,
-									filenameOverride: e.target.checked,
-								});
-							}}
-						/>
-						<div className="generic-text">Filename Override</div>
-					</div>
 				</div>
 			</div>
+			{isStorageLinkVisible ? (
+				<div className="storage-link">
+					Click&nbsp;
+					<span
+						onClick={() => {
+							openExternalURl(
+								"https://console.pixelbin.io/choose-org?redirectTo=storage"
+							);
+						}}
+					>
+						Here
+					</span>
+					&nbsp;to go to storage.
+				</div>
+			) : null}
 			<div className={"api-key-btn-container space-between"}>
 				<div className="details-text" style={{ fontSize: 12 }}>
 					{Util.formatBytes(storageUsed || 0, 2)} of {`${totalStorage} GB used`}
@@ -428,11 +444,31 @@ function ImageUploader({
 					id="submit-token"
 					onClick={handleUpload}
 					className="button button--primary"
-					disabled={formValues.image === null || !selectedPath.length}
+					disabled={!imgUrl || !pathsList.length}
 				>
 					Upload
 				</button>
 			</div>
+			{isModalOpen ? (
+				<div ref={modalRef} className="list-modal">
+					{pathsList?.map((item, index) => {
+						return index > 0 && index < pathsList.length - 1 ? (
+							<div
+								onClick={() => {
+									setIsRouteDirectory(false);
+									const newPathList = [...pathsList.slice(0, index + 1)];
+									fetchByPath(newPathList);
+									setPathsList(newPathList);
+									setIsModalOpen(false);
+								}}
+								className="folder-card"
+							>
+								{item}
+							</div>
+						) : null;
+					})}
+				</div>
+			) : null}
 		</div>
 	);
 }
