@@ -50,6 +50,7 @@ function App() {
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
 	const [imgName, setImgName] = useState("");
+	const [transformationQueue, setTransformationQueue] = useState([]);
 	const {
 		INITIAL_CALL,
 
@@ -103,11 +104,11 @@ function App() {
 			);
 		}
 	}
-
 	window.onmessage = async (event) => {
 		const { data } = event;
 
 		if (data.pluginMessage.type === ON_SELECTION_CHANGE) {
+			setTransformationQueue([]);
 			if (data.pluginMessage.imageBytes === null) {
 				setImgUrl("");
 			} else {
@@ -171,17 +172,35 @@ function App() {
 	}
 
 	async function onTransformationApply(data) {
+		setTransformationQueue([...transformationQueue, data]);
 		setIsFormReEditing(false);
 		setIsLoading(true);
 		let t = null;
-		if (!data.op.params.length) {
-			t = eval(`${data.op.pluginName.split(" ").join("")}.${data.op.method}`)();
-		} else {
-			const { pluginName, method } = data.op;
-			t = eval(`${pluginName.split(" ").join("")}.${method}`)({
-				...data.selectedFormValues,
-			});
-		}
+		[...transformationQueue, data].forEach((item, index) => {
+			const { pluginName, method } = item.op;
+			if (index !== 0) {
+				//If its a not a first operation queue we have to pipe it
+				if (!item.op.params.length) {
+					t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
+				} else {
+					t = t.pipe(
+						eval(`${pluginName.split(" ").join("")}.${method}`)({
+							...item.selectedFormValues,
+						})
+					);
+				}
+			} else {
+				//If its a first operation queue
+				if (!item.op.params.length) {
+					t = eval(`${pluginName.split(" ").join("")}.${method}`)();
+				} else {
+					const { pluginName, method } = item.op;
+					t = eval(`${pluginName.split(" ").join("")}.${method}`)({
+						...item.selectedFormValues,
+					});
+				}
+			}
+		});
 
 		let name = `${uuidv4()}`;
 
@@ -281,7 +300,6 @@ function App() {
 
 	function handleTransformationClick(data: any) {
 		setCurrentOP({ ...data.op, pluginName: data.pluginName });
-		transformationsDrawerToggle();
 		setIsFormReEditing(false);
 		if (data.op.params.length) {
 			dynamicFormToggler();
