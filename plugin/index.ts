@@ -73,7 +73,10 @@ async function handleInitialSelection() {
 			let bytes = await image.getBytesAsync();
 			body.imageBytes = bytes;
 			body.imgName = node?.name?.replace(/ /g, "");
-			figma.ui.postMessage({ type: IS_TRANSFORMATION_APPLIED, value: false });
+			figma.ui.postMessage({
+				...body,
+				value: false,
+			});
 		}
 	}
 }
