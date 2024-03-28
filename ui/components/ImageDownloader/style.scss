@@ -180,6 +180,10 @@
 	animation: rotate 4s linear infinite; /* Adjust duration as needed */
 }
 
+.folder-without-child {
+	background-color: var(--figma-color-bg-brand);
+}
+
 @keyframes rotate {
 	from {
 		transform: rotate(0deg);
