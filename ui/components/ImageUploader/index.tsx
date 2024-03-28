@@ -79,6 +79,7 @@ function ImageUploader({
 	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
 	const [foldersLoading, setFoldersLoading] = useState(false);
 	const [isStorageLinkVisible, setIsStorageLinkVisisble] = useState(false);
+	const [selectedIndex, setSelectedIndex] = useState(-1);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -106,6 +107,7 @@ function ImageUploader({
 	}
 
 	async function fetchFoldersList() {
+		setSelectedIndex(-1);
 		setIsLoading(true);
 		try {
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
@@ -134,7 +136,7 @@ function ImageUploader({
 			const { items, page } = await apiInstance.next();
 			let temp = [
 				...currentFoldersList,
-				...(isRouteDirectory
+				...(!pathsList.length
 					? items.filter((item, index) => item.path === "")
 					: items),
 			];
@@ -147,7 +149,7 @@ function ImageUploader({
 		}
 	}
 
-	async function fetchByPath(list) {
+	async function fetchByPath(list, index = -1) {
 		setFoldersLoading(true);
 		try {
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
@@ -155,17 +157,26 @@ function ImageUploader({
 				path: list.join("/"),
 			});
 			setAPIInstance(temp);
+			let oldInstance = apiInstance;
 			const { items, page } = await temp.next();
+			if (!items.length) {
+				setFoldersLoading(false);
+				setSelectedIndex(index);
+				if (!list.length) setIsRouteDirectory(true);
+				setAPIInstance(oldInstance);
+				return;
+			}
+			setIsRouteDirectory(false);
+			setSelectedIndex(-1);
 			setIsLoadMoreEnabled(temp.hasNext());
 			setCurrrentFoldersList([...items]);
+			setPathsList([...list]);
 			setFoldersLoading(false);
-			return items;
 		} catch (err) {
 			setFoldersLoading(false);
 			showErrMessage();
 		}
 	}
-
 	async function handleUpload() {
 		try {
 			setIsLoading(true);
@@ -173,7 +184,10 @@ function ImageUploader({
 			const regex = /\/([^\/]+)$/;
 
 			let createSignedURlDetails = {
-				path: pathsList.join("/"),
+				path:
+					selectedIndex > -1
+						? [...pathsList, currentFoldersList[selectedIndex].name].join("/")
+						: pathsList.join("/"),
 				name: uuidv4(),
 				access: "public-read",
 				tags: [...formValues.tags],
@@ -187,7 +201,7 @@ function ImageUploader({
 
 			Pixelbin.upload(formValues.image as any, res.presignedUrl, uploadOptions)
 				.then(() => {
-					isUploadSuccess("Uploaded succesfully");
+					isUploadSuccess("Uploaded successfully");
 					setIsLoading(false);
 					setStorageDetails();
 					setIsStorageLinkVisisble(true);
@@ -261,7 +275,7 @@ function ImageUploader({
 													const newPathList = [
 														...pathsList.slice(0, index + 1),
 													];
-													fetchByPath(newPathList);
+													fetchByPath(newPathList, -1);
 													setPathsList(newPathList);
 												}}
 											>
@@ -323,11 +337,13 @@ function ImageUploader({
 											return (
 												<div
 													onClick={() => {
-														setIsRouteDirectory(false);
-														fetchByPath([...pathsList, item.name]);
-														setPathsList([...pathsList, item.name]);
+														fetchByPath([...pathsList, item.name], index);
 													}}
-													className="folder-card"
+													className={`folder-card ${
+														selectedIndex === index
+															? "folder-without-child"
+															: ""
+													}`}
 												>
 													{item.name}
 												</div>
@@ -444,7 +460,7 @@ function ImageUploader({
 					id="submit-token"
 					onClick={handleUpload}
 					className="button button--primary"
-					disabled={!imgUrl || !pathsList.length}
+					disabled={!imgUrl || (!pathsList.length && selectedIndex === -1)}
 				>
 					Upload
 				</button>
@@ -452,12 +468,12 @@ function ImageUploader({
 			{isModalOpen ? (
 				<div ref={modalRef} className="list-modal">
 					{pathsList?.map((item, index) => {
-						return index > 0 && index < pathsList.length - 1 ? (
+						return index < pathsList.length - 1 ? (
 							<div
 								onClick={() => {
 									setIsRouteDirectory(false);
 									const newPathList = [...pathsList.slice(0, index + 1)];
-									fetchByPath(newPathList);
+									fetchByPath(newPathList, -1);
 									setPathsList(newPathList);
 									setIsModalOpen(false);
 								}}

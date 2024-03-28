@@ -43,6 +43,7 @@ function ImageDownloader({
 	const [isRouteDirectory, setIsRouteDirectory] = useState(true);
 	const [currentIndex, setCurrentIndex] = useState(-1);
 	const [isDownLoadLoaderVisible, setIsDownLoadLoaderVisible] = useState(false);
+	const [selectedIndex, setSelectedIndex] = useState(-1);
 
 	let defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 		new PixelbinConfig({
@@ -75,6 +76,7 @@ function ImageDownloader({
 	}
 
 	async function fetchFoldersList() {
+		setSelectedIndex(-1);
 		try {
 			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
@@ -97,17 +99,27 @@ function ImageDownloader({
 		}
 	}
 
-	async function fetchByPath(list) {
+	async function fetchByPath(list, index) {
 		try {
 			setIsLoading(true);
+			let oldInstance = apiInstance;
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
 				onlyFolders: true,
 				path: list.join("/"),
 			});
 			setAPIInstance(temp);
+
 			const { items, page } = await temp.next();
+			if (!items.length) {
+				setSelectedIndex(index);
+				if (!list.length) setIsRouteDirectory(true);
+				setAPIInstance(oldInstance);
+				return;
+			}
+			setSelectedIndex(-1);
 			setIsLoadMoreEnabled(temp.hasNext());
 			setCurrrentFoldersList([...items]);
+			setPathsList([...list]);
 			setIsLoading(false);
 			return items;
 		} catch (err) {
@@ -155,6 +167,7 @@ function ImageDownloader({
 	}
 
 	async function searchFolder(val) {
+		setSelectedIndex(-1);
 		try {
 			setIsLoading(true);
 			let temp = await defaultPixelBinClient.assets.listFilesPaginator({
@@ -301,7 +314,8 @@ function ImageDownloader({
 													const newPathList = [
 														...pathsList.slice(0, index + 1),
 													];
-													fetchByPath(newPathList);
+													fetchByPath(newPathList, -1);
+													fetchImagesByPath(newPathList);
 													setPathsList(newPathList);
 												}}
 											>
@@ -343,7 +357,17 @@ function ImageDownloader({
 								</div>
 								<div></div>
 								<div className="chain-hook">
-									<div className="hook-name">
+									<div
+										className="hook-name"
+										onClick={() => {
+											const newPathList = [
+												...pathsList.slice(0, pathsList.length),
+											];
+											fetchByPath(newPathList, -1);
+											fetchImagesByPath(newPathList);
+											setPathsList(newPathList);
+										}}
+									>
 										{pathsList[pathsList.length - 1]}
 									</div>
 								</div>
@@ -359,11 +383,13 @@ function ImageDownloader({
 											<div
 												onClick={() => {
 													setIsRouteDirectory(false);
-													fetchByPath([...pathsList, item.name]);
-													setPathsList([...pathsList, item.name]);
+													fetchByPath([...pathsList, item.name], index);
+
 													fetchImagesByPath([...pathsList, item.name]);
 												}}
-												className="folder-card"
+												className={`folder-card ${
+													selectedIndex === index ? "folder-without-child" : ""
+												}`}
 											>
 												{item.name}
 											</div>
@@ -457,13 +483,13 @@ function ImageDownloader({
 			{isModalOpen ? (
 				<div ref={ref} className="list-modal">
 					{pathsList?.map((item, index) => {
-						return index > 0 && index < pathsList.length - 1 ? (
+						return index < pathsList.length - 1 ? (
 							<div
 								onClick={() => {
 									setIsRouteDirectory(false);
 									const newPathList = [...pathsList.slice(0, index + 1)];
-									fetchByPath(newPathList);
-									setPathsList(newPathList);
+									fetchByPath(newPathList, -1);
+									fetchImagesByPath(newPathList);
 									setIsModalOpen(false);
 								}}
 								className="folder-card"
