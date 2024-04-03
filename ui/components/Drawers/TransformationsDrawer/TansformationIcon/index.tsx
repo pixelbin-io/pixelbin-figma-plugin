@@ -54,10 +54,6 @@ function TansformationIcon({
 	isDisabled = false,
 	pluginTheme,
 }: iconProps) {
-	useEffect(() => {
-		console.log("Plugintheme");
-	}, [pluginTheme]);
-
 	return (
 		<div
 			className={`icon-container ${

@@ -361,7 +361,6 @@ function App() {
 	}, [tokenValue]);
 
 	useEffect(() => {
-		console.log("DIV");
 		var myDiv = document.getElementById("check_id");
 		var computedStyle = window.getComputedStyle(myDiv);
 		setPluginTheme(
