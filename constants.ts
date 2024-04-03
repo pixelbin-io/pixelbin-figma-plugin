@@ -88,3 +88,13 @@ export const uploadOptions = {
 	maxRetries: 1,
 	concurrency: 2,
 };
+
+export const modIconList = [
+	"blur",
+	"compress",
+	"extend",
+	"flip",
+	"flop",
+	"resize",
+	"sharpen",
+];

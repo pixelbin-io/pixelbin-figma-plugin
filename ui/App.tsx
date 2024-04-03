@@ -50,7 +50,12 @@ function App() {
 	const [seletedTabId, setSelectedTabId] = useState(1);
 	const [currentFigmaCmd, setCurrentFigmaCmd] = useState("");
 	const [imgName, setImgName] = useState("");
+	const [pluginTheme, setPluginTheme] = useState("light");
 	const [transformationQueue, setTransformationQueue] = useState([]);
+	const [imageNaturalDimensions, setImageNaturalDimensions] = useState({
+		height: 0,
+		width: 0,
+	});
 	const {
 		INITIAL_CALL,
 
@@ -340,12 +345,34 @@ function App() {
 	}
 
 	useEffect(() => {
+		const img = new Image();
+		img.src = imgUrl;
+		img.onload = function () {
+			setImageNaturalDimensions({
+				height: img.naturalHeight,
+				width: img.naturalWidth,
+			});
+		};
+	}, [imgUrl]);
+
+	useEffect(() => {
 		setCreditsDetails();
 		getOperations();
 	}, [tokenValue]);
 
+	useEffect(() => {
+		var myDiv = document.getElementById("check_id");
+		var computedStyle = window.getComputedStyle(myDiv);
+		setPluginTheme(
+			computedStyle.backgroundColor === "rgb(255, 255, 255)" ? "light" : "dark"
+		);
+	}, []);
+
 	return (
-		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
+		<div
+			id={"check_id"}
+			className={`main-container ${isLoading ? "hide-overflow" : ""}`}
+		>
 			{isTokenSaved && !isTokenEditOn ? (
 				<div className="main-ui-container">
 					{currentFigmaCmd === COMMANDS.OPEN_PIXELBIN_CMD && (
@@ -388,6 +415,8 @@ function App() {
 									toggler={transformationsDrawerToggle}
 									plugins={plugins}
 									handleTransformationClick={handleTransformationClick}
+									imageNaturalDimensions={imageNaturalDimensions}
+									pluginTheme={pluginTheme}
 								/>
 							)}
 							{isDynamicFormOpen && (
@@ -400,6 +429,7 @@ function App() {
 									tokenValue={tokenValue}
 									cloudName={cloudName}
 									setIsLoading={setIsLoading}
+									imageNaturalDimensions={imageNaturalDimensions}
 								/>
 							)}
 						</>
