@@ -35,6 +35,7 @@ interface formProps {
 	tokenValue: string;
 	cloudName: string;
 	setIsLoading: (val: boolean) => void;
+	imageNaturalDimensions;
 }
 
 function DynamicFormDrawer({
@@ -45,6 +46,7 @@ function DynamicFormDrawer({
 	tokenValue,
 	cloudName,
 	setIsLoading,
+	imageNaturalDimensions,
 }: formProps) {
 	const inputRef = useRef(null);
 	const colorRef = useRef(null);
@@ -192,11 +194,19 @@ function DynamicFormDrawer({
 											id={Util.camelCase(obj.name)}
 											value={formValues[Util.camelCase(obj.name)]}
 										>
-											{obj.enum.map((option, index) => (
-												<option key={index} value={option}>
-													{option}
+											{operation.displayName.toLowerCase() === "upscale" &&
+											(imageNaturalDimensions.height < 1123 ||
+												imageNaturalDimensions.width < 1123) ? (
+												<option key={0} value={obj.enum[0]}>
+													{obj.enum[0]}
 												</option>
-											))}
+											) : (
+												obj.enum.map((option, index) => (
+													<option key={index} value={option}>
+														{option}
+													</option>
+												))
+											)}
 										</select>
 									</div>
 								</div>

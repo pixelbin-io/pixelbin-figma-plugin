@@ -26,10 +26,14 @@
 		width: 24px;
 		height: 24px;
 		cursor: pointer;
-		background: rgba(120, 121, 140, 0.2);
 	}
 	.icon-desc {
 		font-size: 8px;
 		color: var(--figma-color-bg-inverse);
 	}
+}
+
+.disabled-transformation {
+	cursor: not-allowed;
+	opacity: 0.5;
 }

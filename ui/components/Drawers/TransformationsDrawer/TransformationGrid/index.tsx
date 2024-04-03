@@ -7,11 +7,15 @@ interface gridProps {
 	list: any;
 	handleTransformationClick: (op: any) => void;
 	searchedValue: string;
+	isUpscaleDisabled: boolean;
+	pluginTheme: string;
 }
 function TransformationGrid({
 	list,
 	searchedValue,
 	handleTransformationClick,
+	isUpscaleDisabled,
+	pluginTheme,
 }: gridProps) {
 	const [filteredList, setFilteredList] = useState([]);
 
@@ -48,6 +52,11 @@ function TransformationGrid({
 								<TansformationIcon
 									src={item.op.icon}
 									name={item.op.displayName}
+									isDisabled={
+										item.op.displayName.toLowerCase() === "upscale" &&
+										isUpscaleDisabled
+									}
+									pluginTheme={pluginTheme}
 								/>
 							</div>
 						);

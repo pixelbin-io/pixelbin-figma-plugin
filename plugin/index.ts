@@ -58,6 +58,8 @@ async function handleInitialSelection() {
 		imgName: "",
 	};
 
+	let theme = "light"; // Default theme is light
+
 	if (figma.currentPage.selection.length > 0) {
 		figma.ui.postMessage({
 			type: CHANGE_TAB_ID,

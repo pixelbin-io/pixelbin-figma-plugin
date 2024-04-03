@@ -9,6 +9,8 @@ interface drawerProps {
 	toggler: () => void;
 	plugins: any;
 	handleTransformationClick: (op: any) => void;
+	imageNaturalDimensions: any;
+	pluginTheme: string;
 }
 
 declare const Object: {
@@ -19,6 +21,8 @@ function TransformationsDrawer({
 	toggler,
 	plugins,
 	handleTransformationClick,
+	imageNaturalDimensions,
+	pluginTheme,
 }: drawerProps) {
 	const [aiTransformationList, setAiTransformationList] = useState([]);
 	const [basicTransformationsList, setBasicTransformationsList] = useState([]);
@@ -110,6 +114,11 @@ function TransformationsDrawer({
 				list={[...aiTransformationList, ...basicTransformationsList]}
 				handleTransformationClick={handleTransformationClick}
 				searchedValue={searchedValue}
+				isUpscaleDisabled={
+					imageNaturalDimensions.height > 1499 ||
+					imageNaturalDimensions.width > 1499
+				}
+				pluginTheme={pluginTheme}
 			/>
 		</div>
 	);
