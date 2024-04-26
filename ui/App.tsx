@@ -323,11 +323,11 @@ function App() {
 		if (loader) setIsLoading(true);
 		if (tokenValue && tokenValue !== null) {
 			try {
-				const newData = await defaultPixelBinClient.billing.getUsage();
-				const cu = newData.credits.used;
-				const cr = newData?.total?.credits;
-				setCreditUSed(cu);
-				setTotalCredit(cr);
+				const usage = await defaultPixelBinClient.billing.getUsageV2();
+				const creditUsed = usage.credits.used;
+				const totalCredits = usage?.credits.total;
+				setCreditUSed(creditUsed);
+				setTotalCredit(totalCredits);
 				if (loader) setIsLoading(false);
 			} catch (err) {
 				parent.postMessage(
