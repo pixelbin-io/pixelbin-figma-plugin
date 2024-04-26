@@ -97,9 +97,9 @@ function ImageUploader({
 	async function setStorageDetails() {
 		setIsLoading(true);
 		try {
-			const newData = await defaultPixelBinClient.billing.getUsage();
-			setStorageUSed(newData?.usage?.storage);
-			setTotalStorage(newData?.total.storage);
+			const usage = await defaultPixelBinClient.billing.getUsageV2();
+			setStorageUSed(usage?.storage?.used);
+			setTotalStorage(usage?.storage?.total);
 			setIsLoading(false);
 		} catch (err) {
 			setIsLoading(false);
