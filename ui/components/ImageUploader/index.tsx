@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./style.scss";
 import { ReactComponent as CloseIcon } from "../../../assets/close.svg";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { uploadOptions, EVENTS } from "../../../constants";
+import { uploadOptions, EVENTS, UTM_DETAILS } from "../../../constants";
 import Pixelbin from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Util } from "../../../util";
@@ -364,7 +364,7 @@ function ImageUploader({
 									<span
 										onClick={() => {
 											openExternalURl(
-												"https://console.pixelbin.io/choose-org?redirectTo=storage"
+												`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
 											);
 										}}
 									>
@@ -442,7 +442,7 @@ function ImageUploader({
 					<span
 						onClick={() => {
 							openExternalURl(
-								"https://console.pixelbin.io/choose-org?redirectTo=storage"
+								`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
 							);
 						}}
 					>

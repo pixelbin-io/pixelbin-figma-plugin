@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { PIXELBIN_CONSOLE_SETTINGS } from "../../../config";
-import { EVENTS } from "../../../constants";
+import { EVENTS, UTM_DETAILS } from "../../../constants";
 import "./style.scss";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
@@ -42,7 +42,9 @@ function TokenUI({
 					<span
 						className="link"
 						onClick={() => {
-							handleLinkClick(`${PIXELBIN_CONSOLE_SETTINGS}/apps`);
+							handleLinkClick(
+								`${PIXELBIN_CONSOLE_SETTINGS}/apps${UTM_DETAILS}`
+							);
 						}}
 					>
 						&nbsp;console.pixelbin.io
@@ -56,7 +58,9 @@ function TokenUI({
 					<span
 						className="link"
 						onClick={() => {
-							handleLinkClick(`${PIXELBIN_CONSOLE_SETTINGS}/apps`);
+							handleLinkClick(
+								`${PIXELBIN_CONSOLE_SETTINGS}/apps${UTM_DETAILS}`
+							);
 						}}
 					>
 						&nbsp;https://console.pixelbin.io/orga...

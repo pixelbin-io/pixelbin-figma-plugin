@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./style.scss";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { EVENTS } from "../../../constants";
+import { EVENTS, UTM_DETAILS } from "../../../constants";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
 import SearchBox from "../SearchBox";
@@ -410,7 +410,7 @@ function ImageDownloader({
 								<span
 									onClick={() => {
 										openExternalURl(
-											"https://console.pixelbin.io/choose-org?redirectTo=storage"
+											`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
 										);
 									}}
 								>
