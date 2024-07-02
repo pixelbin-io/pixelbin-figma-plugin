@@ -1,7 +1,7 @@
 import React from "react";
 import "./style.scss";
 import { PIXELBIN_CONSOLE_SETTINGS } from "../../../config";
-import { EVENTS } from "../../../constants";
+import { EVENTS, UTM_DETAILS } from "../../../constants";
 import { Util } from "../../../util";
 
 const { OPEN_EXTERNAL_URL } = EVENTS;
@@ -41,7 +41,7 @@ function CreditsUI({ creditUSed, totalCredit, orgId }: creditsProps) {
 			<div
 				onClick={() => {
 					handleLinkClick(
-						`https://console.pixelbin.io/organization/${orgId}/settings/billing/pricing`
+						`https://console.pixelbin.io/organization/${orgId}/settings/billing/pricing?${UTM_DETAILS}`
 					);
 				}}
 				className="buy-credits-btn"
