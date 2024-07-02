@@ -364,7 +364,7 @@ function ImageUploader({
 									<span
 										onClick={() => {
 											openExternalURl(
-												`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
+												`https://console.pixelbin.io/choose-org?redirectTo=storage&${UTM_DETAILS}`
 											);
 										}}
 									>
@@ -442,7 +442,7 @@ function ImageUploader({
 					<span
 						onClick={() => {
 							openExternalURl(
-								`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
+								`https://console.pixelbin.io/choose-org?redirectTo=storage&${UTM_DETAILS}`
 							);
 						}}
 					>

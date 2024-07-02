@@ -410,7 +410,7 @@ function ImageDownloader({
 								<span
 									onClick={() => {
 										openExternalURl(
-											`https://console.pixelbin.io/choose-org?redirectTo=storage${UTM_DETAILS}`
+											`https://console.pixelbin.io/choose-org?redirectTo=storage&${UTM_DETAILS}`
 										);
 									}}
 								>

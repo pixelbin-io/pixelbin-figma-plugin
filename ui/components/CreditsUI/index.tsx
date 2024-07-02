@@ -41,7 +41,7 @@ function CreditsUI({ creditUSed, totalCredit, orgId }: creditsProps) {
 			<div
 				onClick={() => {
 					handleLinkClick(
-						`https://console.pixelbin.io/organization/${orgId}/settings/billing/pricing${UTM_DETAILS}`
+						`https://console.pixelbin.io/organization/${orgId}/settings/billing/pricing?${UTM_DETAILS}`
 					);
 				}}
 				className="buy-credits-btn"
