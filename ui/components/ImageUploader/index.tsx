@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import "./style.scss";
 import { ReactComponent as CloseIcon } from "../../../assets/close.svg";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { uploadOptions, EVENTS, UTM_DETAILS } from "../../../constants";
+import {
+	uploadOptions,
+	EVENTS,
+	UTM_DETAILS,
+	INTEGRATION_PLATFORM,
+} from "../../../constants";
 import Pixelbin from "@pixelbin/core";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Util } from "../../../util";
@@ -37,6 +42,7 @@ function ImageUploader({
 		new PixelbinConfig({
 			domain: API_PIXELBIN_IO,
 			apiSecret: tokenValue,
+			integrationPlatform: INTEGRATION_PLATFORM,
 		})
 	);
 

@@ -18,6 +18,7 @@ import {
 	createSignedURlDetails,
 	uploadOptions,
 	COMMANDS,
+	INTEGRATION_PLATFORM,
 } from "./../../../../constants";
 
 const { NOTIFY_USER } = EVENTS;
@@ -120,6 +121,7 @@ function DynamicFormDrawer({
 		new PixelbinConfig({
 			domain: `${API_PIXELBIN_IO}`,
 			apiSecret: tokenValue,
+			integrationPlatform: INTEGRATION_PLATFORM,
 		})
 	);
 

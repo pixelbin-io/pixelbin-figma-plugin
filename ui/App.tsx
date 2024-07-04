@@ -7,6 +7,7 @@ import {
 	createSignedURlDetails,
 	uploadOptions,
 	COMMANDS,
+	INTEGRATION_PLATFORM,
 } from "./../constants";
 import "./styles/style.app.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
@@ -87,6 +88,7 @@ function App() {
 		new PixelbinConfig({
 			domain: `${API_PIXELBIN_IO}`,
 			apiSecret: tokenValue,
+			integrationPlatform: INTEGRATION_PLATFORM,
 		})
 	);
 
