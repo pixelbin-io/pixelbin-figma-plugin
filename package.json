@@ -1,6 +1,6 @@
 {
 	"name": "Pixelbin studio",
-	"version": "2.0.1",
+	"version": "13",
 	"description": "Figma Plugin Description",
 	"scripts": {
 		"plugin:tsc": "tsc -p plugin/tsconfig.json",

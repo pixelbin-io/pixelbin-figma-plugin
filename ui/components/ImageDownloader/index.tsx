@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./style.scss";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
-import { EVENTS, UTM_DETAILS, INTEGRATION_PLATFORM } from "../../../constants";
+import { EVENTS, UTM_DETAILS } from "../../../constants";
 import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
 import SearchBox from "../SearchBox";
 import { ReactComponent as Home } from "../../../assets/home.svg";
+import { Util } from "../../../util";
 
 interface downloadProps {
 	setIsLoading: (val: boolean) => void;
@@ -49,7 +50,7 @@ function ImageDownloader({
 		new PixelbinConfig({
 			domain: API_PIXELBIN_IO,
 			apiSecret: tokenValue,
-			integrationPlatform: INTEGRATION_PLATFORM,
+			integrationPlatform: Util.generateUserAgent(),
 		})
 	);
 
