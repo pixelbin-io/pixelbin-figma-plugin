@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { PdkAxios } from "@pixelbin/admin/common.js";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
+import { Util } from "./../util.ts";
 import {
 	EVENTS,
 	createSignedURlDetails,
@@ -58,7 +59,6 @@ function App() {
 	});
 	const {
 		INITIAL_CALL,
-
 		TOGGLE_LOADER,
 		IS_TOKEN_SAVED,
 		SAVE_TOKEN,
@@ -87,6 +87,7 @@ function App() {
 		new PixelbinConfig({
 			domain: `${API_PIXELBIN_IO}`,
 			apiSecret: tokenValue,
+			integrationPlatform: Util.generateUserAgent(),
 		})
 	);
 
@@ -95,6 +96,7 @@ function App() {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
+				console.log("TING TONG", data?.plugins);
 				setIsTransformationsDrawerOpen(true);
 			}
 		} catch (err) {

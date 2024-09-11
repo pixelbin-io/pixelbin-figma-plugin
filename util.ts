@@ -1,4 +1,10 @@
+import packageInfo from "./package.json";
+
 export class Util {
+	static generateUserAgent() {
+		return `PixelbinioPlugin/${packageInfo.version} (Figma)`;
+	}
+
 	// Function to add two numbers
 	static camelCase(str: string) {
 		return str

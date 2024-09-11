@@ -6,6 +6,7 @@ import { API_PIXELBIN_IO } from "../../../config";
 import { Treebeard } from "react-treebeard";
 import SearchBox from "../SearchBox";
 import { ReactComponent as Home } from "../../../assets/home.svg";
+import { Util } from "../../../util";
 
 interface downloadProps {
 	setIsLoading: (val: boolean) => void;
@@ -49,6 +50,7 @@ function ImageDownloader({
 		new PixelbinConfig({
 			domain: API_PIXELBIN_IO,
 			apiSecret: tokenValue,
+			integrationPlatform: Util.generateUserAgent(),
 		})
 	);
 
