@@ -5,6 +5,7 @@
 	"editorType": ["figma"],
 	"main": "dist/plugin/index.js",
 	"ui": "dist/ui/index.html",
+	"documentAccess": "dynamic-page",
 	"menu": [
 		{
 			"name": "Edit Image",
