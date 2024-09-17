@@ -88,7 +88,8 @@ function TransformationsDrawer({
 				.filter(
 					(item) =>
 						item.plugin.name !== "PdfWatermarkRemoval" &&
-						item.plugin.name !== "VideoWatermarkRemoval"
+						item.plugin.name !== "VideoWatermarkRemoval" &&
+						item.plugin.name !== "VariationGenerator"
 				)
 		);
 
