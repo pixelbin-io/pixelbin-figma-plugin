@@ -20,9 +20,7 @@ function TransformationGrid({
 	const [filteredList, setFilteredList] = useState([]);
 
 	useEffect(() => {
-		let x = list.filter(
-			(item, index) => item?.plugin?.operations[0]?.returnType !== "json"
-		);
+		let x = list.filter((item, index) => item?.op?.returnType !== "json");
 
 		if (searchedValue.length) {
 			let temp = x.filter((item) => {

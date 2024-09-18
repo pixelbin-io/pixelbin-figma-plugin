@@ -67,9 +67,12 @@ function TransformationsDrawer({
 		const identifierSequence = ["wm", "wmc", "erase", "sr"];
 
 		const transformationListObj = updatedTransformationList.reduce(
-			(acc, eachTransform) => {
+			(acc, eachTransform, index) => {
 				const identifier = eachTransform?.plugin?.identifier;
-				acc[identifier] = eachTransform;
+				if (!acc[identifier]) acc[identifier] = eachTransform;
+				else {
+					acc[`${identifier}${index}`];
+				}
 				return acc;
 			},
 			{}
