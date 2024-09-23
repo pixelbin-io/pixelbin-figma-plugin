@@ -100,3 +100,43 @@ export const modIconList = [
 	"resize",
 	"sharpen",
 ];
+
+export const allowedPlugins = {
+	wm: { identifier: "wm", operations: ["Watermark Remover"] },
+	erase: { identifier: "erase", operations: ["Erase BG"] },
+	sr: { identifier: "sr", operations: ["Upscale"] },
+	bg: { identifier: "bg", operations: ["AI BG Extender"] },
+	generate: {
+		identifier: "generate",
+		operations: ["AI Background Generator"],
+	},
+	shadow: { identifier: "shadow", operations: ["AI Shadow Generator"] },
+	af: { identifier: "af", operations: ["Artifact Removal"] },
+	ic: { identifier: "ic", operations: ["Intelligent Crop"] },
+	//below property t is for basic operations
+	t: {
+		identifier: "t",
+		operations: [
+			"Blur",
+			"Change DPI",
+			"compress",
+			"Extend",
+			"extract",
+			"flatten",
+			"Flip",
+			"Flop",
+			"Greyscale",
+			"Levels",
+			"Median",
+			"merge",
+			"Modulate",
+			"Negative",
+			"Normalize",
+			"Resize",
+			"Rotate",
+			"Sharpen",
+			"Tint",
+			"Trim",
+		],
+	},
+};

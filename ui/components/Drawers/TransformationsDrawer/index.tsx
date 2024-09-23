@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./style.scss";
 import Divider from "../../Divider";
-import { ReactComponent as CloseIcon } from "../../../../assets/close.svg";
 import SearchBox from "../../SearchBox";
 import TransformationGrid from "./TransformationGrid";
+import { allowedPlugins } from "../../../../constants";
 
 interface drawerProps {
 	toggler: () => void;
@@ -27,7 +27,6 @@ function TransformationsDrawer({
 	const [aiTransformationList, setAiTransformationList] = useState([]);
 	const [basicTransformationsList, setBasicTransformationsList] = useState([]);
 	const [searchedValue, setSearchedValue] = useState("");
-	const [tabID, setTabId] = useState("ai");
 
 	useEffect(() => {
 		filterTransformationList();
@@ -47,24 +46,29 @@ function TransformationsDrawer({
 		let aiTransformation = [];
 		let basicTransformations = [];
 
-		Object.entries(plugins).map(([, plugin]) => {
-			plugin.operations.map((op) => {
-				if (plugin?.name !== "Basic" && !plugin.credentials?.required)
-					return (aiTransformation = [...aiTransformation, { plugin, op }]);
-				else if (plugin?.name === "Basic") {
-					return (basicTransformations = [
-						...basicTransformations,
-						{ plugin, op },
-					]);
-				}
-			});
+		Object.entries(plugins).forEach(([_, plugin]) => {
+			if (allowedPlugins?.[plugin.identifier] !== undefined) {
+				plugin?.operations?.forEach((op) => {
+					if (
+						allowedPlugins?.[plugin?.identifier]?.operations?.includes(
+							op.displayName
+						)
+					) {
+						if (plugin?.name !== "Basic" && !plugin.credentials?.required)
+							aiTransformation = [...aiTransformation, { plugin, op }];
+						else if (plugin?.name === "Basic") {
+							basicTransformations = [...basicTransformations, { plugin, op }];
+						}
+					}
+				});
+			}
 		});
 
 		const updatedTransformationList =
 			sortTransformationByName(aiTransformation);
 
-		// the first four sequence is fixed for the AI transformation list
-		const identifierSequence = ["wm", "wmc", "erase", "sr"];
+		// the first three sequence is fixed for the AI transformation list
+		const identifierSequence = ["wm", "erase", "sr"];
 
 		const transformationListObj = updatedTransformationList.reduce(
 			(acc, eachTransform, index) => {
@@ -86,23 +90,12 @@ function TransformationsDrawer({
 		});
 
 		setAiTransformationList(
-			identifierSequence
-				.map((eachSequence) => transformationListObj[eachSequence])
-				.filter(
-					(item) =>
-						item.plugin.name !== "PdfWatermarkRemoval" &&
-						item.plugin.name !== "VideoWatermarkRemoval" &&
-						item.plugin.name !== "VariationGenerator"
-				)
-		);
-
-		setBasicTransformationsList(
-			sortTransformationByName(
-				basicTransformations.filter(
-					(item) => item.op.displayName !== "Change Format"
-				)
+			identifierSequence.map(
+				(eachSequence) => transformationListObj[eachSequence]
 			)
 		);
+
+		setBasicTransformationsList(sortTransformationByName(basicTransformations));
 	};
 
 	return (
