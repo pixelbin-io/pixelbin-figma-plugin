@@ -65,7 +65,7 @@ function DynamicFormDrawer({
 	function formSetter() {
 		let temp = { ...formValues };
 		operation.params.forEach((option, index) => {
-			const camelCaseName = Util.camelCase(option.name);
+			const camelCaseName = Util.camelCase(option.name || option.title);
 			temp[camelCaseName] = option.default;
 		});
 		setFormValues({ ...temp });
@@ -74,7 +74,7 @@ function DynamicFormDrawer({
 	function resetAll() {
 		let temp = { ...formValues };
 		operation.params.forEach((option, index) => {
-			const camelCaseName = Util.camelCase(option.name);
+			const camelCaseName = Util.camelCase(option.name || option.title);
 			temp[camelCaseName] = option.default;
 		});
 		setFormValues({ ...temp });
@@ -177,7 +177,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -189,11 +189,12 @@ function DynamicFormDrawer({
 											onChange={(e) => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: e.target.value,
+													[Util.camelCase(obj.name || obj.title)]:
+														e.target.value,
 												});
 											}}
-											id={Util.camelCase(obj.name)}
-											value={formValues[Util.camelCase(obj.name)]}
+											id={Util.camelCase(obj.name || obj.title)}
+											value={formValues[Util.camelCase(obj.name || obj.title)]}
 										>
 											{operation.displayName.toLowerCase() === "upscale" &&
 											(imageNaturalDimensions.height < 1123 ||
@@ -224,7 +225,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -239,14 +240,15 @@ function DynamicFormDrawer({
 											Select Color
 										</div>
 										<div className="color-pciker-div">
-											{formValues[Util.camelCase(obj.name)] === "00000000" ? (
+											{formValues[Util.camelCase(obj.name || obj.title)] ===
+											"00000000" ? (
 												<WaterdropSLash className="picker-icon" />
 											) : (
 												<div
 													className="color-box"
 													style={{
 														background: `#${
-															formValues[Util.camelCase(obj.name)]
+															formValues[Util.camelCase(obj.name || obj.title)]
 														}`,
 													}}
 												></div>
@@ -257,14 +259,12 @@ function DynamicFormDrawer({
 											id="colorPicker"
 											name="colorPicker"
 											ref={colorRef}
-											value={formValues[Util.camelCase(obj.name)]}
+											value={formValues[Util.camelCase(obj.name || obj.title)]}
 											onChange={(e) => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: e.target.value.replace(
-														"#",
-														""
-													),
+													[Util.camelCase(obj.name || obj.title)]:
+														e.target.value.replace("#", ""),
 												});
 											}}
 											style={{ display: "none" }}
@@ -277,13 +277,16 @@ function DynamicFormDrawer({
 								<div className="bool-wrapper">
 									<div className="checkbox-container">
 										<input
-											id={Util.camelCase(obj.name)}
+											id={Util.camelCase(obj.name || obj.title)}
 											type="checkbox"
-											checked={formValues[Util.camelCase(obj.name)]}
+											checked={
+												formValues[Util.camelCase(obj.name || obj.title)]
+											}
 											onChange={(e) => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: e.target.checked,
+													[Util.camelCase(obj.name || obj.title)]:
+														e.target.checked,
 												});
 											}}
 										/>
@@ -294,7 +297,7 @@ function DynamicFormDrawer({
 										onClick={() => {
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]: obj.default,
+												[Util.camelCase(obj.name || obj.title)]: obj.default,
 											});
 										}}
 									>
@@ -314,7 +317,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -327,7 +330,7 @@ function DynamicFormDrawer({
 										}`}
 										onClick={() => inputRef.current?.click()}
 									>
-										{formValues[Util.camelCase(obj.name)]
+										{formValues[Util.camelCase(obj.name || obj.title)]
 											? uploadedImageName
 											: "Browse Image"}
 									</div>
@@ -343,7 +346,7 @@ function DynamicFormDrawer({
 											let temp = await imageUpload(files[0]);
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]: btoa(temp),
+												[Util.camelCase(obj.name || obj.title)]: btoa(temp),
 											});
 										}}
 										className="image-input"
@@ -362,7 +365,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -393,7 +396,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -426,7 +429,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -435,13 +438,13 @@ function DynamicFormDrawer({
 									</div>
 									<input
 										className="text-input-box"
-										id={Util.camelCase(obj.name)}
+										id={Util.camelCase(obj.name || obj.title)}
 										type="text"
-										value={formValues[Util.camelCase(obj.name)]}
+										value={formValues[Util.camelCase(obj.name || obj.title)]}
 										onChange={(e) => {
 											setFormValues({
 												...formValues,
-												[Util.camelCase(obj.name)]: e.target.value,
+												[Util.camelCase(obj.name || obj.title)]: e.target.value,
 											});
 										}}
 									/>
@@ -460,7 +463,7 @@ function DynamicFormDrawer({
 											onClick={() => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: obj.default,
+													[Util.camelCase(obj.name || obj.title)]: obj.default,
 												});
 											}}
 										>
@@ -481,20 +484,24 @@ function DynamicFormDrawer({
 												onChange={(e) => {
 													setFormValues({
 														...formValues,
-														[Util.camelCase(obj.name)]: e.target.value,
+														[Util.camelCase(obj.name || obj.title)]:
+															e.target.value,
 													});
 												}}
-												value={formValues[Util.camelCase(obj.name)]}
+												value={
+													formValues[Util.camelCase(obj.name || obj.title)]
+												}
 											/>
 										</div>
 										<input
 											className="slider-text-input"
 											type="text"
-											value={formValues[Util.camelCase(obj.name)]}
+											value={formValues[Util.camelCase(obj.name || obj.title)]}
 											onChange={(e) => {
 												setFormValues({
 													...formValues,
-													[Util.camelCase(obj.name)]: e.target.value,
+													[Util.camelCase(obj.name || obj.title)]:
+														e.target.value,
 												});
 											}}
 										/>
