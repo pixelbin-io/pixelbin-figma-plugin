@@ -3,7 +3,11 @@ import "./style.scss";
 import Divider from "../../Divider";
 import SearchBox from "../../SearchBox";
 import TransformationGrid from "./TransformationGrid";
-import { allowedPlugins } from "../../../../constants";
+import {
+	allowedPlugins,
+	identifierSequence,
+	basic_identifier,
+} from "./constants";
 
 interface drawerProps {
 	toggler: () => void;
@@ -47,16 +51,19 @@ function TransformationsDrawer({
 		let basicTransformations = [];
 
 		Object.entries(plugins).forEach(([_, plugin]) => {
-			if (allowedPlugins?.[plugin.identifier] !== undefined) {
+			if (allowedPlugins?.[plugin.identifier]) {
 				plugin?.operations?.forEach((op) => {
 					if (
 						allowedPlugins?.[plugin?.identifier]?.operations?.includes(
 							op.displayName
 						)
 					) {
-						if (plugin?.name !== "Basic" && !plugin.credentials?.required)
+						if (
+							plugin?.name !== basic_identifier &&
+							!plugin.credentials?.required
+						)
 							aiTransformation = [...aiTransformation, { plugin, op }];
-						else if (plugin?.name === "Basic") {
+						else if (plugin?.name === basic_identifier) {
 							basicTransformations = [...basicTransformations, { plugin, op }];
 						}
 					}
@@ -68,7 +75,6 @@ function TransformationsDrawer({
 			sortTransformationByName(aiTransformation);
 
 		// the first three sequence is fixed for the AI transformation list
-		const identifierSequence = ["wm", "erase", "sr"];
 
 		const transformationListObj = updatedTransformationList.reduce(
 			(acc, eachTransform, index) => {
