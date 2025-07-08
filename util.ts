@@ -42,6 +42,7 @@ export class Util {
 	}
 
 	static abbreviateNumber(number = 0) {
+		if (number === 0) return 0;
 		number = Math.round(number);
 
 		const SI_SYMBOL = ["", "K", "M", "G", "T", "P", "E"];
