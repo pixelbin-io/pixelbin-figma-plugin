@@ -31,6 +31,8 @@ Figma Plugin for [PixelBin.io](PixelBin.io), it helps users remove watermark fro
     1> In operations where we need to draw boxes over an image , we are allowing user to draw boxes on smaller image shown in our plugin , but while saving those values we multiplying the co-ordinates with origin height and width of image so that correct selected region of image reflects on actual image also.
     2> We are fetching transformations list from "defaultPixelBinClient.assets.getModules()" from "@pixelbin/admin" and for passing the list of plugins to "@pixelbin/core" we are camel casing the names of transformations
 
+    Note : Need to update `Version` in package.json everytime before publishing a new version.
+
 **Clone Repository**:
 
     git clone https://github.com/pixelbin-dev/erasebg-figma-plugin.git

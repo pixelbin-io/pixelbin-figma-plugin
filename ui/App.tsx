@@ -91,24 +91,27 @@ function App() {
 		})
 	);
 
+	function showCommonErr() {
+		parent.postMessage(
+			{
+				pluginMessage: {
+					type: NOTIFY_USER,
+					value: "Something went wrong",
+				},
+			},
+			"*"
+		);
+	}
+
 	async function getOperations() {
 		try {
 			if (tokenValue) {
 				let data = await defaultPixelBinClient.assets.getModules();
 				setPlugins(data?.plugins);
-				console.log("TING TONG", data?.plugins);
 				setIsTransformationsDrawerOpen(true);
 			}
 		} catch (err) {
-			parent.postMessage(
-				{
-					pluginMessage: {
-						type: NOTIFY_USER,
-						value: "Something went wrong",
-					},
-				},
-				"*"
-			);
+			showCommonErr();
 		}
 	}
 	window.onmessage = async (event) => {
@@ -183,31 +186,44 @@ function App() {
 		setIsFormReEditing(false);
 		setIsLoading(true);
 		let t = null;
-		[...transformationQueue, data].forEach((item, index) => {
-			const { pluginName, method } = item.op;
-			if (index !== 0) {
-				//If its a not a first operation queue we have to pipe it
-				if (!item.op.params.length) {
-					t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
+		try {
+			[...transformationQueue, data].forEach((item, index) => {
+				const { pluginName, method } = item.op;
+				if (index !== 0) {
+					//If its a not a first operation queue we have to pipe it
+					if (!item.op.params.length) {
+						t = t.pipe(eval(`${pluginName.split(" ").join("")}.${method}`)());
+					} else {
+						t = t.pipe(
+							eval(`${pluginName.split(" ").join("")}.${method}`)({
+								...item.selectedFormValues,
+							})
+						);
+					}
 				} else {
-					t = t.pipe(
-						eval(`${pluginName.split(" ").join("")}.${method}`)({
+					//If its a first operation queue
+					if (!item.op.params.length) {
+						t = eval(`${pluginName.split(" ").join("")}.${method}`)();
+					} else {
+						const { pluginName, method } = item.op;
+						t = eval(`${pluginName.split(" ").join("")}.${method}`)({
 							...item.selectedFormValues,
-						})
-					);
+						});
+					}
 				}
-			} else {
-				//If its a first operation queue
-				if (!item.op.params.length) {
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)();
-				} else {
-					const { pluginName, method } = item.op;
-					t = eval(`${pluginName.split(" ").join("")}.${method}`)({
-						...item.selectedFormValues,
-					});
-				}
-			}
-		});
+			});
+		} catch (error) {
+			setIsLoading(false);
+			showCommonErr();
+			setTransformationQueue((prevQueue) => {
+				// Remove the last item from the queue
+				const newQueue = [...prevQueue];
+				newQueue.pop();
+				return newQueue;
+			});
+			setIsDynamicFormOpen(false);
+			return; // Return early to stop further execution
+		}
 
 		let name = `${uuidv4()}`;
 
@@ -445,34 +461,14 @@ function App() {
 							imgUrl={imgUrl}
 							imageBytes={imageBytes}
 							imgName={imgName}
-							showErrMessage={() => {
-								parent.postMessage(
-									{
-										pluginMessage: {
-											type: NOTIFY_USER,
-											value: "Something Went wrong!",
-										},
-									},
-									"*"
-								);
-							}}
+							showErrMessage={showCommonErr}
 						/>
 					)}
 					{currentFigmaCmd === COMMANDS.DOWNLOAD_CMD && (
 						<ImageDownloader
 							setIsLoading={setIsLoading}
 							tokenValue={tokenValue}
-							showErrMessage={() => {
-								parent.postMessage(
-									{
-										pluginMessage: {
-											type: NOTIFY_USER,
-											value: "Something Went wrong!",
-										},
-									},
-									"*"
-								);
-							}}
+							showErrMessage={showCommonErr}
 						/>
 					)}
 				</div>
